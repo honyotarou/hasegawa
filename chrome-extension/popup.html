@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>診療記録くん</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600&display=swap");
+
+      :root {
+        --bg-app: #fdf8f4;
+        --bg-header: #2d2520;
+        --bg-toolbar: #fdf0e8;
+        --bg-table: #fffaf7;
+        --bg-row-alt: #fdf4ee;
+        --bg-row-hov: #fef3e8;
+        --bg-input: #fffcf9;
+        --bg-filled: #f0faf8;
+        --accent: #0d9488;
+        --accent-lt: #ccfbf1;
+        --accent-dk: #0f766e;
+        --accent-glow: rgba(13, 148, 136, 0.15);
+        --text-primary: #292118;
+        --text-secondary: #7c6a5e;
+        --text-muted: #b5a49a;
+        --border: #ede3da;
+        --border-lt: #f5ede6;
+        --danger: #dc6444;
+        --success: #0d9488;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 480px;
+        height: 600px;
+        overflow: auto;
+        font-family: "Noto Sans JP", sans-serif;
+        background: var(--bg-app);
+        color: var(--text-primary);
+      }
+
+      .shell {
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background: var(--bg-header);
+        color: #fff;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      header .title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 6px var(--accent-glow);
+      }
+
+      .screen {
+        display: none;
+        padding: 12px;
+      }
+
+      #app[data-screen="SETUP"] #screen-setup,
+      #app[data-screen="MAIN"] #screen-main,
+      #app[data-screen="CONFIRM"] #screen-confirm,
+      #app[data-screen="DONE"] #screen-done,
+      #app[data-screen="SETTINGS"] #screen-settings {
+        display: block;
+      }
+
+      button {
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        padding: 8px 12px;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+      }
+
+      .note {
+        color: var(--text-secondary);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="shell" data-screen="SETUP">
+      <header>
+        <div class="title"><span class="dot"></span>診療記録くん</div>
+        <div class="note">設定</div>
+      </header>
+
+      <section id="screen-setup" class="screen">
+        <h2>初回設定</h2>
+        <p class="note">GAS URL / secret / 社員番号 / 診断名マスタを保存してください。</p>
+      </section>
+
+      <section id="screen-main" class="screen">
+        <h2>メイン入力</h2>
+        <p class="note">ChatGPTから患者一覧を取得し、リハ有無を全件入力してください。</p>
+      </section>
+
+      <section id="screen-confirm" class="screen">
+        <h2>送信確認</h2>
+        <p class="note">送信前に内容を確認します。</p>
+      </section>
+
+      <section id="screen-done" class="screen">
+        <h2>送信完了</h2>
+        <p class="note">送信成功後に表示されます。</p>
+      </section>
+
+      <section id="screen-settings" class="screen">
+        <h2>設定</h2>
+        <p class="note">本番/開発URLとシークレットを編集します。</p>
+      </section>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "診療記録くん",
+  "description": "電子カルテの患者一覧からリハビリ率を自動集計するツール",
+  "version": "1.0.0",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
+}
