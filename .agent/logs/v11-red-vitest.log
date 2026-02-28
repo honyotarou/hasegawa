@@ -1,0 +1,859 @@
+
+> shinryo-kiroku-kun@1.0.0 test
+> vitest run
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/apple/Documents/GitHub/hasegawa/chrome-extension
+
+ ❯ __tests__/sendBatch.test.ts  (11 tests | 11 failed) 8ms
+   ❯ __tests__/sendBatch.test.ts > sendBatch > 正常送信で success:true を返す
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > batchId なしでエラーを throw する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > patients 空配列でエラーを throw する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > diagnoses は6要素に補完される
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > clientRecordId は batchId_index で生成される
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > timestamp は1秒ずつオフセットされる
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > selectedDate を使ってローカル日付で送信する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > 30秒タイムアウトで AbortError を throw する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > GASがHTMLを返した場合は意味のあるエラーを throw する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > GAS success:false はそのまま返す
+     → expected undefined to be type of 'function'
+   ❯ __tests__/sendBatch.test.ts > sendBatch > fetchオプションに redirect:follow を設定する
+     → expected undefined to be type of 'function'
+ ❯ __tests__/extractPatients.test.ts  (14 tests | 14 failed) 13ms
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre>code に配列JSONがある場合に抽出できる
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > code 単体から抽出できる
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre 単体から抽出できる
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > 同一グループに複数ブロックがある場合は末尾を採用する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > グループ優先順は pre>code を優先する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre>code が無い場合 code 群の末尾を採用する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > JSONが存在しない場合は失敗する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > 空配列は失敗する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=0 は失敗する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=150 は成功する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=1.5 は失敗する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > gender=男 は 男性 に正規化される
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > gender=female は その他 に正規化される
+     → expected undefined to be type of 'function'
+   ❯ __tests__/extractPatients.test.ts > extractPatientsFromDOM > 壊れたJSONがある場合は同グループの次候補へ進む
+     → expected undefined to be type of 'function'
+ ❯ __tests__/hooks/useAppState.test.ts  (2 tests | 2 failed) 4ms
+   ❯ __tests__/hooks/useAppState.test.ts > useAppState > session snapshot を復元できる
+     → expected undefined to be type of 'function'
+   ❯ __tests__/hooks/useAppState.test.ts > useAppState > diagnosis 未入力がある場合 canSubmit=false
+     → expected undefined to be type of 'function'
+ ❯ __tests__/screens/DoneScreen.test.tsx  (1 test | 1 failed) 3ms
+   ❯ __tests__/screens/DoneScreen.test.tsx > DoneScreen > written/skipped/batchId を表示する
+     → expected undefined to be type of 'function'
+ ❯ __tests__/App.test.tsx  (2 tests | 2 failed) 4ms
+   ❯ __tests__/App.test.tsx > App > 未設定時は SETUP 画面を表示する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/App.test.tsx > App > 設定済み時は MAIN 画面を表示する
+     → expected undefined to be type of 'function'
+ ❯ __tests__/screens/ConfirmScreen.test.tsx  (1 test | 1 failed) 4ms
+   ❯ __tests__/screens/ConfirmScreen.test.tsx > ConfirmScreen > 戻るボタン押下で MAIN へ戻る dispatch が呼ばれる
+     → expected undefined to be type of 'function'
+ ❯ __tests__/components/DiagDropdown.test.tsx  (1 test | 1 failed) 4ms
+   ❯ __tests__/components/DiagDropdown.test.tsx > DiagDropdown > 候補クリックで onChange を呼ぶ
+     → expected undefined to be type of 'function'
+ ❯ __tests__/components/RehabToggle.test.tsx  (1 test | 1 failed) 3ms
+   ❯ __tests__/components/RehabToggle.test.tsx > RehabToggle > あり/なしクリックで onChange が呼ばれる
+     → expected undefined to be type of 'function'
+ ❯ __tests__/screens/SetupScreen.test.tsx  (1 test | 1 failed) 3ms
+   ❯ __tests__/screens/SetupScreen.test.tsx > SetupScreen > 必須項目未入力で保存するとエラー表示する
+     → expected undefined to be type of 'function'
+ ❯ __tests__/screens/MainScreen.test.tsx  (5 tests | 5 failed) 4ms
+   ❯ __tests__/screens/MainScreen.test.tsx > MainScreen > 全員入力済みなら送信ボタンが有効
+     → expected undefined to be type of 'function'
+   ❯ __tests__/screens/MainScreen.test.tsx > MainScreen > 診断名未入力がある場合は送信ボタンが無効
+     → expected undefined to be type of 'function'
+   ❯ __tests__/screens/MainScreen.test.tsx > MainScreen > gasUrlDev が空なら mode toggle を表示しない
+     → expected undefined to be type of 'function'
+   ❯ __tests__/screens/MainScreen.test.tsx > MainScreen > gasUrlDev があるなら mode toggle を表示する
+     → expected undefined to be type of 'function'
+   ❯ __tests__/screens/MainScreen.test.tsx > MainScreen > 次の未選択へボタンで scrollIntoView を呼ぶ
+     → expected undefined to be type of 'function'
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 39 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/App.test.tsx > App > 未設定時は SETUP 画面を表示する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/App.test.tsx:20:17
+     18|     setupChromeStorage({}, {});
+     19|     const App = (appModule as any).App;
+     20|     expect(App).toBeTypeOf('function');
+       |                 ^
+     21| 
+     22|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  __tests__/App.test.tsx > App > 設定済み時は MAIN 画面を表示する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/App.test.tsx:38:17
+     36|     );
+     37|     const App = (appModule as any).App;
+     38|     expect(App).toBeTypeOf('function');
+       |                 ^
+     39| 
+     40|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre>code に配列JSONがある場合に抽出できる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:18:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > code 単体から抽出できる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:30:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre 単体から抽出できる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:42:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > 同一グループに複数ブロックがある場合は末尾を採用する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:57:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > グループ優先順は pre>code を優先する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:72:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > pre>code が無い場合 code 群の末尾を採用する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:87:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > JSONが存在しない場合は失敗する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:99:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > 空配列は失敗する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:111:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=0 は失敗する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:123:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=150 は成功する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:135:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > age=1.5 は失敗する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:147:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > gender=男 は 男性 に正規化される
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:159:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > gender=female は その他 に正規化される
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:171:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  __tests__/extractPatients.test.ts > extractPatientsFromDOM > 壊れたJSONがある場合は同グループの次候補へ進む
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ runWithDom __tests__/extractPatients.test.ts:8:19
+      6|   document.body.innerHTML = html;
+      7|   const extract = (extractModule as any).extractPatientsFromDOM;
+      8|   expect(extract).toBeTypeOf('function');
+       |                   ^
+      9|   return extract();
+     10| }
+ ❯ __tests__/extractPatients.test.ts:186:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > 正常送信で success:true を返す
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:36:16
+     34|     // Given
+     35|     const fn = (sendBatchModule as any).sendBatch;
+     36|     expect(fn).toBeTypeOf('function');
+       |                ^
+     37|     const state = createState();
+     38|     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > batchId なしでエラーを throw する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:50:16
+     48|     // Given
+     49|     const fn = (sendBatchModule as any).sendBatch;
+     50|     expect(fn).toBeTypeOf('function');
+       |                ^
+     51|     const state = createState({ currentBatchId: null });
+     52| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > patients 空配列でエラーを throw する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:63:16
+     61|     // Given
+     62|     const fn = (sendBatchModule as any).sendBatch;
+     63|     expect(fn).toBeTypeOf('function');
+       |                ^
+     64|     const state = createState({ patients: [] });
+     65| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > diagnoses は6要素に補完される
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:76:16
+     74|     // Given
+     75|     const fn = (sendBatchModule as any).sendBatch;
+     76|     expect(fn).toBeTypeOf('function');
+       |                ^
+     77|     const state = createState();
+     78|     const fetchMock = vi.fn().mockResolvedValue({ text: async () => JS…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > clientRecordId は batchId_index で生成される
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:92:16
+     90|     // Given
+     91|     const fn = (sendBatchModule as any).sendBatch;
+     92|     expect(fn).toBeTypeOf('function');
+       |                ^
+     93|     const state = createState({
+     94|       patients: [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > timestamp は1秒ずつオフセットされる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:115:16
+    113|     // Given
+    114|     const fn = (sendBatchModule as any).sendBatch;
+    115|     expect(fn).toBeTypeOf('function');
+       |                ^
+    116|     vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-02-28T09:00:0…
+    117|     const state = createState({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > selectedDate を使ってローカル日付で送信する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:138:16
+    136|     // Given
+    137|     const fn = (sendBatchModule as any).sendBatch;
+    138|     expect(fn).toBeTypeOf('function');
+       |                ^
+    139|     const state = createState({ selectedDate: '2026-03-01' });
+    140|     const fetchMock = vi.fn().mockResolvedValue({ text: async () => JS…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > 30秒タイムアウトで AbortError を throw する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:154:16
+    152|     // Given
+    153|     const fn = (sendBatchModule as any).sendBatch;
+    154|     expect(fn).toBeTypeOf('function');
+       |                ^
+    155|     vi.useFakeTimers();
+    156|     vi.stubGlobal('fetch', vi.fn().mockImplementation((_url, init: Req…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > GASがHTMLを返した場合は意味のあるエラーを throw する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:173:16
+    171|     // Given
+    172|     const fn = (sendBatchModule as any).sendBatch;
+    173|     expect(fn).toBeTypeOf('function');
+       |                ^
+    174|     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () …
+    175| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > GAS success:false はそのまま返す
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:186:16
+    184|     // Given
+    185|     const fn = (sendBatchModule as any).sendBatch;
+    186|     expect(fn).toBeTypeOf('function');
+       |                ^
+    187|     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () …
+    188| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/39]⎯
+
+ FAIL  __tests__/sendBatch.test.ts > sendBatch > fetchオプションに redirect:follow を設定する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/sendBatch.test.ts:200:16
+    198|     // Given
+    199|     const fn = (sendBatchModule as any).sendBatch;
+    200|     expect(fn).toBeTypeOf('function');
+       |                ^
+    201|     const fetchMock = vi.fn().mockResolvedValue({ text: async () => JS…
+    202|     vi.stubGlobal('fetch', fetchMock);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/39]⎯
+
+ FAIL  __tests__/components/DiagDropdown.test.tsx > DiagDropdown > 候補クリックで onChange を呼ぶ
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/components/DiagDropdown.test.tsx:11:26
+      9|     // Given
+     10|     const DiagDropdown = (moduleDiag as any).DiagDropdown;
+     11|     expect(DiagDropdown).toBeTypeOf('function');
+       |                          ^
+     12|     const onChange = vi.fn();
+     13| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/39]⎯
+
+ FAIL  __tests__/components/RehabToggle.test.tsx > RehabToggle > あり/なしクリックで onChange が呼ばれる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/components/RehabToggle.test.tsx:11:25
+      9|     // Given
+     10|     const RehabToggle = (moduleToggle as any).RehabToggle;
+     11|     expect(RehabToggle).toBeTypeOf('function');
+       |                         ^
+     12|     const onChange = vi.fn();
+     13| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/39]⎯
+
+ FAIL  __tests__/hooks/useAppState.test.ts > useAppState > session snapshot を復元できる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/hooks/useAppState.test.ts:9:18
+      7|     // Given
+      8|     const hook = (appStateModule as any).useAppState;
+      9|     expect(hook).toBeTypeOf('function');
+       |                  ^
+     10|     const chromeAny = (globalThis as any).chrome;
+     11|     chromeAny.storage.session.get = vi.fn().mockResolvedValue({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/39]⎯
+
+ FAIL  __tests__/hooks/useAppState.test.ts > useAppState > diagnosis 未入力がある場合 canSubmit=false
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/hooks/useAppState.test.ts:36:18
+     34|     // Given
+     35|     const hook = (appStateModule as any).useAppState;
+     36|     expect(hook).toBeTypeOf('function');
+       |                  ^
+     37|     const chromeAny = (globalThis as any).chrome;
+     38|     chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/39]⎯
+
+ FAIL  __tests__/screens/ConfirmScreen.test.tsx > ConfirmScreen > 戻るボタン押下で MAIN へ戻る dispatch が呼ばれる
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/ConfirmScreen.test.tsx:11:27
+      9|     // Given
+     10|     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+     11|     expect(ConfirmScreen).toBeTypeOf('function');
+       |                           ^
+     12|     const dispatch = vi.fn();
+     13| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/39]⎯
+
+ FAIL  __tests__/screens/DoneScreen.test.tsx > DoneScreen > written/skipped/batchId を表示する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/DoneScreen.test.tsx:10:24
+      8|     // Given
+      9|     const DoneScreen = (moduleDone as any).DoneScreen;
+     10|     expect(DoneScreen).toBeTypeOf('function');
+       |                        ^
+     11| 
+     12|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/39]⎯
+
+ FAIL  __tests__/screens/MainScreen.test.tsx > MainScreen > 全員入力済みなら送信ボタンが有効
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/MainScreen.test.tsx:33:24
+     31|     // Given
+     32|     const MainScreen = (moduleMain as any).MainScreen;
+     33|     expect(MainScreen).toBeTypeOf('function');
+       |                        ^
+     34| 
+     35|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/39]⎯
+
+ FAIL  __tests__/screens/MainScreen.test.tsx > MainScreen > 診断名未入力がある場合は送信ボタンが無効
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/MainScreen.test.tsx:45:24
+     43|     // Given
+     44|     const MainScreen = (moduleMain as any).MainScreen;
+     45|     expect(MainScreen).toBeTypeOf('function');
+       |                        ^
+     46| 
+     47|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/39]⎯
+
+ FAIL  __tests__/screens/MainScreen.test.tsx > MainScreen > gasUrlDev が空なら mode toggle を表示しない
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/MainScreen.test.tsx:63:24
+     61|     // Given
+     62|     const MainScreen = (moduleMain as any).MainScreen;
+     63|     expect(MainScreen).toBeTypeOf('function');
+       |                        ^
+     64| 
+     65|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/39]⎯
+
+ FAIL  __tests__/screens/MainScreen.test.tsx > MainScreen > gasUrlDev があるなら mode toggle を表示する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/MainScreen.test.tsx:75:24
+     73|     // Given
+     74|     const MainScreen = (moduleMain as any).MainScreen;
+     75|     expect(MainScreen).toBeTypeOf('function');
+       |                        ^
+     76| 
+     77|     // When
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/39]⎯
+
+ FAIL  __tests__/screens/MainScreen.test.tsx > MainScreen > 次の未選択へボタンで scrollIntoView を呼ぶ
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/MainScreen.test.tsx:92:24
+     90|     // Given
+     91|     const MainScreen = (moduleMain as any).MainScreen;
+     92|     expect(MainScreen).toBeTypeOf('function');
+       |                        ^
+     93|     const spy = vi.fn();
+     94|     Element.prototype.scrollIntoView = spy;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/39]⎯
+
+ FAIL  __tests__/screens/SetupScreen.test.tsx > SetupScreen > 必須項目未入力で保存するとエラー表示する
+AssertionError: expected undefined to be type of 'function'
+
+- Expected
++ Received
+
+- function
++ undefined
+
+ ❯ __tests__/screens/SetupScreen.test.tsx:11:25
+      9|     // Given
+     10|     const SetupScreen = (moduleSetup as any).SetupScreen;
+     11|     expect(SetupScreen).toBeTypeOf('function');
+       |                         ^
+     12|     const saveSettings = vi.fn();
+     13|     const goToScreen = vi.fn();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/39]⎯
+
+ Test Files  10 failed (10)
+      Tests  39 failed (39)
+   Start at  11:43:57
+   Duration  693ms (transform 146ms, setup 530ms, collect 765ms, tests 50ms, environment 3.87s, prepare 520ms)
+
