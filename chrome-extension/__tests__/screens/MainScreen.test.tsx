@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import * as moduleMain from '../../src/popup/screens/MainScreen';
@@ -104,5 +104,74 @@ describe('MainScreen', () => {
 
     // Then
     expect(spy).toHaveBeenCalled();
+  });
+
+  test('ChatGPTから取得が失敗した場合はSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.tabs.query = vi.fn().mockResolvedValue([{ id: 99 }]);
+    chromeAny.scripting.executeScript = vi.fn().mockResolvedValue([
+      { result: { success: false, error: 'JSONが見つかりません' } },
+    ]);
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    await userEvent.click(screen.getByRole('button', { name: 'ChatGPTから取得' }));
+
+    // Then
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({
+        type: 'SUBMIT_ERROR',
+        error: 'JSONが見つかりません',
+      });
+    });
+  });
+
+  test('ChatGPTから取得が成功した場合はSET_PATIENTSをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.tabs.query = vi.fn().mockResolvedValue([{ id: 99 }]);
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.scripting.executeScript = vi.fn().mockResolvedValue([
+      { result: { success: true, patients: [{ age: 72, gender: '男性' }] } },
+    ]);
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    await userEvent.click(screen.getByRole('button', { name: 'ChatGPTから取得' }));
+
+    // Then
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalled();
+    });
+    const call = dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SET_PATIENTS');
+    expect(call).toBeTruthy();
+    expect(call[0].patients).toEqual([
+      { age: 72, gender: '男性', diagnoses: [''], rehab: null, remarks: '' },
+    ]);
+  });
+
+  test('日付変更でSET_DATEをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    fireEvent.change(screen.getByLabelText('selected-date'), {
+      target: { value: '2026-03-01' },
+    });
+
+    // Then
+    expect(dispatch).toHaveBeenCalled();
+    const call = dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SET_DATE');
+    expect(call).toBeTruthy();
   });
 });

@@ -83,15 +83,16 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
   if (!sheet) throw new Error('マスターシートが見つかりません');
 
   const lastRow = sheet.getLastRow();
-  let existingHashes = [];
+  let existingHashes = new Set();
   if (lastRow > 1) {
     const checkFrom = Math.max(2, lastRow - CONFIG.RECENT_HASH_LIMIT + 1);
     const checkCount = lastRow - checkFrom + 1;
-    existingHashes = sheet
+    const loadedHashes = sheet
       .getRange(checkFrom, 2, checkCount, 1)
       .getValues()
       .flat()
       .map(String);
+    existingHashes = new Set(loadedHashes);
   }
 
   const rowsToWrite = [];
@@ -102,7 +103,7 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
     const normalized = item.normalized;
     const hashKey = simpleHash(entry.clientRecordId).toString();
 
-    if (existingHashes.includes(hashKey)) {
+    if (existingHashes.has(hashKey)) {
       skipped.push(index);
       return;
     }
@@ -124,7 +125,7 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
       normalized.rehab, // N
       normalized.remarks, // O
     ]);
-    existingHashes.push(hashKey);
+    existingHashes.add(hashKey);
   });
 
   if (rowsToWrite.length > 0) {

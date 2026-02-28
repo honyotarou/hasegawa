@@ -1,4 +1,5 @@
 import React from 'react';
+import { extractPatientsFromDOM } from '../../content/extractPatients';
 import type { AppState, Patient } from '../../types';
 import { PatientRow } from '../components/PatientRow';
 import { ModeToggle } from '../components/ModeToggle';
@@ -47,7 +48,7 @@ export function MainScreen({
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id!, allFrames: false },
-      func: () => ({ success: false, error: 'not implemented in test env' }),
+      func: extractPatientsFromDOM,
     });
 
     const result = results[0].result as any;

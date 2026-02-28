@@ -15,5 +15,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./__tests__/setup.ts'],
+    include: ['__tests__/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['e2e/**', 'dist/**'],
+    coverage: {
+      exclude: ['**/vite.config.ts', 'bench/**', 'e2e/**', 'dist/**'],
+    },
   },
 });
