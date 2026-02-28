@@ -1,0 +1,13 @@
+
+> shinryo-kiroku-kun@1.0.0 build
+> vite build
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+vite v5.4.21 building for production...
+transforming...
+✓ 44 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/popup.html                  0.32 kB │ gzip:  0.26 kB
+dist/assets/popup-ym7pljym.js  154.94 kB │ gzip: 50.31 kB
+✓ built in 255ms

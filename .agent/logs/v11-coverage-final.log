@@ -1,0 +1,63 @@
+
+> shinryo-kiroku-kun@1.0.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v1.6.1 /Users/apple/Documents/GitHub/hasegawa/chrome-extension
+      Coverage enabled with v8
+
+ ✓ __tests__/sendBatch.test.ts  (11 tests) 8ms
+ ✓ __tests__/extractPatients.test.ts  (14 tests) 31ms
+ ✓ __tests__/screens/DoneScreen.test.tsx  (2 tests) 21ms
+ ✓ __tests__/App.routes.test.tsx  (3 tests) 60ms
+ ✓ __tests__/hooks/useAppState.test.ts  (3 tests) 68ms
+ ✓ __tests__/App.test.tsx  (2 tests) 32ms
+ ✓ __tests__/components/DiagDropdown.test.tsx  (2 tests) 87ms
+ ✓ __tests__/hooks/useStorage.test.ts  (2 tests) 120ms
+ ✓ __tests__/hooks/useDiagnosis.test.ts  (2 tests) 120ms
+ ✓ __tests__/screens/ConfirmScreen.test.tsx  (5 tests) 125ms
+ ✓ __tests__/components/PatientRow.test.tsx  (1 test) 129ms
+ ✓ __tests__/screens/MainScreen.test.tsx  (8 tests) 143ms
+ ✓ __tests__/screens/SetupScreen.test.tsx  (2 tests) 202ms
+ ✓ __tests__/main.test.tsx  (2 tests) 29ms
+ ✓ __tests__/screens/SettingsScreen.test.tsx  (1 test) 90ms
+ ✓ __tests__/components/Header.test.tsx  (1 test) 46ms
+ ✓ __tests__/components/ModeToggle.test.tsx  (1 test) 55ms
+ ✓ __tests__/components/RehabToggle.test.tsx  (1 test) 54ms
+
+ Test Files  18 passed (18)
+      Tests  63 passed (63)
+   Start at  13:11:37
+   Duration  1.32s (transform 298ms, setup 1.25s, collect 1.48s, tests 1.42s, environment 5.78s, prepare 1.25s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   95.05 |    91.26 |   83.05 |   95.05 |                   
+ chrome-extension  |       0 |        0 |       0 |       0 |                   
+  ...ght.config.ts |       0 |        0 |       0 |       0 | 1-25              
+ ...-extension/src |     100 |    93.75 |     100 |     100 |                   
+  sendBatch.ts     |     100 |    93.75 |     100 |     100 | 72                
+ ...on/src/content |   93.75 |     82.6 |     100 |   93.75 |                   
+  ...ctPatients.ts |   93.75 |     82.6 |     100 |   93.75 | 19-20,23-24       
+ ...sion/src/popup |   98.57 |    94.44 |     100 |   98.57 |                   
+  App.tsx          |   98.24 |    94.11 |     100 |   98.24 | 55                
+  main.tsx         |     100 |      100 |     100 |     100 |                   
+ ...pup/components |   99.39 |    93.93 |     100 |   99.39 |                   
+  DiagDropdown.tsx |     100 |      100 |     100 |     100 |                   
+  Header.tsx       |   95.65 |    33.33 |     100 |   95.65 | 19                
+  ModeToggle.tsx   |     100 |      100 |     100 |     100 |                   
+  PatientRow.tsx   |     100 |      100 |     100 |     100 |                   
+  RehabToggle.tsx  |     100 |      100 |     100 |     100 |                   
+ ...rc/popup/hooks |   95.85 |    89.09 |     100 |   95.85 |                   
+  useAppState.ts   |   93.58 |    80.64 |     100 |   93.58 | ...62,65,68,81,94 
+  useDiagnosis.ts  |     100 |      100 |     100 |     100 |                   
+  useStorage.ts    |     100 |      100 |     100 |     100 |                   
+ .../popup/screens |   97.68 |       95 |   68.96 |   97.68 |                   
+  ...irmScreen.tsx |   98.75 |    78.57 |     100 |   98.75 | 58                
+  DoneScreen.tsx   |     100 |      100 |     100 |     100 |                   
+  MainScreen.tsx   |   94.69 |      100 |   55.55 |   94.69 | 29-35             
+  ...ngsScreen.tsx |     100 |      100 |      50 |     100 |                   
+  SetupScreen.tsx  |     100 |      100 |   85.71 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

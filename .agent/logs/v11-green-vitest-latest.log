@@ -1,0 +1,23 @@
+
+> shinryo-kiroku-kun@1.0.0 test
+> vitest run
+
+
+ RUN  v1.6.1 /Users/apple/Documents/GitHub/hasegawa/chrome-extension
+
+ ✓ __tests__/sendBatch.test.ts  (11 tests) 7ms
+ ✓ __tests__/extractPatients.test.ts  (14 tests) 21ms
+ ✓ __tests__/screens/DoneScreen.test.tsx  (1 test) 15ms
+ ✓ __tests__/App.test.tsx  (2 tests) 27ms
+ ✓ __tests__/hooks/useAppState.test.ts  (2 tests) 63ms
+ ✓ __tests__/screens/ConfirmScreen.test.tsx  (1 test) 51ms
+ ✓ __tests__/screens/SetupScreen.test.tsx  (1 test) 55ms
+ ✓ __tests__/components/RehabToggle.test.tsx  (1 test) 59ms
+ ✓ __tests__/components/DiagDropdown.test.tsx  (1 test) 56ms
+ ✓ __tests__/screens/MainScreen.test.tsx  (5 tests) 82ms
+
+ Test Files  10 passed (10)
+      Tests  39 passed (39)
+   Start at  11:53:29
+   Duration  598ms (transform 161ms, setup 369ms, collect 665ms, tests 436ms, environment 2.39s, prepare 475ms)
+
