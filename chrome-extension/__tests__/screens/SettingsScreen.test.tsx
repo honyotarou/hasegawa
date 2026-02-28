@@ -1,0 +1,40 @@
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { describe, expect, test, vi } from 'vitest';
+import { SettingsScreen } from '../../src/popup/screens/SettingsScreen';
+
+describe('SettingsScreen', () => {
+  test('保存で設定を保存しMAINへ戻る', async () => {
+    // Given
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+    const goToScreen = vi.fn();
+
+    const { container, getByRole } = render(
+      <SettingsScreen
+        storage={{
+          settings: {
+            gasUrlProd: 'https://prod',
+            gasUrlDev: 'https://dev',
+            doctorId: '123',
+            diagnosisMaster: ['腰痛'],
+          },
+          apiSecret: 'secret',
+          saveSettings,
+        }}
+        goToScreen={goToScreen}
+      />,
+    );
+
+    const fields = container.querySelectorAll('input, textarea');
+
+    // When
+    await userEvent.clear(fields[0]);
+    await userEvent.type(fields[0], 'https://prod2');
+    await userEvent.click(getByRole('button', { name: '保存' }));
+
+    // Then
+    expect(saveSettings).toHaveBeenCalledTimes(1);
+    expect(goToScreen).toHaveBeenCalledWith('MAIN');
+  });
+});

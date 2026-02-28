@@ -27,4 +27,21 @@ describe('DoneScreen', () => {
     expect(screen.getByText(/スキップ/)).toBeInTheDocument();
     expect(screen.getByText(/batchId/)).toBeInTheDocument();
   });
+
+  test('resultがnullなら送信完了文言を表示する', () => {
+    // Given
+    const DoneScreen = (moduleDone as any).DoneScreen;
+    expect(DoneScreen).toBeTypeOf('function');
+
+    // When
+    render(
+      React.createElement(DoneScreen, {
+        result: null,
+        dispatch: vi.fn(),
+      }),
+    );
+
+    // Then
+    expect(screen.getByText('送信完了')).toBeInTheDocument();
+  });
 });

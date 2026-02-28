@@ -53,4 +53,34 @@ describe('useAppState', () => {
     expect(result.current.canSubmit).toBe(false);
     expect(result.current.pendingDiag).toBe(1);
   });
+
+  test('SUBMIT_SUCCESSでDONE遷移しsnapshotを削除する', async () => {
+    // Given
+    const hook = (appStateModule as any).useAppState;
+    expect(hook).toBeTypeOf('function');
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.storage.session.remove = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => hook());
+
+    // When
+    act(() => {
+      result.current.dispatch({
+        type: 'SUBMIT_SUCCESS',
+        result: {
+          written: 1,
+          skipped: 0,
+          submittedAt: '2026/02/28',
+          batchId: 'b1',
+        },
+      });
+    });
+
+    // Then
+    await waitFor(() => {
+      expect(result.current.state.screen).toBe('DONE');
+    });
+    expect(chromeAny.storage.session.remove).toHaveBeenCalledWith('inputSnapshot');
+  });
 });

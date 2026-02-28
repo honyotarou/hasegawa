@@ -20,4 +20,24 @@ describe('SetupScreen', () => {
     expect(screen.getByText(/必須|入力/)).toBeInTheDocument();
     expect(saveSettings).not.toHaveBeenCalled();
   });
+
+  test('必須項目を入力して保存するとMAINへ遷移する', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+    const goToScreen = vi.fn();
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen }));
+    await userEvent.type(screen.getByLabelText('gasUrlProd'), 'https://prod');
+    await userEvent.type(screen.getByLabelText('doctorId'), '12345');
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).toHaveBeenCalledTimes(1);
+    expect(goToScreen).toHaveBeenCalledWith('MAIN');
+  });
 });
