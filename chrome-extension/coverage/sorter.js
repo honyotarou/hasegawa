@@ -101,7 +101,7 @@ var addSorting = (function() {
             col = cols[i];
             val = colNode.getAttribute('data-value');
             if (col.type === 'number') {
-                val = Number(val);
+                val = val !== null ? Number(val) : NaN;
             }
             data[col.key] = val;
         }

@@ -24,7 +24,7 @@ pre {
     tab-size: 2;
 }
 a { color:#0074D9; text-decoration:none; }
-a:hover { text-decoration:underline; }
+a:hover, a:focus { text-decoration:underline; outline: none; }
 .strong { font-weight: bold; }
 .space-top1 { padding: 10px 0 0 0; }
 .pad2y { padding: 20px 0; }
@@ -108,7 +108,7 @@ table.coverage td span.cline-any {
     position: relative;
     padding: 0 4px;
     background: #ccc;
-    color: white;
+    color: #333;
 }
 .missing-if-branch .typ, .skip-if-branch .typ {
     color: inherit !important;
@@ -162,7 +162,7 @@ table.coverage td span.cline-any {
   background: #C21F39 !important;
 }
 /* medium red */
-.cstat-no, .fstat-no, .cbranch-no, .cbranch-no { background:#F6C6CE }
+.cstat-no, .fstat-no, .cbranch-no { background:#F6C6CE }
 /* light red */
 .low, .cline-no { background:#FCE1E5 }
 /* light green */

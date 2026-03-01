@@ -54,6 +54,9 @@ export function sendBatch(
       });
 
       const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
+      }
       let data: GasResponse;
       try {
         data = JSON.parse(text) as GasResponse;

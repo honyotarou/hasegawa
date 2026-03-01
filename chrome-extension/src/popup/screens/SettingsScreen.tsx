@@ -19,20 +19,27 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
   );
   const [secret, setSecret] = useState(storage.apiSecret);
 
+  const [error, setError] = useState('');
+
   async function handleSave() {
-    await storage.saveSettings(
-      {
-        gasUrlProd,
-        gasUrlDev,
-        doctorId,
-        diagnosisMaster: diagnosisMasterText
-          .split(/\r?\n/)
-          .map((line) => line.trim())
-          .filter(Boolean),
-      },
-      secret,
-    );
-    goToScreen('MAIN');
+    try {
+      setError('');
+      await storage.saveSettings(
+        {
+          gasUrlProd,
+          gasUrlDev,
+          doctorId,
+          diagnosisMaster: diagnosisMasterText
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean),
+        },
+        secret,
+      );
+      goToScreen('MAIN');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '保存に失敗しました');
+    }
   }
 
   return (

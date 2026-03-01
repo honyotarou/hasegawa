@@ -40,8 +40,10 @@ describe('SetupScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
 
     // Then
-    expect(saveSettings).toHaveBeenCalledTimes(1);
-    expect(goToScreen).toHaveBeenCalledWith('MAIN');
+    await waitFor(() => {
+      expect(saveSettings).toHaveBeenCalledTimes(1);
+      expect(goToScreen).toHaveBeenCalledWith('MAIN');
+    });
   });
 
   test('URL形式が不正な場合は保存せずエラー表示する', async () => {

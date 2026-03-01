@@ -6,7 +6,11 @@ const CONFIG = {
 };
 
 function setupSecret() {
-  PropertiesService.getScriptProperties().setProperty('API_SECRET', 'YOUR_SECRET_HERE');
+  const secret = 'YOUR_SECRET_HERE';
+  if (secret === 'YOUR_SECRET_HERE') {
+    throw new Error('API_SECRET must be changed from the placeholder before setup');
+  }
+  PropertiesService.getScriptProperties().setProperty('API_SECRET', secret);
 }
 
 function doPost(e) {
@@ -343,10 +347,16 @@ function ageBandSortKey(label) {
 }
 
 function getMonthlySheetName(prefix) {
-  const ym = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMM');
-  return prefix + '_' + ym;
+function createDailyTrigger() {
+  // Remove existing mainFlow triggers first
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === 'mainFlow') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  // atHour(14) は 14:00〜15:00 のどこかで実行（分はランダム）
+  ScriptApp.newTrigger('mainFlow').timeBased().everyDays(1).atHour(14).create();
 }
-
 function createDailyTrigger() {
   // atHour(14) は 14:00〜15:00 のどこかで実行（分はランダム）
   ScriptApp.newTrigger('mainFlow').timeBased().everyDays(1).atHour(14).create();

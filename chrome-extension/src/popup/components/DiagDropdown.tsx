@@ -25,8 +25,8 @@ export function DiagDropdown({ value, top5, rest, onChange }: DiagDropdownProps)
       />
       <div>選択中: {value || '未選択'}</div>
       <div>
-        {options.map((name) => (
-          <button key={name} type="button" onClick={() => onChange(name)}>
+        {options.map((name, idx) => (
+          <button key={`${name}-${idx}`} type="button" onClick={() => onChange(name)}>
             {name}
           </button>
         ))}

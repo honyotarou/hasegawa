@@ -90,8 +90,27 @@ describe('MainScreen', () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
-    const spy = vi.fn();
-    Element.prototype.scrollIntoView = spy;
+   test('次の未選択へボタンで scrollIntoView を呼ぶ', async () => {
+     // Given
+     const MainScreen = (moduleMain as any).MainScreen;
+     expect(MainScreen).toBeTypeOf('function');
+     const spy = vi.fn();
+     const originalScrollIntoView = Element.prototype.scrollIntoView;
+     Element.prototype.scrollIntoView = spy;
+
+     // When
+     render(
+       React.createElement(
+         MainScreen,
+         baseProps({ pendingCount: 1, pendingRehab: 1, canSubmit: false }),
+       ),
+     );
+     await userEvent.click(screen.getByRole('button', { name: /次の未選択へ/ }));
+
+     // Then
+     expect(spy).toHaveBeenCalled();
+     Element.prototype.scrollIntoView = originalScrollIntoView;
+   });
 
     // When
     render(

@@ -15,9 +15,11 @@ export function DoneScreen({ result }: DoneScreenProps) {
         <div>※ {result.skipped}件は重複のためスキップされました</div>
       ) : null}
       <div>次の患者リストを取得するには「ChatGPTから取得」を押してください</div>
-      <div>
-        {result?.submittedAt} batchId: {result?.batchId?.slice(0, 8)}...
-      </div>
+      {result ? (
+        <div>
+          {result.submittedAt} batchId: {result.batchId?.slice(0, 8)}...
+        </div>
+      ) : null}
     </section>
   );
 }

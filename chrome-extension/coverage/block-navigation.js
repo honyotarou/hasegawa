@@ -22,19 +22,24 @@ var jumpToCode = (function init() {
     var currentIndex;
 
     function toggleClass(index) {
-        missingCoverageElements
-            .item(currentIndex)
-            .classList.remove('highlighted');
+        if (typeof currentIndex === 'number') {
+            missingCoverageElements
+                .item(currentIndex)
+                .classList.remove('highlighted');
+        }
         missingCoverageElements.item(index).classList.add('highlighted');
-    }
-
     function makeCurrent(index) {
+        if (missingCoverageElements.length === 0) {
+            return;
+        }
         toggleClass(index);
         currentIndex = index;
         missingCoverageElements.item(index).scrollIntoView({
             behavior: 'smooth',
             block: 'center',
             inline: 'center'
+        });
+    }
         });
     }
 

@@ -45,7 +45,7 @@ body {
   margin: 0 0 6px;
   font-size: 44px;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.01em;
 }
 
@@ -111,6 +111,12 @@ body {
   background: #fff8f4;
 }
 
+.setup-secondary-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
 .setup-primary-btn {
   width: 100%;
   margin-top: 14px;
@@ -127,6 +133,22 @@ body {
 
 .setup-primary-btn:hover {
   background: var(--accent-dk);
+}
+
+.setup-primary-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 2px 6px rgba(13, 148, 136, 0.25);
+}
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+}
+
+.setup-primary-btn:hover {
+  background: var(--accent-dk);
+}
+
+.setup-primary-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 2px 6px rgba(13, 148, 136, 0.25);
 }
 
 .setup-error {
