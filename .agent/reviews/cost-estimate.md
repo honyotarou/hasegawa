@@ -1,5 +1,7 @@
 # Cost Estimate (ActiveUser 100人ごと)
 
+最終確認日: 2026-03-01
+
 ## Pricing / Quota Sources
 - Google Apps Script quotas:
   - https://developers.google.com/apps-script/guides/services/quotas

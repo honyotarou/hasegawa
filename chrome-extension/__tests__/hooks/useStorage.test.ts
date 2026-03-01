@@ -61,4 +61,23 @@ describe('useStorage', () => {
     });
     expect(chromeAny.storage.session.set).toHaveBeenCalledWith({ apiSecret: 'secret2' });
   });
+
+  test('初期ロード失敗時もisLoaded=trueでフォールバックする', async () => {
+    // Given
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.local.get = vi.fn().mockRejectedValue(new Error('load failed'));
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // When
+    const { result } = renderHook(() => useStorage());
+
+    // Then
+    await waitFor(() => {
+      expect(result.current.isLoaded).toBe(true);
+    });
+    expect(result.current.isConfigured).toBe(false);
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
 });

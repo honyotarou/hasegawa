@@ -3,8 +3,10 @@
 ## Compared Repositories
 1. `Jonghakseo/chrome-extension-boilerplate-react-vite`
 - Local: `/tmp/oss-chrome-react-vite`
+- Checked commit: `6fde1ac`
 2. `GoogleChrome/chrome-extensions-samples`
 - Local: `/tmp/oss-chrome-extensions-samples`
+- Checked commit: `4ffe03c`
 
 ## Observations
 

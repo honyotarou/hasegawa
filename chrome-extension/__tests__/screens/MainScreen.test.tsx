@@ -202,4 +202,41 @@ describe('MainScreen', () => {
     const call = dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SET_DATE');
     expect(call).toBeTruthy();
   });
+
+  test('年齢入力変更でUPDATE_PATIENTをdispatchする', () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    fireEvent.change(screen.getByLabelText('age-0'), { target: { value: '55' } });
+
+    // Then
+    const call = dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'UPDATE_PATIENT');
+    expect(call).toBeTruthy();
+    expect(call[0]).toEqual({ type: 'UPDATE_PATIENT', index: 0, patch: { age: 55 } });
+  });
+
+  test('タブ取得処理で例外時はSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.tabs.query = vi.fn().mockRejectedValue(new Error('query failed'));
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    await userEvent.click(screen.getByRole('button', { name: 'ChatGPTから取得' }));
+
+    // Then
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({
+        type: 'SUBMIT_ERROR',
+        error: 'query failed',
+      });
+    });
+  });
 });

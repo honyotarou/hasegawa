@@ -37,4 +37,33 @@ describe('SettingsScreen', () => {
     expect(saveSettings).toHaveBeenCalledTimes(1);
     expect(goToScreen).toHaveBeenCalledWith('MAIN');
   });
+
+  test('保存失敗時は画面遷移しない', async () => {
+    // Given
+    const saveSettings = vi.fn().mockRejectedValue(new Error('save failed'));
+    const goToScreen = vi.fn();
+
+    const { getByRole } = render(
+      <SettingsScreen
+        storage={{
+          settings: {
+            gasUrlProd: 'https://prod',
+            gasUrlDev: 'https://dev',
+            doctorId: '123',
+            diagnosisMaster: ['腰痛'],
+          },
+          apiSecret: 'secret',
+          saveSettings,
+        }}
+        goToScreen={goToScreen}
+      />,
+    );
+
+    // When
+    await userEvent.click(getByRole('button', { name: '保存' }));
+
+    // Then
+    expect(saveSettings).toHaveBeenCalledTimes(1);
+    expect(goToScreen).not.toHaveBeenCalled();
+  });
 });

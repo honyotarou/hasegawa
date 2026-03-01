@@ -42,4 +42,43 @@ describe('useDiagnosis', () => {
       diagnosisCount: { 腰痛: 2, 肩痛: 1 },
     });
   });
+
+  test('diagnosisCountの読み込み失敗時はエラーをログ出力する', async () => {
+    // Given
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.local.get = vi.fn().mockRejectedValue(new Error('load failed'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // When
+    renderHook(() => useDiagnosis(['腰痛', '肩痛']));
+
+    // Then
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalled();
+    });
+    errorSpy.mockRestore();
+  });
+
+  test('incrementCounts保存失敗時もstate更新しつつエラーログを出す', async () => {
+    // Given
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.local.get = vi.fn().mockResolvedValue({ diagnosisCount: { 腰痛: 1 } });
+    chromeAny.storage.local.set = vi.fn().mockRejectedValue(new Error('set failed'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useDiagnosis(['腰痛', '肩痛']));
+    await waitFor(() => {
+      expect(result.current.counts.腰痛).toBe(1);
+    });
+
+    // When
+    await act(async () => {
+      await result.current.incrementCounts(['肩痛']);
+    });
+
+    // Then
+    expect(result.current.counts.肩痛).toBe(1);
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
 });

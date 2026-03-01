@@ -16,6 +16,11 @@
   - 日次バックアップ（CSV export / Drive複製）
   - 破損時の復旧Runbook整備
 
+4. Low: クライアント側ストレージ失敗時はログのみで復旧導線が弱い
+- Current: `console.error` で握りつぶし
+- Recommendation:
+  - status領域に「セッション保存失敗」警告を出し、再読込/再入力導線を追加
+
 ## Capacity / Quota
 - Apps Scriptは同時実行や実行時間上限あり（詳細は cost-estimate.md 参照）。
 - 100 Active Users規模は通常運用で吸収可能だが、ピーク時の同時送信に備えて:

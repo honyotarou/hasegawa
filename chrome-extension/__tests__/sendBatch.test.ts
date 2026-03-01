@@ -207,4 +207,36 @@ describe('sendBatch', () => {
     // Then
     expect(fetchMock.mock.calls[0][1].redirect).toBe('follow');
   });
+
+  test('res.ok=false のHTTPエラーは throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 502, text: async () => 'bad gateway' }),
+    );
+
+    // When
+    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('HTTP 502');
+  });
+
+  test('ok未定義でもstatus>=400ならHTTPエラーをthrowする', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ status: 500, text: async () => 'server error' }),
+    );
+
+    // When
+    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('HTTP 500');
+  });
 });
