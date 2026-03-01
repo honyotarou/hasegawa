@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import type { AppSettings, Screen } from '../../types';
-<<<<<<< HEAD
 import styles from '../app.module.css';
-=======
->>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
 
 type SetupScreenProps = {
   storage: {
@@ -20,7 +17,6 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
   const [doctorId, setDoctorId] = useState(storage.settings?.doctorId || '');
   const [masterText, setMasterText] = useState((storage.settings?.diagnosisMaster || []).join('\n'));
   const [secret, setSecret] = useState(storage.apiSecret || '');
-<<<<<<< HEAD
   const [showSecret, setShowSecret] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,17 +31,12 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
     }
   }
 
-=======
-  const [error, setError] = useState('');
-
->>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
   async function handleSave() {
     const diagnosisMaster = masterText
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 
-<<<<<<< HEAD
     const prod = gasUrlProd.trim();
     const dev = gasUrlDev.trim();
     const doc = doctorId.trim();
@@ -85,28 +76,12 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
         diagnosisMaster,
       },
       sec,
-=======
-    if (!gasUrlProd.trim() || !doctorId.trim() || !secret.trim() || diagnosisMaster.length === 0) {
-      setError('必須項目を入力してください');
-      return;
-    }
-
-    await storage.saveSettings(
-      {
-        gasUrlProd: gasUrlProd.trim(),
-        gasUrlDev: gasUrlDev.trim(),
-        doctorId: doctorId.trim(),
-        diagnosisMaster,
-      },
-      secret.trim(),
->>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
     );
 
     goToScreen('MAIN');
   }
 
   return (
-<<<<<<< HEAD
     <section className={styles['setup-screen']}>
       <h2 className={styles['setup-title']}>初回設定</h2>
       <p className={styles['setup-subtitle']}>診療記録くんを利用するための設定を入力してください。</p>
@@ -190,17 +165,6 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
       </p>
 
       <button className={styles['setup-primary-btn']} type="button" onClick={handleSave}>
-=======
-    <section>
-      <h2>初回設定</h2>
-      {error ? <p>{error}</p> : null}
-      <input aria-label="gasUrlProd" value={gasUrlProd} onChange={(e) => setGasUrlProd(e.target.value)} />
-      <input aria-label="gasUrlDev" value={gasUrlDev} onChange={(e) => setGasUrlDev(e.target.value)} />
-      <input aria-label="doctorId" value={doctorId} onChange={(e) => setDoctorId(e.target.value)} />
-      <input aria-label="apiSecret" value={secret} onChange={(e) => setSecret(e.target.value)} />
-      <textarea aria-label="diagnosisMaster" value={masterText} onChange={(e) => setMasterText(e.target.value)} />
-      <button type="button" onClick={handleSave}>
->>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
         設定を保存して始める
       </button>
     </section>
