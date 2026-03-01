@@ -7,9 +7,7 @@ import * as moduleMain from '../../src/popup/screens/MainScreen';
 function baseProps(overrides: any = {}) {
   return {
     state: {
-      patients: [
-        { age: 50, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
-      ],
+      patients: [{ age: 50, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' }],
       mode: 'prod',
       selectedDate: '2026-02-28',
     },
@@ -78,7 +76,15 @@ describe('MainScreen', () => {
     render(
       React.createElement(
         MainScreen,
-        baseProps({ storage: { settings: { gasUrlProd: 'https://prod', gasUrlDev: 'https://dev', diagnosisMaster: ['腰痛'] } } }),
+        baseProps({
+          storage: {
+            settings: {
+              gasUrlProd: 'https://prod',
+              gasUrlDev: 'https://dev',
+              diagnosisMaster: ['腰痛'],
+            },
+          },
+        }),
       ),
     );
 
@@ -90,27 +96,9 @@ describe('MainScreen', () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
-   test('次の未選択へボタンで scrollIntoView を呼ぶ', async () => {
-     // Given
-     const MainScreen = (moduleMain as any).MainScreen;
-     expect(MainScreen).toBeTypeOf('function');
-     const spy = vi.fn();
-     const originalScrollIntoView = Element.prototype.scrollIntoView;
-     Element.prototype.scrollIntoView = spy;
-
-     // When
-     render(
-       React.createElement(
-         MainScreen,
-         baseProps({ pendingCount: 1, pendingRehab: 1, canSubmit: false }),
-       ),
-     );
-     await userEvent.click(screen.getByRole('button', { name: /次の未選択へ/ }));
-
-     // Then
-     expect(spy).toHaveBeenCalled();
-     Element.prototype.scrollIntoView = originalScrollIntoView;
-   });
+    const spy = vi.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = spy;
 
     // When
     render(
@@ -123,6 +111,7 @@ describe('MainScreen', () => {
 
     // Then
     expect(spy).toHaveBeenCalled();
+    Element.prototype.scrollIntoView = originalScrollIntoView;
   });
 
   test('ChatGPTから取得が失敗した場合はSUBMIT_ERRORをdispatchする', async () => {
@@ -145,6 +134,27 @@ describe('MainScreen', () => {
       expect(dispatch).toHaveBeenCalledWith({
         type: 'SUBMIT_ERROR',
         error: 'JSONが見つかりません',
+      });
+    });
+  });
+
+  test('アクティブタブがない場合はSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.tabs.query = vi.fn().mockResolvedValue([{}]);
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    await userEvent.click(screen.getByRole('button', { name: 'ChatGPTから取得' }));
+
+    // Then
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({
+        type: 'SUBMIT_ERROR',
+        error: 'アクティブなタブが見つかりません',
       });
     });
   });
@@ -176,7 +186,7 @@ describe('MainScreen', () => {
     ]);
   });
 
-  test('日付変更でSET_DATEをdispatchする', async () => {
+  test('日付変更でSET_DATEをdispatchする', () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
@@ -189,7 +199,6 @@ describe('MainScreen', () => {
     });
 
     // Then
-    expect(dispatch).toHaveBeenCalled();
     const call = dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SET_DATE');
     expect(call).toBeTruthy();
   });

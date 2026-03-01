@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import * as moduleConfirm from '../../src/popup/screens/ConfirmScreen';
@@ -60,10 +60,12 @@ describe('ConfirmScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: '送信する' }));
 
     // Then
-    expect(sendBatchModule.sendBatch).toHaveBeenCalled();
-    expect(props.diagnosis.incrementCounts).toHaveBeenCalledWith(['腰痛']);
-    const submitSuccessCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_SUCCESS');
-    expect(submitSuccessCall).toBeTruthy();
+    await waitFor(() => {
+      expect(sendBatchModule.sendBatch).toHaveBeenCalled();
+      expect(props.diagnosis.incrementCounts).toHaveBeenCalledWith(['腰痛']);
+      const submitSuccessCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_SUCCESS');
+      expect(submitSuccessCall).toBeTruthy();
+    });
   });
 
   test('GAS success:false の場合はSUBMIT_ERRORをdispatchする', async () => {
@@ -96,7 +98,8 @@ describe('ConfirmScreen', () => {
 
     // Then
     const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
-    expect(submitErrorCall[0].error).toContain('タイムアウト');
+    expect(submitErrorCall).toBeDefined();
+    expect(submitErrorCall![0].error).toContain('タイムアウト');
   });
 
   test('isSubmitting=true のとき送信ボタンはdisabled', () => {

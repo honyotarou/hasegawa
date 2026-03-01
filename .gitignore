@@ -6,3 +6,4 @@ chrome-extension/dist/
 chrome-extension/coverage/
 chrome-extension/playwright-report/
 chrome-extension/test-results/
+.agent/logs/

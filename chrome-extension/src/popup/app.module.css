@@ -139,17 +139,6 @@ body {
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-glow), 0 2px 6px rgba(13, 148, 136, 0.25);
 }
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
-}
-
-.setup-primary-btn:hover {
-  background: var(--accent-dk);
-}
-
-.setup-primary-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--accent-glow), 0 2px 6px rgba(13, 148, 136, 0.25);
-}
 
 .setup-error {
   margin: 0 0 12px;

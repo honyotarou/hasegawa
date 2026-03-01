@@ -4,6 +4,11 @@
   "description": "電子カルテの患者一覧からリハビリ率を自動集計するツール",
   "version": "1.0.0",
   "minimum_chrome_version": "105",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "https://script.google.com/*",

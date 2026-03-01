@@ -68,15 +68,20 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
     }
 
     setError('');
-    await storage.saveSettings(
-      {
-        gasUrlProd: prod,
-        gasUrlDev: dev,
-        doctorId: doc,
-        diagnosisMaster,
-      },
-      sec,
-    );
+    try {
+      await storage.saveSettings(
+        {
+          gasUrlProd: prod,
+          gasUrlDev: dev,
+          doctorId: doc,
+          diagnosisMaster,
+        },
+        sec,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '保存に失敗しました');
+      return;
+    }
 
     goToScreen('MAIN');
   }

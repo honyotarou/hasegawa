@@ -1,4 +1,8 @@
 function validateAndNormalize(obj) {
+  if (!obj || typeof obj !== 'object') {
+    return { valid: false, error: '入力オブジェクトが不正です', normalized: null };
+  }
+
   if (
     typeof obj.age !== 'number' ||
     !Number.isInteger(obj.age) ||

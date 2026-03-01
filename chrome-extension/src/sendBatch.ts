@@ -54,8 +54,15 @@ export function sendBatch(
       });
 
       const text = await res.text();
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
+      const hasOkFlag = typeof (res as any).ok === 'boolean';
+      const hasStatusCode = typeof (res as any).status === 'number';
+      const isHttpError = hasOkFlag
+        ? !(res as any).ok
+        : hasStatusCode
+          ? (res as any).status >= 400
+          : false;
+      if (isHttpError) {
+        throw new Error(`HTTP ${(res as any).status}: ${text.slice(0, 200)}`);
       }
       let data: GasResponse;
       try {

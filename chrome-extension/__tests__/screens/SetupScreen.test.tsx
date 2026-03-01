@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import * as moduleSetup from '../../src/popup/screens/SetupScreen';
@@ -79,5 +79,30 @@ describe('SetupScreen', () => {
 
     // Then
     expect(secretInput).toHaveAttribute('type', 'text');
+  });
+
+  test('saveSettings失敗時はエラーを表示して遷移しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockRejectedValue(new Error('保存失敗'));
+    const goToScreen = vi.fn();
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('doctorId'), '12345');
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('保存失敗');
+    });
+    expect(goToScreen).not.toHaveBeenCalled();
   });
 });

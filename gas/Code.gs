@@ -5,6 +5,8 @@ const CONFIG = {
   RECENT_HASH_LIMIT: 200,
 };
 
+// validateAndNormalize / normalizeGender are defined in Validation.gs.
+
 function setupSecret() {
   const secret = 'YOUR_SECRET_HERE';
   if (secret === 'YOUR_SECRET_HERE') {
@@ -87,16 +89,23 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
   if (!sheet) throw new Error('マスターシートが見つかりません');
 
   const lastRow = sheet.getLastRow();
-  let existingHashes = new Set();
+  const existingHashToClientIds = {};
   if (lastRow > 1) {
     const checkFrom = Math.max(2, lastRow - CONFIG.RECENT_HASH_LIMIT + 1);
     const checkCount = lastRow - checkFrom + 1;
-    const loadedHashes = sheet
-      .getRange(checkFrom, 2, checkCount, 1)
-      .getValues()
-      .flat()
-      .map(String);
-    existingHashes = new Set(loadedHashes);
+    // B:hashKey 〜 E:clientRecordId を一括取得し、hash衝突時は clientRecordId で厳密判定する。
+    const recentRows = sheet.getRange(checkFrom, 2, checkCount, 4).getValues();
+    recentRows.forEach(function (row) {
+      const hash = String(row[0] || '');
+      const clientRecordId = String(row[3] || '');
+      if (!hash) return;
+      if (!existingHashToClientIds[hash]) {
+        existingHashToClientIds[hash] = {};
+      }
+      if (clientRecordId) {
+        existingHashToClientIds[hash][clientRecordId] = true;
+      }
+    });
   }
 
   const rowsToWrite = [];
@@ -106,8 +115,10 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
     const entry = item.entry;
     const normalized = item.normalized;
     const hashKey = simpleHash(entry.clientRecordId).toString();
-
-    if (existingHashes.has(hashKey)) {
+    if (!existingHashToClientIds[hashKey]) {
+      existingHashToClientIds[hashKey] = {};
+    }
+    if (existingHashToClientIds[hashKey][entry.clientRecordId]) {
       skipped.push(index);
       return;
     }
@@ -129,7 +140,7 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
       normalized.rehab, // N
       normalized.remarks, // O
     ]);
-    existingHashes.add(hashKey);
+    existingHashToClientIds[hashKey][entry.clientRecordId] = true;
   });
 
   if (rowsToWrite.length > 0) {
@@ -209,14 +220,15 @@ function readMasterRows_() {
 }
 
 function handleDailyReport(date) {
+  const rows = readMasterRows_();
   return jsonResponse({
     success: true,
     date: date || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'),
-    overall: calcOverallRehabRateForNewPatients(),
-    byDiagnosis: calcRehabRateByDiagnosis(),
-    daily: calcDailyRehabRateForNewPatients(date),
-    bySymptom: calcRehabRateByDiagnosisToRehaSymptom(),
-    byAgeAndSex: calcRehabRateByAgeAndSex(),
+    overall: calcOverallRehabRateForNewPatients(rows),
+    byDiagnosis: calcRehabRateByDiagnosis(rows),
+    daily: calcDailyRehabRateForNewPatients(date, rows),
+    bySymptom: calcRehabRateByDiagnosisToRehaSymptom(rows),
+    byAgeAndSex: calcRehabRateByAgeAndSex(rows),
   });
 }
 
@@ -228,10 +240,10 @@ function mainFlow() {
   return handleDailyReport();
 }
 
-function calcOverallRehabRateForNewPatients() {
-  const rows = readMasterRows_();
-  const total = rows.length;
-  const rehabTrue = rows.filter(function (row) {
+function calcOverallRehabRateForNewPatients(rows) {
+  const sourceRows = rows || readMasterRows_();
+  const total = sourceRows.length;
+  const rehabTrue = sourceRows.filter(function (row) {
     return row[13] === true; // N列
   }).length;
   return {
@@ -241,11 +253,11 @@ function calcOverallRehabRateForNewPatients() {
   };
 }
 
-function calcRehabRateByDiagnosis() {
-  const rows = readMasterRows_();
+function calcRehabRateByDiagnosis(rows) {
+  const sourceRows = rows || readMasterRows_();
   const map = {};
 
-  rows.forEach(function (row) {
+  sourceRows.forEach(function (row) {
     const diagnosis = normalizeDiagnosis(row[7]); // H列
     if (!diagnosis) return;
 
@@ -267,11 +279,11 @@ function calcRehabRateByDiagnosis() {
   });
 }
 
-function calcDailyRehabRateForNewPatients(date) {
-  const rows = readMasterRows_();
+function calcDailyRehabRateForNewPatients(date, rows) {
+  const sourceRows = rows || readMasterRows_();
   const key = date || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 
-  const target = rows.filter(function (row) {
+  const target = sourceRows.filter(function (row) {
     return String(row[0] || '').slice(0, 10) === key; // A列
   });
 
@@ -283,15 +295,15 @@ function calcDailyRehabRateForNewPatients(date) {
   return { date: key, total: total, rehabTrue: rehabTrue, rate: total ? rehabTrue / total : 0 };
 }
 
-function calcRehabRateByDiagnosisToRehaSymptom() {
-  return calcRehabRateByDiagnosis();
+function calcRehabRateByDiagnosisToRehaSymptom(rows) {
+  return calcRehabRateByDiagnosis(rows);
 }
 
-function calcRehabRateByAgeAndSex() {
-  const rows = readMasterRows_();
+function calcRehabRateByAgeAndSex(rows) {
+  const sourceRows = rows || readMasterRows_();
   const map = {};
 
-  rows.forEach(function (row) {
+  sourceRows.forEach(function (row) {
     const age = Number(row[5]); // F列
     const sex = normalizeSex(row[6]); // G列
     const ageBand = getAgeBand(age);
@@ -347,18 +359,17 @@ function ageBandSortKey(label) {
 }
 
 function getMonthlySheetName(prefix) {
+  const yyyymm = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMM');
+  return prefix + '_' + yyyymm;
+}
+
 function createDailyTrigger() {
-  // Remove existing mainFlow triggers first
-  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
     if (trigger.getHandlerFunction() === 'mainFlow') {
       ScriptApp.deleteTrigger(trigger);
     }
   });
-  // atHour(14) は 14:00〜15:00 のどこかで実行（分はランダム）
-  ScriptApp.newTrigger('mainFlow').timeBased().everyDays(1).atHour(14).create();
-}
-function createDailyTrigger() {
-  // atHour(14) は 14:00〜15:00 のどこかで実行（分はランダム）
+  // atHour(14) は 14:00〜15:00 のどこかで実行（分はランダム）。固定したい場合は nearMinute() を追加する。
   ScriptApp.newTrigger('mainFlow').timeBased().everyDays(1).atHour(14).create();
 }
 

@@ -45,28 +45,43 @@ export function MainScreen({
   diagnosis,
 }: MainScreenProps) {
   async function handleFetch() {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id!, allFrames: false },
-      func: extractPatientsFromDOM,
-    });
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) {
+        dispatch({ type: 'SUBMIT_ERROR', error: 'アクティブなタブが見つかりません' });
+        return;
+      }
 
-    const result = results[0].result as any;
-    if (!result.success) {
-      dispatch({ type: 'SUBMIT_ERROR', error: result.error });
-      return;
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id, allFrames: false },
+        func: extractPatientsFromDOM,
+      });
+
+      const result = results?.[0]?.result as any;
+      if (!result?.success) {
+        dispatch({
+          type: 'SUBMIT_ERROR',
+          error: result?.error || 'データ取得に失敗しました',
+        });
+        return;
+      }
+
+      const batchId = crypto.randomUUID();
+      await chrome.storage.session.set({ currentBatchId: batchId });
+      const patients = result.patients.map((p: any) => ({
+        age: p.age,
+        gender: p.gender,
+        diagnoses: [''],
+        rehab: null,
+        remarks: '',
+      }));
+      dispatch({ type: 'SET_PATIENTS', patients, batchId });
+    } catch (err: any) {
+      dispatch({
+        type: 'SUBMIT_ERROR',
+        error: err?.message || String(err),
+      });
     }
-
-    const batchId = crypto.randomUUID();
-    await chrome.storage.session.set({ currentBatchId: batchId });
-    const patients = result.patients.map((p: any) => ({
-      age: p.age,
-      gender: p.gender,
-      diagnoses: [''],
-      rehab: null,
-      remarks: '',
-    }));
-    dispatch({ type: 'SET_PATIENTS', patients, batchId });
   }
 
   function jumpToPending() {

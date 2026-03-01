@@ -17,16 +17,23 @@ export function useStorage() {
     Promise.all([
       chrome.storage.local.get(['gasUrlProd', 'gasUrlDev', 'doctorId', 'diagnosisMaster']),
       chrome.storage.session.get('apiSecret'),
-    ]).then(([local, session]: [any, any]) => {
-      setSettings({
-        gasUrlProd: local.gasUrlProd || '',
-        gasUrlDev: local.gasUrlDev || '',
-        doctorId: local.doctorId || '',
-        diagnosisMaster: local.diagnosisMaster || [],
+    ])
+      .then(([local, session]: [any, any]) => {
+        setSettings({
+          gasUrlProd: local.gasUrlProd || '',
+          gasUrlDev: local.gasUrlDev || '',
+          doctorId: local.doctorId || '',
+          diagnosisMaster: local.diagnosisMaster || [],
+        });
+        setApiSecret(session.apiSecret || '');
+      })
+      .catch((err) => {
+        console.error('Failed to load extension settings:', err);
+      })
+      .finally(() => {
+        // 読み込み失敗時でもUIを表示し、再設定可能にする。
+        setIsLoaded(true);
       });
-      setApiSecret(session.apiSecret || '');
-      setIsLoaded(true);
-    });
   }, []);
 
   const isConfigured = Boolean(settings.gasUrlProd && apiSecret && settings.doctorId);

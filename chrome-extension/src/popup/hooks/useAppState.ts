@@ -110,21 +110,30 @@ export function useAppState() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   useEffect(() => {
-    chrome.storage.session.get('inputSnapshot').then((res: any) => {
-      const snap = res.inputSnapshot as SessionSnapshot | undefined;
-      if (snap?.batchId && snap.patients.length > 0) {
-        dispatch({ type: 'RESTORE_SESSION', snapshot: snap });
-      }
-    });
+    chrome.storage.session
+      .get('inputSnapshot')
+      .then((res: any) => {
+        const snap = res.inputSnapshot as SessionSnapshot | undefined;
+        if (snap?.batchId && snap.patients.length > 0) {
+          dispatch({ type: 'RESTORE_SESSION', snapshot: snap });
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to restore session snapshot:', err);
+      });
   }, []);
 
   useEffect(() => {
-    void saveSnapshot(state);
+    saveSnapshot(state).catch((err) => {
+      console.error('Failed to save session snapshot:', err);
+    });
   }, [state.patients, state.currentBatchId, state.selectedDate, state.mode]);
 
   useEffect(() => {
     if (state.screen === 'DONE') {
-      void chrome.storage.session.remove('inputSnapshot');
+      chrome.storage.session.remove('inputSnapshot').catch((err) => {
+        console.error('Failed to clear session snapshot:', err);
+      });
     }
   }, [state.screen]);
 
