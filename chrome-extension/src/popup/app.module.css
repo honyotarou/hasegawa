@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap');
+
 :root {
   --bg-app: #fdf8f4;
   --bg-header: #2d2520;
@@ -35,4 +37,113 @@ body {
   min-height: 600px;
   background: var(--bg-app);
   color: var(--text-primary);
+}
+
+.setup-screen {
+  padding: 18px;
+}
+
+.setup-title {
+  margin: 0 0 6px;
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.setup-subtitle {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.setup-label {
+  display: block;
+  margin: 10px 0 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.setup-input,
+.setup-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-input);
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.setup-input:focus,
+.setup-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.setup-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.setup-secret-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.setup-input-secret {
+  flex: 1;
+}
+
+.setup-secondary-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-secondary);
+  min-width: 64px;
+  padding: 0 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.setup-secondary-btn:hover {
+  background: #fff8f4;
+}
+
+.setup-primary-btn {
+  width: 100%;
+  margin-top: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+}
+
+.setup-primary-btn:hover {
+  background: var(--accent-dk);
+}
+
+.setup-error {
+  margin: 0 0 12px;
+  border: 1px solid #f4b8a8;
+  border-radius: 8px;
+  background: #fff8f6;
+  color: #c15134;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.setup-note {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }

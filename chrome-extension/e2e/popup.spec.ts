@@ -79,10 +79,19 @@ test('setup validation and transition to main screen', async ({ page }) => {
 
   // When
   await page.goto('/popup.html');
+
+  // Then
+  await expect(page.getByText('GAS URL（本番）*')).toBeVisible();
+  await expect(page.getByText('シークレットキー*')).toBeVisible();
+  await expect(page.getByText('社員番号（医師ID）*')).toBeVisible();
+  await expect(page.getByText('診断名マスタ（1行1件）*')).toBeVisible();
+
+  // When
+  await page.getByRole('button', { name: '表示' }).click();
   await page.getByRole('button', { name: '設定を保存して始める' }).click();
 
   // Then
-  await expect(page.getByText('必須項目を入力してください')).toBeVisible();
+  await expect(page.getByText('GAS URL（本番）は必須です')).toBeVisible();
 
   // Given
   await page.getByLabel('gasUrlProd').fill('https://script.google.com/macros/s/xxx/exec');
