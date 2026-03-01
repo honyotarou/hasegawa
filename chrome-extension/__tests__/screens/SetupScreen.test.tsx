@@ -30,10 +30,14 @@ describe('SetupScreen', () => {
 
     // When
     render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen }));
+<<<<<<< HEAD
     await userEvent.type(
       screen.getByLabelText('gasUrlProd'),
       'https://script.google.com/macros/s/xxx/exec',
     );
+=======
+    await userEvent.type(screen.getByLabelText('gasUrlProd'), 'https://prod');
+>>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
     await userEvent.type(screen.getByLabelText('doctorId'), '12345');
     await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
     await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
@@ -43,6 +47,7 @@ describe('SetupScreen', () => {
     expect(saveSettings).toHaveBeenCalledTimes(1);
     expect(goToScreen).toHaveBeenCalledWith('MAIN');
   });
+<<<<<<< HEAD
 
   test('URL形式が不正な場合は保存せずエラー表示する', async () => {
     // Given
@@ -78,4 +83,6 @@ describe('SetupScreen', () => {
     // Then
     expect(secretInput).toHaveAttribute('type', 'text');
   });
+=======
+>>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
 });

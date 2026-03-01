@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap');
 
+=======
+>>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
 :root {
   --bg-app: #fdf8f4;
   --bg-header: #2d2520;
@@ -38,6 +41,7 @@ body {
   background: var(--bg-app);
   color: var(--text-primary);
 }
+<<<<<<< HEAD
 
 .setup-screen {
   padding: 18px;
@@ -147,3 +151,5 @@ body {
   font-size: 12px;
   line-height: 1.5;
 }
+=======
+>>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b

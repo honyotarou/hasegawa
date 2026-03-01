@@ -79,6 +79,7 @@ test('setup validation and transition to main screen', async ({ page }) => {
 
   // When
   await page.goto('/popup.html');
+<<<<<<< HEAD
 
   // Then
   await expect(page.getByText('GAS URL（本番）*')).toBeVisible();
@@ -92,6 +93,12 @@ test('setup validation and transition to main screen', async ({ page }) => {
 
   // Then
   await expect(page.getByText('GAS URL（本番）は必須です')).toBeVisible();
+=======
+  await page.getByRole('button', { name: '設定を保存して始める' }).click();
+
+  // Then
+  await expect(page.getByText('必須項目を入力してください')).toBeVisible();
+>>>>>>> 78dec51c3837c6746b173220be5829c4cfb9873b
 
   // Given
   await page.getByLabel('gasUrlProd').fill('https://script.google.com/macros/s/xxx/exec');
