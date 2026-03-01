@@ -114,7 +114,7 @@ export function useAppState() {
       .get('inputSnapshot')
       .then((res: any) => {
         const snap = res.inputSnapshot as SessionSnapshot | undefined;
-        if (snap?.batchId && snap.patients.length > 0) {
+        if (snap?.batchId && snap.patients?.length > 0) {
           dispatch({ type: 'RESTORE_SESSION', snapshot: snap });
         }
       })

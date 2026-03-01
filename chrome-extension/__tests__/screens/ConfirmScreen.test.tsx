@@ -97,9 +97,11 @@ describe('ConfirmScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: '送信する' }));
 
     // Then
-    const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
-    expect(submitErrorCall).toBeDefined();
-    expect(submitErrorCall![0].error).toContain('タイムアウト');
+    await waitFor(() => {
+      const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
+      expect(submitErrorCall).toBeDefined();
+      expect(submitErrorCall![0].error).toContain('タイムアウト');
+    });
   });
 
   test('isSubmitting=true のとき送信ボタンはdisabled', () => {
