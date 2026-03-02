@@ -13,7 +13,8 @@ describe('DiagDropdown', () => {
 
     // When
     render(React.createElement(DiagDropdown, { value: '', top5: ['腰痛'], rest: ['肩痛'], onChange }));
-    await userEvent.click(screen.getByRole('button', { name: /腰痛/ }));
+    await userEvent.click(screen.getByLabelText('diag-trigger'));
+    await userEvent.click(screen.getByRole('button', { name: /★\s*腰痛/ }));
 
     // Then
     expect(onChange).toHaveBeenCalledWith('腰痛');
@@ -27,6 +28,7 @@ describe('DiagDropdown', () => {
 
     // When
     render(React.createElement(DiagDropdown, { value: '', top5: ['腰痛'], rest: ['肩痛'], onChange }));
+    await userEvent.click(screen.getByLabelText('diag-trigger'));
     await userEvent.type(screen.getByLabelText('diag-search'), '肩');
     await userEvent.click(screen.getByRole('button', { name: /肩痛/ }));
 

@@ -14,8 +14,8 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         storage={{
           settings: {
-            gasUrlProd: 'https://prod',
-            gasUrlDev: 'https://dev',
+            gasUrlProd: 'https://script.google.com/macros/s/prod/exec',
+            gasUrlDev: 'https://script.google.com/macros/s/dev/exec',
             doctorId: '123',
             diagnosisMaster: ['腰痛'],
           },
@@ -30,7 +30,7 @@ describe('SettingsScreen', () => {
 
     // When
     await userEvent.clear(fields[0]);
-    await userEvent.type(fields[0], 'https://prod2');
+    await userEvent.type(fields[0], 'https://script.google.com/macros/s/prod2/exec');
     await userEvent.click(getByRole('button', { name: '保存' }));
 
     // Then
@@ -47,8 +47,8 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         storage={{
           settings: {
-            gasUrlProd: 'https://prod',
-            gasUrlDev: 'https://dev',
+            gasUrlProd: 'https://script.google.com/macros/s/prod/exec',
+            gasUrlDev: 'https://script.google.com/macros/s/dev/exec',
             doctorId: '123',
             diagnosisMaster: ['腰痛'],
           },

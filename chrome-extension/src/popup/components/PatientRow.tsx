@@ -2,6 +2,7 @@ import React from 'react';
 import type { Patient } from '../../types';
 import { DiagDropdown } from './DiagDropdown';
 import { RehabToggle } from './RehabToggle';
+import styles from '../app.module.css';
 
 export function isValidAge(age: number): boolean {
   return Number.isInteger(age) && age >= 1 && age <= 150;
@@ -18,20 +19,36 @@ type PatientRowProps = {
 export function PatientRow({ index, patient, top5, rest, onPatch }: PatientRowProps) {
   const isPending = patient.rehab === null || !patient.diagnoses[0]?.trim();
   const ageError = !isValidAge(patient.age);
+  const noLabel = String(index + 1).padStart(2, '0');
+  const genderClass =
+    patient.gender === '男性'
+      ? styles['row-select-male']
+      : patient.gender === '女性'
+        ? styles['row-select-female']
+        : '';
 
   return (
-    <div data-testid={`patient-row-${index}`} data-pending={isPending ? 'true' : 'false'}>
+    <div
+      data-testid={`patient-row-${index}`}
+      data-pending={isPending ? 'true' : 'false'}
+      className={`${styles['patient-row']} ${isPending ? styles['pending-row'] : ''}`}
+    >
+      <div className={styles['row-no']}>
+        {noLabel}
+        {ageError ? <span className={styles['row-error-text']}> 年齢エラー</span> : null}
+      </div>
       <input
         aria-label={`age-${index}`}
+        className={`${styles['row-input']} ${ageError ? styles['age-error'] : ''}`}
         type="number"
         min={1}
         max={150}
         value={patient.age}
         onChange={(e) => onPatch(index, { age: Number(e.target.value) })}
-        style={ageError ? { border: '1px solid #dc6444' } : undefined}
       />
       <select
         aria-label={`gender-${index}`}
+        className={`${styles['row-select']} ${genderClass}`}
         value={patient.gender}
         onChange={(e) => onPatch(index, { gender: e.target.value })}
       >
@@ -53,7 +70,6 @@ export function PatientRow({ index, patient, top5, rest, onPatch }: PatientRowPr
         value={patient.rehab}
         onChange={(value) => onPatch(index, { rehab: value })}
       />
-      {ageError ? <span>年齢エラー</span> : null}
     </div>
   );
 }
