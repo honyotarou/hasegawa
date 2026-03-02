@@ -13,28 +13,31 @@ describe('sync-evidence-register', () => {
   test('CLI引数からオプションを解決できる', () => {
     // Given
     const prevArgv = [...process.argv];
-    process.argv = [
-      'node',
-      'sync-evidence-register.mjs',
-      '--gas-url',
-      'https://script.google.com/macros/s/x/exec',
-      '--evidence-secret',
-      'evidence-secret',
-      '--limit',
-      '50',
-      '--out',
-      '/tmp/custom-evidence.md',
-    ];
+    try {
+      process.argv = [
+        'node',
+        'sync-evidence-register.mjs',
+        '--gas-url',
+        'https://script.google.com/macros/s/x/exec',
+        '--evidence-secret',
+        'evidence-secret',
+        '--limit',
+        '50',
+        '--out',
+        '/tmp/custom-evidence.md',
+      ];
 
-    // When
-    const options = resolveSyncOptions();
+      // When
+      const options = resolveSyncOptions();
 
-    // Then
-    expect(options.gasUrl).toBe('https://script.google.com/macros/s/x/exec');
-    expect(options.evidenceSecret).toBe('evidence-secret');
-    expect(options.limit).toBe(50);
-    expect(options.outPath).toContain('/tmp/custom-evidence.md');
-    process.argv = prevArgv;
+      // Then
+      expect(options.gasUrl).toBe('https://script.google.com/macros/s/x/exec');
+      expect(options.evidenceSecret).toBe('evidence-secret');
+      expect(options.limit).toBe(50);
+      expect(options.outPath).toContain('/tmp/custom-evidence.md');
+    } finally {
+      process.argv = prevArgv;
+    }
   });
 
   test('limitが異常値なら1〜500に丸める', () => {

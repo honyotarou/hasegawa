@@ -38,7 +38,7 @@ export function renderAuditTable(events) {
   }
 
   const rows = events.map((event) => {
-    const dateText = toDateText(event.timestamp);
+    const dateText = sanitizeMarkdownCell(toDateText(event.timestamp));
     const itemText = toItemText(event);
     const actor = sanitizeMarkdownCell((event.doctorId || '').toString()) || '-';
     const evidenceId = sanitizeMarkdownCell((event.eventId || '').toString()) || '-';
