@@ -163,7 +163,7 @@ describe('extractPatientsFromDOM', () => {
     expect(result.patients).toEqual([{ age: 40, gender: '男性' }]);
   });
 
-  test('gender=female は その他 に正規化される', () => {
+  test('gender=female は 女性 に正規化される', () => {
     // Given
     const html = '<pre><code>[{"age":40,"gender":"female"}]</code></pre>';
 
@@ -172,7 +172,19 @@ describe('extractPatientsFromDOM', () => {
 
     // Then
     expect(result.success).toBe(true);
-    expect(result.patients).toEqual([{ age: 40, gender: 'その他' }]);
+    expect(result.patients).toEqual([{ age: 40, gender: '女性' }]);
+  });
+
+  test('gender=male は 男性 に正規化される', () => {
+    // Given
+    const html = '<pre><code>[{"age":40,"gender":"male"}]</code></pre>';
+
+    // When
+    const result = runWithDom(html);
+
+    // Then
+    expect(result.success).toBe(true);
+    expect(result.patients).toEqual([{ age: 40, gender: '男性' }]);
   });
 
   test('壊れたJSONがある場合は同グループの次候補へ進む', () => {
