@@ -152,7 +152,7 @@ describe('SetupScreen', () => {
 
     // Then
     expect(saveSettings).not.toHaveBeenCalled();
-    expect(screen.getByRole('alert')).toHaveTextContent('シークレットキーは必須です');
+    expect(screen.getByRole('alert')).toHaveTextContent('送信用シークレット（API_SECRET）は必須です');
   });
 
   test('社員番号が空の場合は保存しない', async () => {

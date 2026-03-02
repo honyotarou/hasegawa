@@ -30,10 +30,12 @@ export function sendBatch(
     if (!isAllowedGasUrl(gasUrl)) {
       throw new Error('GAS URLが許可ドメイン外です');
     }
-    if (!apiSecret?.trim()) {
+    const trimmedApiSecret = apiSecret?.trim();
+    if (!trimmedApiSecret) {
       throw new Error('送信用シークレット(API_SECRET)が未設定です');
     }
-    if (!doctorId?.trim()) {
+    const trimmedDoctorId = doctorId?.trim();
+    if (!trimmedDoctorId) {
       throw new Error('医師IDが未設定です');
     }
 
@@ -57,9 +59,9 @@ export function sendBatch(
     });
 
     const payload: BatchPayload = {
-      secret: apiSecret,
+      secret: trimmedApiSecret,
       action: 'recordBatch',
-      doctorId,
+      doctorId: trimmedDoctorId,
       batchId: state.currentBatchId,
       records,
     };

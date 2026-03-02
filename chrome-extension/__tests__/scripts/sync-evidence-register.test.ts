@@ -1,8 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
-import {
-  resolveSyncOptions,
-  runSyncEvidenceRegister,
-} from '../../scripts/sync-evidence-register.mjs';
+// @ts-ignore mjs CLI module is loaded at runtime in tests.
+import { resolveSyncOptions, runSyncEvidenceRegister } from '../../scripts/sync-evidence-register.mjs';
+// @ts-ignore mjs utility module is loaded at runtime in tests.
 import { syncEvidenceRegisterContent } from '../../scripts/evidence-sync-lib.mjs';
 
 function responseOf(body: string) {
@@ -12,9 +11,10 @@ function responseOf(body: string) {
 describe('sync-evidence-register', () => {
   test('CLI引数からオプションを解決できる', () => {
     // Given
-    const prevArgv = [...process.argv];
+    const processAny = (globalThis as any).process;
+    const prevArgv = [...processAny.argv];
     try {
-      process.argv = [
+      processAny.argv = [
         'node',
         'sync-evidence-register.mjs',
         '--gas-url',
@@ -36,21 +36,22 @@ describe('sync-evidence-register', () => {
       expect(options.limit).toBe(50);
       expect(options.outPath).toContain('/tmp/custom-evidence.md');
     } finally {
-      process.argv = prevArgv;
+      processAny.argv = prevArgv;
     }
   });
 
   test('limitが異常値なら1〜500に丸める', () => {
     // Given
-    const prevArgv = [...process.argv];
-    process.argv = ['node', 'sync-evidence-register.mjs', '--limit', '99999'];
+    const processAny = (globalThis as any).process;
+    const prevArgv = [...processAny.argv];
+    processAny.argv = ['node', 'sync-evidence-register.mjs', '--limit', '99999'];
 
     // When
     const options = resolveSyncOptions();
 
     // Then
     expect(options.limit).toBe(500);
-    process.argv = prevArgv;
+    processAny.argv = prevArgv;
   });
 
   test('GAS URL未指定ならエラー', async () => {

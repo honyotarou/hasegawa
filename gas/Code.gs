@@ -458,10 +458,15 @@ function appendAuditFallback_(event, err) {
       batchId: event.batchId || '',
       error: (err && err.message ? err.message : String(err || '')).slice(0, 500),
     });
-    if (list.length > 100) {
-      list = list.slice(list.length - 100);
+    if (list.length > 30) {
+      list = list.slice(list.length - 30);
     }
-    props.setProperty(key, JSON.stringify(list));
+    let serialized = JSON.stringify(list);
+    while (serialized.length > 8000 && list.length > 1) {
+      list.shift();
+      serialized = JSON.stringify(list);
+    }
+    props.setProperty(key, serialized);
   } catch (fallbackErr) {
     Logger.log('監査fallback書き込み失敗: ' + fallbackErr.message);
   }

@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import {
-  renderAuditTable,
-  replaceMarkdownSection,
-  syncEvidenceRegisterContent,
-} from '../../scripts/evidence-sync-lib.mjs';
+// @ts-ignore mjs utility module is loaded at runtime in tests.
+import { renderAuditTable, replaceMarkdownSection, syncEvidenceRegisterContent } from '../../scripts/evidence-sync-lib.mjs';
 
 describe('evidence-sync-lib', () => {
   test('イベントが空の場合はAUDITテンプレート行を返す', () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { sendBatch } from '../../sendBatch';
 import type { AppState } from '../../types';
 import styles from '../app.module.css';

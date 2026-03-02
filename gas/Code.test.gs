@@ -132,3 +132,28 @@ function testAppendAuditFallback_buffered() {
   assertTrue_(Array.isArray(list), 'fallback buffer must be an array');
   assertTrue_(list.length >= 1, 'fallback buffer must contain at least one event');
 }
+
+function testAppendAuditFallback_sizeBounded() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.deleteProperty('AUDIT_FALLBACK_BUFFER');
+  const event = {
+    action: 'recordBatch',
+    status: 'error',
+    doctorId: '12345',
+    batchId: 'batch-x',
+  };
+  const longError = new Error(new Array(2000).join('x'));
+
+  // When
+  for (let i = 0; i < 60; i++) {
+    appendAuditFallback_(event, longError);
+  }
+  const raw = props.getProperty('AUDIT_FALLBACK_BUFFER') || '';
+  const list = raw ? JSON.parse(raw) : [];
+
+  // Then
+  assertTrue_(raw.length <= 8000, 'fallback buffer payload must be <= 8000 chars');
+  assertTrue_(Array.isArray(list), 'fallback buffer must remain an array');
+  assertTrue_(list.length <= 30, 'fallback buffer length must be capped');
+}

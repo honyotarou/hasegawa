@@ -196,6 +196,24 @@ describe('sendBatch', () => {
     expect(payload.records[0].timestamp.startsWith('2026-03-01')).toBe(true);
   });
 
+  test('apiSecret/doctorIdはtrimして送信する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ text: async () => JSON.stringify({ success: true, written: 1, skipped: 0 }) });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // When
+    await fn(createState(), 'https://script.google.com/macros/s/xxx', '  secret  ', '  12345  ');
+
+    // Then
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    expect(payload.secret).toBe('secret');
+    expect(payload.doctorId).toBe('12345');
+  });
+
   test('30秒タイムアウトで AbortError を throw する', async () => {
     // Given
     const fn = (sendBatchModule as any).sendBatch;

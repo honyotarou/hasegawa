@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { useDiagnosis } from './hooks/useDiagnosis';
 import { useStorage } from './hooks/useStorage';

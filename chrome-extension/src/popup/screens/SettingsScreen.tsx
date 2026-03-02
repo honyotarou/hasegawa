@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { AppSettings, Screen } from '../../types';
 import styles from '../app.module.css';
 import { Header } from '../components/Header';
@@ -58,7 +58,7 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
       return;
     }
     if (!sec) {
-      setError('シークレットキーは必須です');
+      setError('送信用シークレット（API_SECRET）は必須です');
       return;
     }
     if (!doc) {

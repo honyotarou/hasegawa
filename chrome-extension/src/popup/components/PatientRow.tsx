@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Patient } from '../../types';
 import { DiagDropdown } from './DiagDropdown';
 import { RehabToggle } from './RehabToggle';
