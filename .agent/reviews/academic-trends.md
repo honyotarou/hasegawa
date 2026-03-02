@@ -1,46 +1,44 @@
 # Academic Trends (2024-2026) related to v11 implementation
 
 ## Scope
-対象は「画像/文書から構造化データ抽出」「人手確認を伴う医療文書入力」「実運用での堅牢化」に関連する近年研究。
-最終確認日: 2026-03-01
+対象は「医療入力ワークフローの human-in-the-loop」「ブラウザ拡張のセキュリティ」「監査証跡の信頼性」に関連する近年研究。
+最終確認日: 2026-03-02
 
-## Trend 1: OCR-only から VLMベース文書理解へのシフト
-- Recent work emphasizes end-to-end visual-language extraction rather than classic OCR + rules.
-- Examples:
-  - PaddleOCR-VL (2025): compact VLM for multilingual document parsing.
-    - https://arxiv.org/abs/2408.14539
-  - MinerU2.5 (2025): decoupled high-resolution parsing approach for document intelligence.
-    - https://arxiv.org/abs/2509.22186
-
-Implication for this project:
-- `extractPatients` は現在 JSONブロック抽出に依存。将来的には「OCR出力信頼度」や「候補複数提示」を扱えるUIに進化余地。
-- 2025後半には RL ベース OCR 改善（unit-test reward）研究が進んでおり、テーブル/多段レイアウトへの耐性強化がトレンド。
-  - olmOCR 2 (2025): https://huggingface.co/papers/2510.19817
-
-## Trend 2: Multimodal OCR/recognition 全体の再整理
-- Surveys indicate rapid convergence of text detection + recognition + reasoning into unified multimodal models.
-- Example:
-  - Multi-modal LLMs for text detection and recognition: A survey (2024).
-    - https://arxiv.org/abs/2412.01534
+## Trend 1: 医療文書入力は Human-in-the-loop 前提が継続
+- 医療現場では自動化よりも、最終確認を人が担う運用設計が主流。
+- Sources:
+  - JAMIA (2024): https://pubmed.ncbi.nlm.nih.gov/39191626/
+  - AI burden in clinical documentation (2025): https://pubmed.ncbi.nlm.nih.gov/40675963/
 
 Implication:
-- clinic workflowでは、LLM出力に誤読が混在する前提で「編集可能UI」「必須入力ガード」は妥当な設計。
-- OCR-free document understanding (CVPRW 2025) では、少量データ適応の改善が進展。
-  - QID (CVPRW 2025): https://openaccess.thecvf.com/content/CVPR2025W/MULA2025/html/Le_QID_Efficient_Query-Informed_ViTs_in_Data-Scarce_Regimes_for_OCR-free_Document_CVPRW_2025_paper.html
+- v11の「確認画面を経由して送信」「必須項目ガード」は研究トレンドと整合。
+- fully-automatic より、エラー時の再確認導線と責任分界の明確化が重要。
 
-## Trend 3: 医療領域では Human-in-the-loop 継続が主流
-- 医療AIの現場適用では、人間の最終確認・修正工程が安全性の中核。
-- Example (human factors in health AI context):
-  - JAMIA 2024 (PubMed): Human factors & implementation focus for AI-enabled healthcare workflows.
-    - https://pubmed.ncbi.nlm.nih.gov/39191626/
-
-Implication:
-- v11の確認画面（CONFIRM）と必須入力チェックは、研究潮流に沿う。
-- 2025年レビューでも「実運用でのワークフロー整合」「人間中心設計」が主要論点として継続。
-  - PubMed review (2025): https://pubmed.ncbi.nlm.nih.gov/41247638/
-
-## Trend 4: 運用堅牢性（再送・冪等性・監査性）重視
-- 実サービス文脈ではモデル精度だけでなく、再送制御・追跡可能性・監査証跡を含むシステム設計が重視される。
+## Trend 2: 文書理解は OCR-only から VLMベースへ
+- 画像/文書抽出はVLMでの構造理解が進み、OCR単体パイプラインから移行が進む。
+- Sources:
+  - PaddleOCR-VL (2025): https://arxiv.org/abs/2408.14539
+  - MinerU2.5 (2025): https://arxiv.org/abs/2509.22186
 
 Implication:
-- `batchId + clientRecordId` の冪等設計、15列監査情報（doctorId/batchId/clientRecordId）は実運用トレンドと整合。
+- `extractPatients` の抽出精度は将来VLM依存が強まる。
+- UI側で「誤読訂正しやすい編集可能テーブル」を維持する方針は妥当。
+
+## Trend 3: 拡張機能セキュリティは permission/API境界の設計が焦点
+- MV3移行後も、API境界や権限設計ミスが主要リスクとして研究されている。
+- Sources:
+  - NDSS 2024 paper listing (Privileged by Design): https://www.ndss-symposium.org/ndss-paper/privileged-by-design-from-browser-extension-architecture-to-universal-cross-browser-privilege-escalation/
+  - ACM Digital Threats (2025): https://dl.acm.org/doi/10.1145/3709118
+
+Implication:
+- `API_SECRET` と `EVIDENCE_SECRET` の分離は least privilege 改善として有効。
+- action単位で認証を分離し、監査ログ閲覧権限を送信権限から切り離す方向が妥当。
+
+## Trend 4: 医療データの監査証跡は改ざん耐性が論点
+- 医療記録の信頼性担保（integrity / traceability）を強調する研究が継続。
+- Source:
+  - CUREUS (2025): https://pubmed.ncbi.nlm.nih.gov/40228359/
+
+Implication:
+- 監査ログは「残す」だけでなく、表示系（Markdown同期）の注入耐性も必須。
+- 今回の Markdown エスケープ実装は、監査証跡の表示整合性向上に寄与。

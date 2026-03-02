@@ -76,3 +76,23 @@ function testValidation_invalid_object_guard() {
   // Then
   assertFalse_(res.valid, 'null object should be invalid');
 }
+
+function testVerifyRequestSecret_action_separation() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty('API_SECRET', 'api-secret-test');
+  props.setProperty('EVIDENCE_SECRET', 'evidence-secret-test');
+
+  // When
+  const writeOk = verifyRequestSecret_({ action: 'recordBatch', secret: 'api-secret-test' });
+  const evidenceNg = verifyRequestSecret_({ action: 'getEvidenceEvents', secret: 'api-secret-test' });
+  const evidenceOk = verifyRequestSecret_({
+    action: 'getEvidenceEvents',
+    secret: 'evidence-secret-test',
+  });
+
+  // Then
+  assertTrue_(writeOk.valid, 'recordBatch must use API_SECRET');
+  assertFalse_(evidenceNg.valid, 'evidence action must reject API_SECRET');
+  assertTrue_(evidenceOk.valid, 'evidence action must use EVIDENCE_SECRET');
+}

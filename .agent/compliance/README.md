@@ -31,7 +31,7 @@
 ```bash
 cd chrome-extension
 GAS_URL='https://script.google.com/macros/s/.../exec' \
-GAS_SECRET='YOUR_SECRET' \
+GAS_EVIDENCE_SECRET='YOUR_EVIDENCE_SECRET' \
 npm run sync:evidence -- --limit 200
 ```
 

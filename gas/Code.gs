@@ -16,18 +16,46 @@ function setupSecret() {
   PropertiesService.getScriptProperties().setProperty('API_SECRET', secret);
 }
 
+function setupEvidenceSecret() {
+  const secret = 'YOUR_EVIDENCE_SECRET_HERE';
+  if (secret === 'YOUR_EVIDENCE_SECRET_HERE') {
+    throw new Error('EVIDENCE_SECRET must be changed from the placeholder before setup');
+  }
+  PropertiesService.getScriptProperties().setProperty('EVIDENCE_SECRET', secret);
+}
+
+function verifyRequestSecret_(body) {
+  const action = (body && body.action ? String(body.action) : '').trim();
+  const provided = (body && body.secret ? String(body.secret) : '').trim();
+  const props = PropertiesService.getScriptProperties();
+
+  if (action === 'getEvidenceEvents') {
+    const expectedEvidenceSecret = (props.getProperty('EVIDENCE_SECRET') || '').trim();
+    if (!expectedEvidenceSecret) {
+      return { valid: false, reason: 'EVIDENCE_SECRETが未設定です' };
+    }
+    return { valid: provided === expectedEvidenceSecret, reason: '認証失敗' };
+  }
+
+  const expectedApiSecret = (props.getProperty('API_SECRET') || '').trim();
+  if (!expectedApiSecret) {
+    return { valid: false, reason: 'API_SECRETが未設定です' };
+  }
+  return { valid: provided === expectedApiSecret, reason: '認証失敗' };
+}
+
 function doPost(e) {
   let body = {};
   try {
     body = JSON.parse(e.postData.contents);
-    const secret = PropertiesService.getScriptProperties().getProperty('API_SECRET');
-    if (body.secret !== secret) {
+    const auth = verifyRequestSecret_(body);
+    if (!auth.valid) {
       appendAuditEvent_({
         action: body.action || 'unknown',
         status: 'auth_error',
         doctorId: body.doctorId || '',
         batchId: body.batchId || '',
-        error: '認証失敗',
+        error: auth.reason,
       });
       return jsonResponse({ success: false, error: '認証失敗' });
     }

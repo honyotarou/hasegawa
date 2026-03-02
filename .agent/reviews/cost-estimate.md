@@ -44,10 +44,17 @@
 - 合計: $32/user/month
 - +100 usersごと: **$3,200 / month**
 
+### Scenario E: Workspace + ChatGPT Pro を新規追加
+- Workspace: $7/user/month
+- ChatGPT Pro: $200/user/month
+- 合計: $207/user/month
+- +100 usersごと: **$20,700 / month**
+
 ## 参考: 100人刻みの概算
 - 100 users: $700 (Workspaceのみ) / $2,700 (Workspace+Plus) / $3,200 (Workspace+Business)
 - 200 users: $1,400 / $5,400 / $6,400
 - 300 users: $2,100 / $8,100 / $9,600
+- Pro利用時: 100 usersで $20,700 / month
 
 ## Notes
 - 実際の契約単価は地域/年契約/キャンペーンで変動するため、導入時に最新価格で再見積が必要。

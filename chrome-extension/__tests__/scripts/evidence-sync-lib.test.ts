@@ -46,6 +46,29 @@ describe('evidence-sync-lib', () => {
     expect(result).toContain('| 2026-03-02 | recordBatch / error (recordsが空配列です) | 12345 | evt-2 | 要確認 |');
   });
 
+  test('Markdown注入文字（改行・パイプ・HTML）をエスケープする', () => {
+    // Given
+    const events = [
+      {
+        timestamp: '2026-03-02 11:23:33',
+        action: 'recordBatch',
+        status: 'error',
+        doctorId: 'dr|1',
+        eventId: 'evt-2',
+        error: 'bad input\n## PWNED\n| x | y | z |\n<script>alert(1)</script>',
+      },
+    ];
+
+    // When
+    const result = renderAuditTable(events);
+
+    // Then
+    expect(result).toContain('dr\\|1');
+    expect(result).not.toContain('\n## PWNED');
+    expect(result).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(result).toContain('\\| x \\| y \\| z \\|');
+  });
+
   test('AUDITセクションのみ置換し他セクションは維持する', () => {
     // Given
     const markdown = [

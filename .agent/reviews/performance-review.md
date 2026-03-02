@@ -1,13 +1,13 @@
 # Performance Review (診療記録くん v11)
 
 ## Measured Results
-- Unit/UI: 93 tests pass
-- E2E: 2 scenarios pass（前回計測値）
-- Coverage: 96.56% (statement)
+- Unit/UI: 102 tests pass
+- E2E: 3 scenarios pass
+- Coverage: 96.43% (statement)
 - Bench:
-  - `sendBatch` 40件 payload 生成+応答parse: 約50,604 ops/s
-  - `extractPatients` 40件 parse: 約17,170 ops/s
-- Evidence: latest local run (`npm run test`, `npm run bench`)
+  - `sendBatch` 40件 payload 生成+応答parse: 約47,389 ops/s
+  - `extractPatients` 40件 parse: 約16,350 ops/s
+- Evidence: latest local run (`npm run test`, `npm run test:e2e`, `npm run test:coverage`, `npm run bench`)
 
 ## Findings
 1. Medium: 入力中の session snapshot 書き込み頻度が高い
@@ -24,10 +24,10 @@
 - Impact: 患者行が多いと入力ごとに全行再描画。
 - Recommendation: `PatientRow` を `React.memo` 化、dispatch callback を `useCallback` 化。
 
-4. Low: カバレッジ未到達領域は設定画面の異常系分岐が中心
-- Evidence: `test:coverage` report (`SettingsScreen.tsx`, `SetupScreen.tsx`)
-- Impact: 本番障害確率は高くないが、設定保存失敗パスの検証粒度が不足。
-- Recommendation: 保存失敗・無効URLの分岐テストを追加し branch を底上げする。
+4. Low: カバレッジ未到達領域は `sync-evidence-register` のCLI実行分岐が中心
+- Evidence: `test:coverage` report (`scripts/sync-evidence-register.mjs`)
+- Impact: 実運用で問題化しづらいが、CLI entryのエラーパスが未到達。
+- Recommendation: E2EのCLIテスト（spawn）を追加し、`main`直叩き分岐を検証する。
 
 5. Low: 監査ログ自動追記で `recordBatch` 1回あたりシート書き込みが1回増える
 - Evidence: [Code.gs](gas/Code.gs#L145), [Code.gs](gas/Code.gs#L307)

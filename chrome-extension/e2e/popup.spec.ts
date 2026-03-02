@@ -137,3 +137,21 @@ test('main -> confirm -> done happy path', async ({ page }) => {
   // Then
   await expect(page.getByText('1件を送信しました')).toBeVisible();
 });
+
+test('setup blocks non-google GAS URL', async ({ page }) => {
+  // Given
+  await mountChromeMock(page, {}, {});
+  await page.goto('/popup.html');
+
+  // When
+  await page.getByLabel('gasUrlProd').fill('https://example.com/exec');
+  await page.getByLabel('doctorId').fill('12345');
+  await page.getByLabel('apiSecret').fill('secret-value');
+  await page.getByLabel('diagnosisMaster').fill('腰痛');
+  await page.getByRole('button', { name: '設定を保存して始める' }).click();
+
+  // Then
+  await expect(
+    page.getByText('GAS URL（本番）は script.google.com / script.googleusercontent.com のHTTPS URLを入力してください'),
+  ).toBeVisible();
+});
