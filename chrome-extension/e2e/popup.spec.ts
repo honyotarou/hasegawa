@@ -82,7 +82,7 @@ test('setup validation and transition to main screen', async ({ page }) => {
 
   // Then
   await expect(page.getByText('GAS URL（本番）*')).toBeVisible();
-  await expect(page.getByText('シークレットキー*')).toBeVisible();
+  await expect(page.getByText('送信用シークレット（API_SECRET）*')).toBeVisible();
   await expect(page.getByText('社員番号（医師ID）*')).toBeVisible();
   await expect(page.getByText('診断名マスタ（1行1件）*')).toBeVisible();
 

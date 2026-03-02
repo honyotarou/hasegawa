@@ -17,7 +17,7 @@
   - 破損時の復旧Runbook整備
 
 4. Low: クライアント側ストレージ失敗時はログのみで復旧導線が弱い
-- Current: `console.error` で握りつぶし
+- Current: `console.error` で記録。デバウンス保存で失敗頻度は抑制。
 - Recommendation:
   - status領域に「セッション保存失敗」警告を出し、再読込/再入力導線を追加
 
@@ -25,7 +25,15 @@
 - Current: `API_SECRET` と `EVIDENCE_SECRET` を分離（改善）
 - Recommendation:
   - 月次ローテーション表に2種secretを明示し、更新担当者を分離する。
-  - `sync:evidence` 実行環境を限定し、平文環境変数の保管期間を短縮する。
+  - `sync:evidence` 実行環境を限定し、平文環境変数は「即時削除」を標準運用にする。
+
+6. Fixed in this run: `dev` モード固定化で送信不能になる経路を解消
+- Current: `gasUrlDev` 未設定かつ `mode=dev` 復元時に自動で `prod` へフォールバック
+- Evidence: [App.tsx](chrome-extension/src/popup/App.tsx#L23)
+
+7. Fixed in this run: 送信成功後の `currentBatchId` 残留を解消
+- Current: DONE遷移時に `inputSnapshot` と `currentBatchId` を同時削除
+- Evidence: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L133)
 
 ## Governance Evidence Status (準拠判定で不足しやすい項目)
 - アクセス権限管理: テンプレート作成済み（`access-control-matrix.md`）、実績ログは `evidence-register.md` へ追記運用が必要。
@@ -46,3 +54,4 @@
 - [ ] GASデプロイ更新時のURL固定確認
 - [ ] 14時台トリガー監視（失敗アラート到達確認）
 - [ ] `npm run sync:evidence` の週次実行運用開始
+- [ ] `AUDIT_FALLBACK_BUFFER` が0件であることを週次確認

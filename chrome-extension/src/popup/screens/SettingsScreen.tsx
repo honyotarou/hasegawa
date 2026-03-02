@@ -140,7 +140,7 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
           />
 
           <label className={styles['settings-label']} htmlFor="settings-secret">
-            シークレットキー
+            送信用シークレット（API_SECRET）
           </label>
           <div className={styles['setup-secret-row']}>
             <input
@@ -161,7 +161,8 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
           </div>
 
           <p className={styles['settings-note']}>
-            apiSecret はブラウザ再起動後に消えます。再入力が必要です。
+            API_SECRET はブラウザ再起動後に消えます。再入力が必要です。
+            EVIDENCE_SECRET は監査同期スクリプト側で管理します。
           </p>
           <div className={styles.panel}>
             <div className={styles.content}>
@@ -180,7 +181,9 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
                 <br />
                 3. この画面のシークレット欄を更新
                 <br />
-                4. 他端末も同様に更新
+                4. 監査同期を使う場合は EVIDENCE_SECRET も別途更新
+                <br />
+                5. 他端末も同様に更新
               </p>
             </div>
           </div>

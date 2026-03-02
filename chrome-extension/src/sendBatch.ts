@@ -6,12 +6,35 @@ export function sendBatch(
   apiSecret: string,
   doctorId: string,
 ): Promise<GasResponse> {
+  function isAllowedGasUrl(urlStr: string): boolean {
+    if (!urlStr) return false;
+    try {
+      const url = new URL(urlStr);
+      if (url.protocol !== 'https:') return false;
+      return url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com';
+    } catch {
+      return false;
+    }
+  }
+
   const task = (async () => {
     if (!state.currentBatchId) {
       throw new Error('batchIdがありません');
     }
     if (state.patients.length === 0) {
       throw new Error('患者データがありません');
+    }
+    if (!gasUrl) {
+      throw new Error('GAS URLが未設定です');
+    }
+    if (!isAllowedGasUrl(gasUrl)) {
+      throw new Error('GAS URLが許可ドメイン外です');
+    }
+    if (!apiSecret?.trim()) {
+      throw new Error('送信用シークレット(API_SECRET)が未設定です');
+    }
+    if (!doctorId?.trim()) {
+      throw new Error('医師IDが未設定です');
     }
 
     const baseMs = Date.now();

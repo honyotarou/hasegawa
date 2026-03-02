@@ -96,3 +96,39 @@ function testVerifyRequestSecret_action_separation() {
   assertFalse_(evidenceNg.valid, 'evidence action must reject API_SECRET');
   assertTrue_(evidenceOk.valid, 'evidence action must use EVIDENCE_SECRET');
 }
+
+function testStrongHash_stability() {
+  // Given
+  const input = 'doctor_12345_payload';
+
+  // When
+  const h1 = strongHash_(input);
+  const h2 = strongHash_(input);
+  const h3 = strongHash_(input + '_x');
+
+  // Then
+  assertEquals_(h1.length, 64, 'strongHash length must be 64 hex chars');
+  assertEquals_(h1, h2, 'strongHash must be stable');
+  assertFalse_(h1 === h3, 'different input should produce different hash');
+}
+
+function testAppendAuditFallback_buffered() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.deleteProperty('AUDIT_FALLBACK_BUFFER');
+  const event = {
+    action: 'recordBatch',
+    status: 'error',
+    doctorId: '12345',
+    batchId: 'batch-x',
+  };
+
+  // When
+  appendAuditFallback_(event, new Error('audit write failed'));
+  const raw = props.getProperty('AUDIT_FALLBACK_BUFFER');
+  const list = raw ? JSON.parse(raw) : [];
+
+  // Then
+  assertTrue_(Array.isArray(list), 'fallback buffer must be an array');
+  assertTrue_(list.length >= 1, 'fallback buffer must contain at least one event');
+}

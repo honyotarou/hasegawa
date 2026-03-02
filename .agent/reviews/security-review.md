@@ -24,12 +24,14 @@
   - `evidence-register.md` を週次更新し、証跡ID（Drive/チケットID）を必ず記録。
   - 権限棚卸し/復旧訓練/教育受講の実施記録を初回入力。
 
-4. Low: `simpleHash` の衝突可能性は残るが誤スキップは回避済み
-- Evidence: [Code.gs](gas/Code.gs#L90), [Code.gs](gas/Code.gs#L115)
+4. Low: `handleRecord` 単件経路の hash衝突耐性は改善されたが、旧データ互換ロジック依存が残る
+- Evidence: [Code.gs](gas/Code.gs#L257), [Code.gs](gas/Code.gs#L260), [Code.gs](gas/Code.gs#L576)
 - Status:
-  - hash一致時に `clientRecordId` まで照合するため、衝突だけでスキップされる問題は解消済み。
+  - `strongHash_(SHA-256)` を導入し、`clientRecordId` と行内容照合を併用。
+- Residual Risk:
+  - 旧データ（clientRecordId なし）との比較は内容一致判定に依存。
 - Recommendation:
-  - 監査容易性向上のため将来的には SHA-256 文字列化も検討。
+  - 旧データ移行時に `clientRecordId` 付与バッチを一度流すと判定品質が安定する。
 
 5. Medium: 冪等性保証は直近200件のみで、古い再送は重複書き込み余地がある
 - Evidence: [Code.gs](gas/Code.gs#L5), [Code.gs](gas/Code.gs#L87)
@@ -37,11 +39,19 @@
 - Recommendation:
   - hashの永続インデックスシートを別管理し全期間照合
 
+6. Low: 監査ログ書き込み失敗時は silent ではなくなったが、業務フロー停止まではしない
+- Evidence: [Code.gs](gas/Code.gs#L214), [Code.gs](gas/Code.gs#L298), [Code.gs](gas/Code.gs#L351), [Code.gs](gas/Code.gs#L399)
+- Status:
+  - `auditLogged` をレスポンスで返却し、失敗時は `AUDIT_FALLBACK_BUFFER` に退避する実装へ更新。
+- Recommendation:
+  - 退避バッファ件数の定期監視（0件運用）を追加する。
+
 ## Good Practices確認
 - 式インジェクション対策（`= + - @` 先頭値をエスケープ）: [Validation.gs](gas/Validation.gs#L24)
 - Markdown注入対策（改行/`|`/HTMLエスケープ）: [evidence-sync-lib.mjs](chrome-extension/scripts/evidence-sync-lib.mjs#L6)
 - `apiSecret` を `storage.session` 保持（永続化回避）: [useStorage.ts](chrome-extension/src/popup/hooks/useStorage.ts#L34)
 - 送信タイムアウト（30秒）: [sendBatch.ts](chrome-extension/src/sendBatch.ts#L45)
+- 送信前URLの許可ドメイン検証（ConfirmScreen）: [ConfirmScreen.tsx](chrome-extension/src/popup/screens/ConfirmScreen.tsx#L25)
 - サーバー側二重防衛（age/rehab/diagnoses[0] + objガード）: [Validation.gs](gas/Validation.gs#L1)
 - storage/session操作失敗時のcatch実装: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L112), [useDiagnosis.ts](chrome-extension/src/popup/hooks/useDiagnosis.ts#L8)
 - Setup/SettingsのGAS URL許可ドメイン検証: [SetupScreen.tsx](chrome-extension/src/popup/screens/SetupScreen.tsx#L23), [SettingsScreen.tsx](chrome-extension/src/popup/screens/SettingsScreen.tsx#L27)

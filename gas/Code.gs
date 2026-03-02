@@ -211,7 +211,7 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
     sheet.getRange(lastRow + 1, 1, rowsToWrite.length, 15).setValues(rowsToWrite);
   }
 
-  appendAuditEvent_({
+  const auditLogged = appendAuditEvent_({
     action: 'recordBatch',
     status: 'success',
     doctorId: doctorId,
@@ -221,7 +221,12 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
     error: '',
   });
 
-  return jsonResponse({ success: true, written: rowsToWrite.length, skipped: skipped.length });
+  return jsonResponse({
+    success: true,
+    written: rowsToWrite.length,
+    skipped: skipped.length,
+    auditLogged: auditLogged,
+  });
 }
 
 function handleRecord(body) {
@@ -255,17 +260,52 @@ function appendRecord(body, normalized) {
 
   const rawAnswer = typeof body.answer === 'string' ? body.answer : JSON.stringify(body.answer);
   const hashKey = simpleHash((body.doctorId || '') + '_' + rawAnswer).toString();
+  const fallbackClientRecordId = strongHash_((body.doctorId || '') + '_' + rawAnswer);
+  const clientRecordId = body.clientRecordId
+    ? String(body.clientRecordId)
+    : fallbackClientRecordId;
   const lastRow = sheet.getLastRow();
 
   if (lastRow > 1) {
     const checkFrom = Math.max(2, lastRow - CONFIG.RECENT_HASH_LIMIT + 1);
     const checkCount = lastRow - checkFrom + 1;
-    const hashes = sheet
-      .getRange(checkFrom, 2, checkCount, 1)
-      .getValues()
-      .flat()
-      .map(String);
-    if (hashes.includes(hashKey)) {
+    // B〜O を取得し、hash衝突時は clientRecordId または行内容で重複判定する。
+    const recentRows = sheet.getRange(checkFrom, 2, checkCount, 14).getValues();
+    const duplicateFound = recentRows.some(function (row) {
+      const existingHash = String(row[0] || '');
+      if (existingHash !== hashKey) return false;
+
+      const existingClientRecordId = String(row[3] || '');
+      if (existingClientRecordId) {
+        return existingClientRecordId === clientRecordId;
+      }
+
+      // 旧データ（clientRecordIdなし）との互換のため内容一致で重複判定する。
+      const existingDoctorId = String(row[1] || '');
+      const existingAge = Number(row[4]);
+      const existingGender = String(row[5] || '');
+      const existingDiagnoses = [
+        String(row[6] || ''),
+        String(row[7] || ''),
+        String(row[8] || ''),
+        String(row[9] || ''),
+        String(row[10] || ''),
+        String(row[11] || ''),
+      ];
+      const existingRehab = row[12] === true;
+      const existingRemarks = String(row[13] || '');
+
+      return (
+        existingDoctorId === String(body.doctorId || '') &&
+        existingAge === Number(normalized.age) &&
+        existingGender === String(normalized.gender || '') &&
+        existingDiagnoses.join('\u0001') === normalized.diagnoses.map(String).join('\u0001') &&
+        existingRehab === (normalized.rehab === true) &&
+        existingRemarks === String(normalized.remarks || '')
+      );
+    });
+
+    if (duplicateFound) {
       appendAuditEvent_({
         action: 'record',
         status: 'error',
@@ -282,7 +322,7 @@ function appendRecord(body, normalized) {
     hashKey, // B
     body.doctorId || '', // C
     body.batchId || '', // D
-    body.clientRecordId || '', // E
+    clientRecordId, // E
     normalized.age, // F
     normalized.gender, // G
     normalized.diagnoses[0], // H
@@ -296,7 +336,7 @@ function appendRecord(body, normalized) {
   ];
 
   sheet.getRange(lastRow + 1, 1, 1, 15).setValues([rowData]);
-  appendAuditEvent_({
+  const auditLogged = appendAuditEvent_({
     action: 'record',
     status: 'success',
     doctorId: body.doctorId || '',
@@ -305,7 +345,7 @@ function appendRecord(body, normalized) {
     skipped: 0,
     error: '',
   });
-  return jsonResponse({ success: true, hash: hashKey });
+  return jsonResponse({ success: true, hash: hashKey, auditLogged: auditLogged });
 }
 
 function handleGetEvidenceEvents(body) {
@@ -390,8 +430,40 @@ function appendAuditEvent_(event) {
       errorText,
       metaText,
     ]);
+    return true;
   } catch (err) {
     Logger.log('監査ログ書き込み失敗: ' + err.message);
+    appendAuditFallback_(event, err);
+    return false;
+  }
+}
+
+function appendAuditFallback_(event, err) {
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const key = 'AUDIT_FALLBACK_BUFFER';
+    let list = [];
+    try {
+      const raw = props.getProperty(key);
+      list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list)) list = [];
+    } catch (_) {
+      list = [];
+    }
+    list.push({
+      timestamp: new Date().toISOString(),
+      action: event.action || '',
+      status: event.status || '',
+      doctorId: event.doctorId || '',
+      batchId: event.batchId || '',
+      error: (err && err.message ? err.message : String(err || '')).slice(0, 500),
+    });
+    if (list.length > 100) {
+      list = list.slice(list.length - 100);
+    }
+    props.setProperty(key, JSON.stringify(list));
+  } catch (fallbackErr) {
+    Logger.log('監査fallback書き込み失敗: ' + fallbackErr.message);
   }
 }
 
@@ -566,6 +638,20 @@ function simpleHash(str) {
     hash |= 0;
   }
   return Math.abs(hash);
+}
+
+function strongHash_(str) {
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(str || ''),
+    Utilities.Charset.UTF_8,
+  );
+  return digest
+    .map(function (b) {
+      const n = b < 0 ? b + 256 : b;
+      return ('0' + n.toString(16)).slice(-2);
+    })
+    .join('');
 }
 
 function jsonResponse(obj) {

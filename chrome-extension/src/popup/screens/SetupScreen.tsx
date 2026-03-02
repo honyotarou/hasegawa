@@ -122,7 +122,7 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
       />
 
       <label className={styles['setup-label']} htmlFor="api-secret">
-        シークレットキー*
+        送信用シークレット（API_SECRET）*
       </label>
       <div className={styles['setup-secret-row']}>
         <input
@@ -166,7 +166,8 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
       />
 
       <p className={styles['setup-note']}>
-        セキュリティのため、シークレットキーはブラウザ再起動後に再入力が必要です。
+        セキュリティのため、送信用シークレット（API_SECRET）はブラウザ再起動後に再入力が必要です。
+        監査同期用シークレット（EVIDENCE_SECRET）はこの画面には入力しません。
       </p>
 
       <button className={styles['setup-primary-btn']} type="button" onClick={handleSave}>
