@@ -7,8 +7,8 @@
 ## Trend 1: 医療文書入力は Human-in-the-loop 前提が継続
 - 医療現場では自動化よりも、最終確認を人が担う運用設計が主流。
 - Sources:
-  - JAMIA (2024): https://pubmed.ncbi.nlm.nih.gov/39191626/
-  - AI burden in clinical documentation (2025): https://pubmed.ncbi.nlm.nih.gov/40675963/
+  - Ambient artificial intelligence scribes: utilization and impact on documentation time (JAMIA, 2025): https://pubmed.ncbi.nlm.nih.gov/39688515/
+  - Enhancing clinical documentation with ambient artificial intelligence... (JAMIA Open, 2025): https://pubmed.ncbi.nlm.nih.gov/39991073/
 
 Implication:
 - v11の「確認画面を経由して送信」「必須項目ガード」は研究トレンドと整合。
@@ -17,7 +17,7 @@ Implication:
 ## Trend 2: 文書理解は OCR-only から VLMベースへ
 - 画像/文書抽出はVLMでの構造理解が進み、OCR単体パイプラインから移行が進む。
 - Sources:
-  - PaddleOCR-VL (2025): https://arxiv.org/abs/2408.14539
+  - PaddleOCR-VL (2025): https://arxiv.org/abs/2510.14528
   - MinerU2.5 (2025): https://arxiv.org/abs/2509.22186
 
 Implication:
@@ -36,8 +36,9 @@ Implication:
 
 ## Trend 4: 医療データの監査証跡は改ざん耐性が論点
 - 医療記録の信頼性担保（integrity / traceability）を強調する研究が継続。
-- Source:
-  - CUREUS (2025): https://pubmed.ncbi.nlm.nih.gov/40228359/
+- Sources:
+  - Blockchain-enabled EHR access auditing: Enhancing healthcare data security (Heliyon, 2024): https://pubmed.ncbi.nlm.nih.gov/39253236/
+  - Assessment of the integrity of real-time electronic health record data used in clinical research (PLoS One, 2026): https://pubmed.ncbi.nlm.nih.gov/41511976/
 
 Implication:
 - 監査ログは「残す」だけでなく、表示系（Markdown同期）の注入耐性も必須。
