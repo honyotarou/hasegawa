@@ -9,11 +9,12 @@ RUN_GIT_PUSH=1
 
 usage() {
   cat <<USAGE
-Usage: scripts/deploy-gas.sh [--skip-tests] [--no-git-push]
+Usage: scripts/deploy-gas.sh [--skip-tests] [--no-git-push] [-h|--help]
 
 Options:
   --skip-tests   Skip chrome-extension unit tests.
   --no-git-push  Skip git push and only run clasp push.
+  -h, --help     Show this help message.
 USAGE
 }
 
@@ -52,6 +53,10 @@ else
 fi
 
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$CURRENT_BRANCH" = "HEAD" ]; then
+  echo "[ERROR] Detached HEAD state detected. Checkout a branch before deploying." >&2
+  exit 1
+fi
 if [ "$RUN_GIT_PUSH" -eq 1 ]; then
   echo "[2/4] Pushing Git branch: $CURRENT_BRANCH"
   git push origin "$CURRENT_BRANCH"

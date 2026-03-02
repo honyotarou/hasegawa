@@ -87,7 +87,7 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
                 <span className={styles['row-no']}>{p.age}歳</span>
                 <span className={styles['row-no']}>{p.gender}</span>
                 <span className={styles['row-no']}>{p.diagnoses[0] || '未入力'}</span>
-                <span className={styles['row-no']}>{p.rehab ? '✅ あり' : '✅ なし'}</span>
+                <span className={styles['row-no']}>{p.rehab ? '✅ あり' : '❌ なし'}</span>
               </div>
             ))}
           </div>

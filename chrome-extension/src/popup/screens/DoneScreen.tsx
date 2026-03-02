@@ -24,7 +24,8 @@ export function DoneScreen({ result, dispatch }: DoneScreenProps) {
           </div>
           {result ? (
             <div className={styles['done-meta']}>
-              {result.submittedAt} batchId: {result.batchId?.slice(0, 8)}...
+              {result.submittedAt}
+              {result.batchId && <> batchId: {result.batchId.slice(0, 8)}...</>}
             </div>
           ) : null}
           <div className={styles.content}>
