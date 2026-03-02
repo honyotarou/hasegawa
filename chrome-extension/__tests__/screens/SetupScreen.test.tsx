@@ -105,4 +105,95 @@ describe('SetupScreen', () => {
     });
     expect(goToScreen).not.toHaveBeenCalled();
   });
+
+  test('開発URLが許可ドメイン外の場合は保存しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+    const goToScreen = vi.fn();
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('gasUrlDev'), 'https://example.com/dev');
+    await userEvent.type(screen.getByLabelText('doctorId'), '12345');
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        'GAS URL（開発）は script.google.com / script.googleusercontent.com のHTTPS URLを入力してください',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('シークレットが空の場合は保存しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen: vi.fn() }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('doctorId'), '12345');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('シークレットキーは必須です');
+  });
+
+  test('社員番号が空の場合は保存しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen: vi.fn() }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('社員番号は必須です');
+  });
+
+  test('診断名マスタが空の場合は保存しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen: vi.fn() }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('doctorId'), '12345');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('診断名を1件以上入力してください');
+  });
 });

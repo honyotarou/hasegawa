@@ -7,3 +7,4 @@
 - academic-trends.md
 - cost-estimate.md
 - baseline-comparison.md
+- ../compliance/*

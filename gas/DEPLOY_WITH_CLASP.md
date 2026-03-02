@@ -39,3 +39,5 @@ scripts/deploy-gas.sh --no-git-push
 ## Safety checklist
 - Working tree must be clean.
 - Use "既存のデプロイを更新" in GAS deployment UI (URL fixed).
+- `AuditEvidence` シートが自動作成されることを確認する。
+- 監査同期を使う場合は `getEvidenceEvents` action が secret 認証で応答することを確認する。

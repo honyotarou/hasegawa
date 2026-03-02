@@ -10,7 +10,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "bench": "vitest bench bench/sendBatch.bench.ts bench/extractPatients.bench.ts --run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "sync:evidence": "node scripts/sync-evidence-register.mjs"
   },
   "dependencies": {
     "react": "^18.3.0",

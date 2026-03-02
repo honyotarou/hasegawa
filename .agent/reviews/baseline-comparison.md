@@ -13,20 +13,20 @@
 
 ### Test scale
 - Before extension: 39 tests
-- After extension: 76 tests
+- After extension: 93 tests
 
 ### Coverage
 - Baseline: 75.45% (from `v11-coverage-baseline.log`)
-- Current: 95.20% (latest local run)
-- Delta: +19.75pt
+- Current: 96.56% (latest local run)
+- Delta: +21.11pt
 
 ### E2E
 - Baseline: 0 playwright scenarios
 - Current: 2 scenarios pass (`setup`, `main->confirm->done`)
 
 ### Bench (current)
-- `sendBatch` 40件: ~21,774 ops/s
-- `extractPatients` 40件: ~15,691 ops/s
+- `sendBatch` 40件: ~50,604 ops/s
+- `extractPatients` 40件: ~17,170 ops/s
 
 ## Recommendation
 mainが空のため、次回からは「比較対象タグ（例: `baseline/v11-start`）」を切って固定し、同条件で継続計測する。

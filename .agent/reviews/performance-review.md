@@ -1,12 +1,13 @@
 # Performance Review (診療記録くん v11)
 
 ## Measured Results
-- Unit/UI: 76 tests pass
-- Coverage: 95.20% (statement)
+- Unit/UI: 93 tests pass
+- E2E: 2 scenarios pass（前回計測値）
+- Coverage: 96.56% (statement)
 - Bench:
-  - `sendBatch` 40件 payload 生成+応答parse: 約21,774 ops/s
-  - `extractPatients` 40件 parse: 約15,691 ops/s
-- Evidence: latest local run (`npm run test:coverage`, `npm run bench`)
+  - `sendBatch` 40件 payload 生成+応答parse: 約50,604 ops/s
+  - `extractPatients` 40件 parse: 約17,170 ops/s
+- Evidence: latest local run (`npm run test`, `npm run bench`)
 
 ## Findings
 1. Medium: 入力中の session snapshot 書き込み頻度が高い
@@ -22,6 +23,16 @@
 - Evidence: [MainScreen.tsx](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/popup/screens/MainScreen.tsx:72)
 - Impact: 患者行が多いと入力ごとに全行再描画。
 - Recommendation: `PatientRow` を `React.memo` 化、dispatch callback を `useCallback` 化。
+
+4. Low: カバレッジ未到達領域は設定画面の異常系分岐が中心
+- Evidence: `test:coverage` report (`SettingsScreen.tsx`, `SetupScreen.tsx`)
+- Impact: 本番障害確率は高くないが、設定保存失敗パスの検証粒度が不足。
+- Recommendation: 保存失敗・無効URLの分岐テストを追加し branch を底上げする。
+
+5. Low: 監査ログ自動追記で `recordBatch` 1回あたりシート書き込みが1回増える
+- Evidence: [Code.gs](gas/Code.gs#L145), [Code.gs](gas/Code.gs#L307)
+- Impact: 高トラフィック時のGAS実行時間が微増。
+- Recommendation: 将来負荷増大時は `AuditEvidence` をバッチappend（`setValues`）へ変更。
 
 ## Immediate Wins
 - snapshot debounce（UI）

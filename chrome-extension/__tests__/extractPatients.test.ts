@@ -201,4 +201,16 @@ describe('extractPatientsFromDOM', () => {
     expect(result.success).toBe(true);
     expect(result.patients).toEqual([{ age: 42, gender: '女性' }]);
   });
+
+  test('pre/code がなく本文テキストにJSON配列がある場合も抽出できる', () => {
+    // Given
+    const html = '<main><article>診断メモ [{"age":27,"gender":"female"}] end</article></main>';
+
+    // When
+    const result = runWithDom(html);
+
+    // Then
+    expect(result.success).toBe(true);
+    expect(result.patients).toEqual([{ age: 27, gender: '女性' }]);
+  });
 });

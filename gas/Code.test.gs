@@ -45,3 +45,34 @@ function testValidation_normal_ok() {
   assertEquals_(res.normalized.gender, '男性', 'gender normalized');
   assertEquals_(res.normalized.diagnoses.length, 6, 'diagnosis padded to 6');
 }
+
+function testValidation_formula_injection_sanitized() {
+  // Given
+  const obj = {
+    age: 42,
+    gender: '女性',
+    diagnoses: ['=SUM(1,1)', '+cmd'],
+    rehab: false,
+    remarks: '@malicious',
+  };
+
+  // When
+  const res = validateAndNormalize(obj);
+
+  // Then
+  assertTrue_(res.valid, 'formula-like values should still be accepted after sanitization');
+  assertEquals_(res.normalized.diagnoses[0].charAt(0), "'", 'diagnosis[0] must be escaped');
+  assertEquals_(res.normalized.diagnoses[1].charAt(0), "'", 'diagnosis[1] must be escaped');
+  assertEquals_(res.normalized.remarks.charAt(0), "'", 'remarks must be escaped');
+}
+
+function testValidation_invalid_object_guard() {
+  // Given
+  const obj = null;
+
+  // When
+  const res = validateAndNormalize(obj);
+
+  // Then
+  assertFalse_(res.valid, 'null object should be invalid');
+}

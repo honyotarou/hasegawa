@@ -1,6 +1,7 @@
 const CONFIG = {
   SPREADSHEET_ID: '1ECE1pPn58spv-Q5TVvkF_9fFhcBp5CcCf-qBTeHHwA8',
   MASTER_SHEET_NAME: 'RehaTrueFalse',
+  AUDIT_SHEET_NAME: 'AuditEvidence',
   JSON_FOLDER_ID: '135AjBdyPjlPfMzpZurJJM1B3_6wXQa7k',
   RECENT_HASH_LIMIT: 200,
 };
@@ -16,10 +17,18 @@ function setupSecret() {
 }
 
 function doPost(e) {
+  let body = {};
   try {
-    const body = JSON.parse(e.postData.contents);
+    body = JSON.parse(e.postData.contents);
     const secret = PropertiesService.getScriptProperties().getProperty('API_SECRET');
     if (body.secret !== secret) {
+      appendAuditEvent_({
+        action: body.action || 'unknown',
+        status: 'auth_error',
+        doctorId: body.doctorId || '',
+        batchId: body.batchId || '',
+        error: '認証失敗',
+      });
       return jsonResponse({ success: false, error: '認証失敗' });
     }
 
@@ -30,31 +39,58 @@ function doPost(e) {
         return handleRecordBatch(body);
       case 'dailyReport':
         return handleDailyReport(body.date);
+      case 'getEvidenceEvents':
+        return handleGetEvidenceEvents(body);
       default:
+        appendAuditEvent_({
+          action: body.action || 'unknown',
+          status: 'error',
+          doctorId: body.doctorId || '',
+          batchId: body.batchId || '',
+          error: '不正なactionです',
+        });
         return jsonResponse({ success: false, error: '不正なactionです' });
     }
   } catch (err) {
+    appendAuditEvent_({
+      action: body.action || 'unknown',
+      status: 'exception',
+      doctorId: body.doctorId || '',
+      batchId: body.batchId || '',
+      error: err.message,
+    });
     Logger.log('doPostエラー: ' + err.message);
     return jsonResponse({ success: false, error: err.message });
   }
 }
 
+function batchErrorResponse_(body, errorMessage) {
+  appendAuditEvent_({
+    action: 'recordBatch',
+    status: 'error',
+    doctorId: (body && body.doctorId) || '',
+    batchId: (body && body.batchId) || '',
+    error: errorMessage,
+  });
+  return jsonResponse({ success: false, error: errorMessage });
+}
+
 function handleRecordBatch(body) {
   if (!Array.isArray(body.records) || body.records.length === 0) {
-    return jsonResponse({ success: false, error: 'recordsが空配列です' });
+    return batchErrorResponse_(body, 'recordsが空配列です');
   }
   if (!body.batchId) {
-    return jsonResponse({ success: false, error: 'batchIdが必須です' });
+    return batchErrorResponse_(body, 'batchIdが必須です');
   }
   if (!body.doctorId) {
-    return jsonResponse({ success: false, error: 'doctorIdが必須です' });
+    return batchErrorResponse_(body, 'doctorIdが必須です');
   }
 
   const validated = [];
   for (let i = 0; i < body.records.length; i++) {
     const rec = body.records[i];
     if (!rec.clientRecordId) {
-      return jsonResponse({ success: false, error: 'records[' + i + ']: clientRecordIdが必須です' });
+      return batchErrorResponse_(body, 'records[' + i + ']: clientRecordIdが必須です');
     }
 
     const obj = {
@@ -67,7 +103,7 @@ function handleRecordBatch(body) {
 
     const v = validateAndNormalize(obj);
     if (!v.valid) {
-      return jsonResponse({ success: false, error: 'records[' + i + ']: ' + v.error });
+      return batchErrorResponse_(body, 'records[' + i + ']: ' + v.error);
     }
 
     validated.push({ entry: rec, normalized: v.normalized });
@@ -147,13 +183,32 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
     sheet.getRange(lastRow + 1, 1, rowsToWrite.length, 15).setValues(rowsToWrite);
   }
 
+  appendAuditEvent_({
+    action: 'recordBatch',
+    status: 'success',
+    doctorId: doctorId,
+    batchId: batchId,
+    written: rowsToWrite.length,
+    skipped: skipped.length,
+    error: '',
+  });
+
   return jsonResponse({ success: true, written: rowsToWrite.length, skipped: skipped.length });
 }
 
 function handleRecord(body) {
   const obj = typeof body.answer === 'string' ? JSON.parse(body.answer) : body.answer;
   const v = validateAndNormalize(obj);
-  if (!v.valid) return jsonResponse({ success: false, error: v.error });
+  if (!v.valid) {
+    appendAuditEvent_({
+      action: 'record',
+      status: 'error',
+      doctorId: body.doctorId || '',
+      batchId: body.batchId || '',
+      error: v.error,
+    });
+    return jsonResponse({ success: false, error: v.error });
+  }
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
@@ -183,6 +238,13 @@ function appendRecord(body, normalized) {
       .flat()
       .map(String);
     if (hashes.includes(hashKey)) {
+      appendAuditEvent_({
+        action: 'record',
+        status: 'error',
+        doctorId: body.doctorId || '',
+        batchId: body.batchId || '',
+        error: '重複データのためスキップ',
+      });
       return jsonResponse({ success: false, error: '重複データのためスキップ' });
     }
   }
@@ -206,7 +268,103 @@ function appendRecord(body, normalized) {
   ];
 
   sheet.getRange(lastRow + 1, 1, 1, 15).setValues([rowData]);
+  appendAuditEvent_({
+    action: 'record',
+    status: 'success',
+    doctorId: body.doctorId || '',
+    batchId: body.batchId || '',
+    written: 1,
+    skipped: 0,
+    error: '',
+  });
   return jsonResponse({ success: true, hash: hashKey });
+}
+
+function handleGetEvidenceEvents(body) {
+  const parsedLimit = Number(body.limit);
+  const limit = Number.isFinite(parsedLimit)
+    ? Math.max(1, Math.min(500, Math.floor(parsedLimit)))
+    : 100;
+  const events = listEvidenceEvents_(limit);
+  return jsonResponse({ success: true, events: events });
+}
+
+function listEvidenceEvents_(limit) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.AUDIT_SHEET_NAME);
+  if (!sheet) return [];
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return [];
+
+  const startRow = Math.max(2, lastRow - limit + 1);
+  const count = lastRow - startRow + 1;
+  const rows = sheet.getRange(startRow, 1, count, 10).getValues();
+
+  const events = [];
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const row = rows[i];
+    events.push({
+      timestamp: row[0] || '',
+      eventId: row[1] || '',
+      action: row[2] || '',
+      status: row[3] || '',
+      doctorId: row[4] || '',
+      batchId: row[5] || '',
+      written: Number(row[6] || 0),
+      skipped: Number(row[7] || 0),
+      error: row[8] || '',
+      meta: row[9] || '',
+    });
+  }
+  return events;
+}
+
+function appendAuditEvent_(event) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(CONFIG.AUDIT_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(CONFIG.AUDIT_SHEET_NAME);
+    }
+
+    if (sheet.getLastRow() === 0) {
+      sheet.getRange(1, 1, 1, 10).setValues([[
+        'timestamp',
+        'eventId',
+        'action',
+        'status',
+        'doctorId',
+        'batchId',
+        'written',
+        'skipped',
+        'error',
+        'meta',
+      ]]);
+    }
+
+    const timestamp = Utilities.formatDate(
+      new Date(),
+      Session.getScriptTimeZone(),
+      'yyyy-MM-dd HH:mm:ss',
+    );
+    const errorText = (event.error || '').toString().slice(0, 500);
+    const metaText = event.meta ? JSON.stringify(event.meta).slice(0, 1000) : '';
+    sheet.appendRow([
+      timestamp,
+      Utilities.getUuid(),
+      event.action || '',
+      event.status || '',
+      event.doctorId || '',
+      event.batchId || '',
+      Number(event.written || 0),
+      Number(event.skipped || 0),
+      errorText,
+      metaText,
+    ]);
+  } catch (err) {
+    Logger.log('監査ログ書き込み失敗: ' + err.message);
+  }
 }
 
 function readMasterRows_() {

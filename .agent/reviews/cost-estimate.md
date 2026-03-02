@@ -1,6 +1,6 @@
 # Cost Estimate (ActiveUser 100人ごと)
 
-最終確認日: 2026-03-01
+最終確認日: 2026-03-02
 
 ## Pricing / Quota Sources
 - Google Apps Script quotas:
@@ -9,7 +9,8 @@
   - https://workspace.google.com/pricing
 - ChatGPT pricing (optional seat cost):
   - https://openai.com/chatgpt/pricing/
-  - https://help.openai.com/en/articles/6950777-what-is-chatgpt-plus
+
+注記: 価格は 2026-03-02 時点で公開ページ表示値を参照。地域・税・年契約割引で変動。
 
 ## Assumptions
 1. 拡張機能はクライアント実行（Chrome拡張自体の従量課金なし）
@@ -28,19 +29,25 @@
 - 主な追加コスト: 運用工数（人件費）
 
 ### Scenario B: Workspace席を新規追加
-- Workspace Business Starterを $8.40/user/month と仮定（pricing page表示値ベース）
-- +100 usersごと: **$840 / month**
+- Workspace Business Starter: $7/user/month（表示価格、年契約割引時は $5.60 のキャンペーン表示あり）
+- +100 usersごと: **$700 / month**（割引適用時は **$560 / month**）
 
 ### Scenario C: Workspace + ChatGPT Plus を新規追加
-- Workspace: $8.40/user/month
+- Workspace: $7/user/month
 - ChatGPT Plus: $20/user/month
-- 合計: $28.40/user/month
-- +100 usersごと: **$2,840 / month**
+- 合計: $27/user/month
+- +100 usersごと: **$2,700 / month**
+
+### Scenario D: Workspace + ChatGPT Business を新規追加
+- Workspace: $7/user/month
+- ChatGPT Business: $25/user/month（年払い時の表示価格）
+- 合計: $32/user/month
+- +100 usersごと: **$3,200 / month**
 
 ## 参考: 100人刻みの概算
-- 100 users: $840 (Workspaceのみ) / $2,840 (Workspace+Plus)
-- 200 users: $1,680 / $5,680
-- 300 users: $2,520 / $8,520
+- 100 users: $700 (Workspaceのみ) / $2,700 (Workspace+Plus) / $3,200 (Workspace+Business)
+- 200 users: $1,400 / $5,400 / $6,400
+- 300 users: $2,100 / $8,100 / $9,600
 
 ## Notes
 - 実際の契約単価は地域/年契約/キャンペーンで変動するため、導入時に最新価格で再見積が必要。

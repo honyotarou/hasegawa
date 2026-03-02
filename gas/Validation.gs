@@ -25,8 +25,13 @@ function validateAndNormalize(obj) {
   }
 
   const gender = normalizeGender(obj.gender);
+  function sanitizeForSheetText(str) {
+    const text = (str || '').toString();
+    if (/^[=+\-@]/.test(text)) return "'" + text;
+    return text;
+  }
   let diag = obj.diagnoses.map(function (d) {
-    return (d || '').toString().slice(0, 100);
+    return sanitizeForSheetText(d).slice(0, 100);
   });
   while (diag.length < 6) diag.push('');
   diag = diag.slice(0, 6);
@@ -39,7 +44,7 @@ function validateAndNormalize(obj) {
       gender: gender,
       diagnoses: diag,
       rehab: obj.rehab,
-      remarks: (obj.remarks || '').toString().slice(0, 200),
+      remarks: sanitizeForSheetText(obj.remarks).slice(0, 200),
     },
   };
 }
