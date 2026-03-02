@@ -1,0 +1,11 @@
+# Default deny
+**/*
+
+# Deploy only GAS source files
+!**/*.gs
+!**/*.html
+!appsscript.json
+
+# Never deploy test code
+**/*.test.gs
+Code.test.gs

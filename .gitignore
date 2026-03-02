@@ -7,3 +7,6 @@ chrome-extension/coverage/
 chrome-extension/playwright-report/
 chrome-extension/test-results/
 .agent/logs/
+
+# GAS clasp local settings
+gas/.clasp.json
