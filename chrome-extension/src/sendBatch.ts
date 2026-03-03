@@ -1,22 +1,32 @@
 import type { AppState, BatchPayload, GasResponse } from './types';
 
+let lastCheckedGasUrl = '';
+let lastCheckedGasUrlAllowed = false;
+
+function isAllowedGasUrl(urlStr: string): boolean {
+  if (!urlStr) return false;
+  if (urlStr === lastCheckedGasUrl) return lastCheckedGasUrlAllowed;
+  try {
+    const url = new URL(urlStr);
+    const allowed =
+      url.protocol === 'https:' &&
+      (url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com');
+    lastCheckedGasUrl = urlStr;
+    lastCheckedGasUrlAllowed = allowed;
+    return allowed;
+  } catch {
+    lastCheckedGasUrl = urlStr;
+    lastCheckedGasUrlAllowed = false;
+    return false;
+  }
+}
+
 export function sendBatch(
   state: AppState,
   gasUrl: string,
   apiSecret: string,
   doctorId: string,
 ): Promise<GasResponse> {
-  function isAllowedGasUrl(urlStr: string): boolean {
-    if (!urlStr) return false;
-    try {
-      const url = new URL(urlStr);
-      if (url.protocol !== 'https:') return false;
-      return url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com';
-    } catch {
-      return false;
-    }
-  }
-
   const task = (async () => {
     if (!state.currentBatchId) {
       throw new Error('batchIdがありません');

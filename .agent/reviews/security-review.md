@@ -43,6 +43,9 @@
 - Evidence: [Code.gs](gas/Code.gs#L214), [Code.gs](gas/Code.gs#L298), [Code.gs](gas/Code.gs#L351), [Code.gs](gas/Code.gs#L399)
 - Status:
   - `auditLogged` をレスポンスで返却し、失敗時は `AUDIT_FALLBACK_BUFFER` に退避する実装へ更新。
+- Update (2026-03-03):
+  - fallbackバッファは「最大30件」かつ「8,000文字以内」に制限し、PropertiesServiceの容量超過で再失敗しにくくした。
+  - Evidence: [Code.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.gs:461), [Code.test.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.test.gs:136)
 - Recommendation:
   - 退避バッファ件数の定期監視（0件運用）を追加する。
 
@@ -56,3 +59,4 @@
 - storage/session操作失敗時のcatch実装: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L112), [useDiagnosis.ts](chrome-extension/src/popup/hooks/useDiagnosis.ts#L8)
 - Setup/SettingsのGAS URL許可ドメイン検証: [SetupScreen.tsx](chrome-extension/src/popup/screens/SetupScreen.tsx#L23), [SettingsScreen.tsx](chrome-extension/src/popup/screens/SettingsScreen.tsx#L27)
 - 監査ログ自動追記（AuditEvidenceシート）: [Code.gs](gas/Code.gs#L307)
+- 送信時の`apiSecret`/`doctorId` trim適用（検証と実送信の不整合を解消）: [sendBatch.ts](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/sendBatch.ts:33)

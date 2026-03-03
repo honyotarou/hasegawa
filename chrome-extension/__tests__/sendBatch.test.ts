@@ -94,6 +94,18 @@ describe('sendBatch', () => {
     await expect(action).rejects.toThrow('許可ドメイン外');
   });
 
+  test('GAS URLが不正フォーマットでもエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), '::::', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('許可ドメイン外');
+  });
+
   test('apiSecretが空ならエラーを throw する', async () => {
     // Given
     const fn = (sendBatchModule as any).sendBatch;

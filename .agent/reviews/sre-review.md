@@ -35,6 +35,11 @@
 - Current: DONE遷移時に `inputSnapshot` と `currentBatchId` を同時削除
 - Evidence: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L133)
 
+8. Fixed in this run: 監査fallbackの過大化による二次障害リスクを縮小
+- Current: `AUDIT_FALLBACK_BUFFER` は30件上限かつ8,000文字上限で切り詰め
+- Evidence: [Code.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.gs:461), [Code.test.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.test.gs:136)
+- Effect: PropertiesServiceサイズ超過でfallback保存が再失敗する確率を下げた。
+
 ## Governance Evidence Status (準拠判定で不足しやすい項目)
 - アクセス権限管理: テンプレート作成済み（`access-control-matrix.md`）、実績ログは `evidence-register.md` へ追記運用が必要。
 - 監査ログ保管/定期レビュー: `audit-log-policy.md` で手順化済み、週次レビュー実績入力が未実施。

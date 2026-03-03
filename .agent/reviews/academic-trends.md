@@ -2,7 +2,7 @@
 
 ## Scope
 対象は「医療入力ワークフローの human-in-the-loop」「ブラウザ拡張のセキュリティ」「監査証跡の信頼性」に関連する近年研究。
-最終確認日: 2026-03-02
+最終確認日: 2026-03-03
 
 ## Trend 1: 医療文書入力は Human-in-the-loop 前提が継続
 - 医療現場では自動化よりも、最終確認を人が担う運用設計が主流。
@@ -27,8 +27,8 @@ Implication:
 ## Trend 3: 拡張機能セキュリティは permission/API境界の設計が焦点
 - MV3移行後も、API境界や権限設計ミスが主要リスクとして研究されている。
 - Sources:
-  - NDSS 2024 paper listing (Privileged by Design): https://www.ndss-symposium.org/ndss-paper/privileged-by-design-from-browser-extension-architecture-to-universal-cross-browser-privilege-escalation/
-  - ACM Digital Threats (2025): https://dl.acm.org/doi/10.1145/3709118
+  - Arcanum: Symbolic, Constraint-Based, and Data-Flow Analyses of Browser Extensions at Scale (USENIX Security): https://www.usenix.org/conference/usenixsecurity24/presentation/liu-yuhang
+  - Exploiting Browser Password Managers with False Sign-In Form Fields (USENIX Security): https://www.usenix.org/conference/usenixsecurity24/presentation/wang-xiaoyin
 
 Implication:
 - `API_SECRET` と `EVIDENCE_SECRET` の分離は least privilege 改善として有効。

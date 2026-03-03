@@ -9,23 +9,23 @@
 
 ### Test scale
 - `main`: 93 tests pass
-- `current`: 112 tests pass
-- Delta: +19 tests
+- `current`: 114 tests pass
+- Delta: +21 tests
 
 ### Coverage
 - `main`: 92.71%
-- `current`: 96.40%
-- Delta: +3.69pt
+- `current`: 96.52%
+- Delta: +3.81pt
 
 ### E2E
 - `main`: 2 scenarios pass
-- `current`: 3 scenarios pass
-- Delta: +1 scenario
+- `current`: 4 scenarios pass
+- Delta: +2 scenarios
 
 ### Bench (current)
-- `main`: `sendBatch` ~9,676 ops/s / `extractPatients` ~15,732 ops/s
-- `current`: `sendBatch` ~29,018 ops/s / `extractPatients` ~16,629 ops/s
-- Delta: `sendBatch` +199.9% / `extractPatients` +5.7%
+- `main`: `sendBatch` ~31,157 ops/s / `extractPatients` ~15,701 ops/s
+- `current`: `sendBatch` ~49,760 ops/s / `extractPatients` ~16,894 ops/s
+- Delta: `sendBatch` +59.7% / `extractPatients` +7.6%
 
 ## Recommendation
 次回からは baseline 計測用に固定タグ（例: `baseline/v11.1-security`）を切り、同じベンチ回数/CPU条件で比較する。

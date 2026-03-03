@@ -14,7 +14,7 @@
 - Local: `/tmp/oss-plasmo`
 - Checked commit: `9369e28`
 
-再確認日: 2026-03-02（同一commitで再チェック）
+再確認日: 2026-03-03（同一commitで再チェック）
 
 ## Observations
 
