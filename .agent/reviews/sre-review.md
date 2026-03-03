@@ -1,5 +1,7 @@
 # SRE Review (診療記録くん v11)
 
+最終再評価: 2026-03-03（運用ガイド更新、重大所見追加なし）
+
 ## Reliability
 1. Medium: 送信失敗時の自動再試行がない
 - Current: ユーザー手動再送（batchId保持）

@@ -4,9 +4,9 @@
 - Unit/UI: 114 tests pass
 - E2E: 4 scenarios pass
 - Coverage: 96.52% (statement)
-- Bench:
-  - `sendBatch` 40件 payload 生成+応答parse: 約49,760 ops/s
-  - `extractPatients` 40件 parse: 約16,894 ops/s
+- Bench (3 runs median):
+  - `sendBatch` 40件 payload 生成+応答parse: 約49,062 ops/s
+  - `extractPatients` 40件 parse: 約16,416 ops/s
 - Evidence: latest local run on 2026-03-03 (`npm run test`, `npm run test:e2e`, `npm run test:coverage`, `npm run bench`)
 
 ## Findings

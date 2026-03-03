@@ -1,5 +1,7 @@
 # Security Review (診療記録くん v11)
 
+最終再評価: 2026-03-03（追加の高優先度所見なし）
+
 ## Findings (Severity順)
 
 1. Medium: `getEvidenceEvents` は読み取り専用secretで分離されたが、漏えい時の閲覧リスクは残る
