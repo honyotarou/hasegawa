@@ -89,7 +89,9 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
   return (
     <section className={styles['setup-screen']}>
       <h2 className={styles['setup-title']}>初回設定</h2>
-      <p className={styles['setup-subtitle']}>診療記録くんを利用するための設定を入力してください。</p>
+      <p className={styles['setup-subtitle']}>
+        必須項目を入力すると入力画面へ進めます。未入力やURL不正がある場合は保存できません。
+      </p>
 
       {error ? (
         <p role="alert" className={styles['setup-error']}>
@@ -168,6 +170,9 @@ export function SetupScreen({ storage, goToScreen }: SetupScreenProps) {
       <p className={styles['setup-note']}>
         セキュリティのため、送信用シークレット（API_SECRET）はブラウザ再起動後に再入力が必要です。
         監査同期用シークレット（EVIDENCE_SECRET）はこの画面には入力しません。
+      </p>
+      <p className={styles['setup-note']}>
+        エラーが表示された場合: 原因を修正後に再度「設定を保存して始める」を押してください。
       </p>
 
       <button className={styles['setup-primary-btn']} type="button" onClick={handleSave}>

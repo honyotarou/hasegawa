@@ -72,6 +72,24 @@ describe('ConfirmScreen', () => {
     });
   });
 
+  test('確認サマリーにbatchId短縮表示と送信判定を表示する', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      state: { currentBatchId: '550e8400-e29b-41d4-a716-446655440000' },
+    });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText('送信前チェック')).toBeInTheDocument();
+    expect(screen.getByText('誤送信を防ぐため、件数・医師ID・batchIdを確認してから送信してください。')).toBeInTheDocument();
+    expect(screen.getByText(/batchId: 550e8400\.\.\./)).toBeInTheDocument();
+    expect(screen.getByText('送信判定: 送信可能')).toBeInTheDocument();
+  });
+
   test('GAS success:false の場合はSUBMIT_ERRORをdispatchする', async () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
@@ -142,6 +160,7 @@ describe('ConfirmScreen', () => {
       type: 'SUBMIT_ERROR',
       error: 'GAS URLが未設定です。設定画面を確認してください。',
     });
+    expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
   });
 
   test('許可外GAS URLなら送信前にSUBMIT_ERRORをdispatchする', async () => {

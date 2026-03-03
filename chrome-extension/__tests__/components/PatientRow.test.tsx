@@ -22,12 +22,32 @@ describe('PatientRow', () => {
     await userEvent.type(screen.getByLabelText('age-0'), '40');
     await userEvent.selectOptions(screen.getByLabelText('gender-0'), '女性');
     await userEvent.click(screen.getByLabelText('diag-trigger'));
-    await userEvent.click(screen.getByRole('button', { name: '腰痛' }));
+    await userEvent.click(screen.getByRole('button', { name: /★\s*腰痛/ }));
     await userEvent.click(screen.getByRole('button', { name: 'あり' }));
 
     // Then
     expect(screen.getByText('年齢エラー')).toBeInTheDocument();
     expect(onPatch).toHaveBeenCalled();
+    expect(screen.getByTestId('patient-row-0').getAttribute('data-pending')).toBe('true');
+  });
+
+  test('ageエラー単独でもpending行として扱う', () => {
+    // Given
+    const onPatch = vi.fn();
+
+    // When
+    render(
+      <PatientRow
+        index={0}
+        patient={{ age: 0, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' }}
+        top5={['腰痛']}
+        rest={[]}
+        onPatch={onPatch}
+      />,
+    );
+
+    // Then
+    expect(screen.getByText('年齢エラー')).toBeInTheDocument();
     expect(screen.getByTestId('patient-row-0').getAttribute('data-pending')).toBe('true');
   });
 });

@@ -143,10 +143,11 @@ export function useAppState() {
 
   const pendingRehab = state.patients.filter((p) => p.rehab === null).length;
   const pendingDiag = state.patients.filter((p) => !p.diagnoses[0]?.trim()).length;
-  const hasAgeError = state.patients.some(
+  const pendingAge = state.patients.filter(
     (p) => !Number.isInteger(p.age) || p.age < 1 || p.age > 150,
-  );
-  const pendingCount = pendingRehab + pendingDiag;
+  ).length;
+  const hasAgeError = pendingAge > 0;
+  const pendingCount = pendingRehab + pendingDiag + pendingAge;
   const canSubmit =
     state.patients.length > 0 &&
     pendingRehab === 0 &&
@@ -164,6 +165,7 @@ export function useAppState() {
     pendingCount,
     pendingRehab,
     pendingDiag,
+    pendingAge,
     canSubmit,
   };
 }

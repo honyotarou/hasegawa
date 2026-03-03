@@ -16,8 +16,8 @@ type PatientRowProps = {
 };
 
 export function PatientRow({ index, patient, top5, rest, onPatch }: PatientRowProps) {
-  const isPending = patient.rehab === null || !patient.diagnoses[0]?.trim();
   const ageError = !isValidAge(patient.age);
+  const isPending = ageError || patient.rehab === null || !patient.diagnoses[0]?.trim();
   const noLabel = String(index + 1).padStart(2, '0');
   const genderClass =
     patient.gender === '男性'

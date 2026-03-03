@@ -18,6 +18,7 @@ function baseProps(overrides: any = {}) {
     pendingCount: 0,
     pendingRehab: 0,
     pendingDiag: 0,
+    pendingAge: 0,
     canSubmit: true,
     diagnosis: { top5: ['腰痛'], rest: [], counts: {}, incrementCounts: vi.fn() },
     ...overrides,
@@ -35,6 +36,7 @@ describe('MainScreen', () => {
 
     // Then
     expect(screen.getByRole('button', { name: /全件送信/ })).toBeEnabled();
+    expect(screen.getByText('未解決リスクを0件にしてから送信してください。')).toBeInTheDocument();
   });
 
   test('診断名未入力がある場合は送信ボタンが無効', () => {
@@ -46,13 +48,14 @@ describe('MainScreen', () => {
     render(
       React.createElement(
         MainScreen,
-        baseProps({ pendingCount: 1, pendingDiag: 1, canSubmit: false }),
+        baseProps({ pendingCount: 1, pendingDiag: 1, pendingAge: 0, canSubmit: false }),
       ),
     );
 
     // Then
     expect(screen.getByRole('button', { name: /全件送信/ })).toBeDisabled();
-    expect(screen.getByText(/診断名未入力/)).toBeInTheDocument();
+    expect(screen.getByText(/未解決リスク: 1件/)).toBeInTheDocument();
+    expect(screen.getByText(/診断名未入力: 1件/)).toBeInTheDocument();
   });
 
   test('gasUrlDev が空なら mode toggle を表示しない', () => {
@@ -92,7 +95,7 @@ describe('MainScreen', () => {
     expect(screen.getByText(/開発/)).toBeInTheDocument();
   });
 
-  test('次の未選択へボタンで scrollIntoView を呼ぶ', async () => {
+  test('次の未解決へボタンで scrollIntoView を呼ぶ', async () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
@@ -104,14 +107,32 @@ describe('MainScreen', () => {
     render(
       React.createElement(
         MainScreen,
-        baseProps({ pendingCount: 1, pendingRehab: 1, canSubmit: false }),
+        baseProps({ pendingCount: 1, pendingRehab: 1, pendingDiag: 0, pendingAge: 0, canSubmit: false }),
       ),
     );
-    await userEvent.click(screen.getByRole('button', { name: /次の未選択へ/ }));
+    await userEvent.click(screen.getByRole('button', { name: /次の未解決へ/ }));
 
     // Then
     expect(spy).toHaveBeenCalled();
     Element.prototype.scrollIntoView = originalScrollIntoView;
+  });
+
+  test('年齢エラー件数を未解決リスクに表示する', () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+
+    // When
+    render(
+      React.createElement(
+        MainScreen,
+        baseProps({ pendingCount: 2, pendingRehab: 1, pendingDiag: 0, pendingAge: 1, canSubmit: false }),
+      ),
+    );
+
+    // Then
+    expect(screen.getByText(/未解決リスク: 2件/)).toBeInTheDocument();
+    expect(screen.getByText(/年齢エラー: 1件/)).toBeInTheDocument();
   });
 
   test('ChatGPTから取得が失敗した場合はSUBMIT_ERRORをdispatchする', async () => {

@@ -36,4 +36,20 @@ describe('DiagDropdown', () => {
     expect(onChange).toHaveBeenCalledWith('肩痛');
     expect(screen.queryByRole('button', { name: /腰痛/ })).not.toBeInTheDocument();
   });
+
+  test('キーワード未入力時は一覧を出さず、よく使うのみ表示する', async () => {
+    // Given
+    const DiagDropdown = (moduleDiag as any).DiagDropdown;
+    expect(DiagDropdown).toBeTypeOf('function');
+    const onChange = vi.fn();
+
+    // When
+    render(React.createElement(DiagDropdown, { value: '', top5: ['腰痛'], rest: ['肩痛'], onChange }));
+    await userEvent.click(screen.getByLabelText('diag-trigger'));
+
+    // Then
+    expect(screen.getByText('よく使う')).toBeInTheDocument();
+    expect(screen.queryByText('一覧')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '肩痛' })).not.toBeInTheDocument();
+  });
 });

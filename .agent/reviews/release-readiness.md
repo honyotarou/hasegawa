@@ -5,7 +5,7 @@
 ## Gate 1: 本番GAS URL/secretで実送信スモーク
 - Status: 実環境確認待ち
 - Auto Evidence:
-  - Unit: `npm --prefix chrome-extension run test` (114/114 PASS)
+  - Unit: `npm --prefix chrome-extension run test` (117/117 PASS)
   - E2E: `npm --prefix chrome-extension run test:e2e` (4/4 PASS)
   - sendBatch validation/timeout/http error tests (PASS)
 - Manual Steps:
@@ -41,7 +41,7 @@
 - Status: 実施可能
 - Auto Evidence:
   - `scripts/release-preflight.sh` で同一手順を再実行可能
-  - coverage PASS (96.52%)
+  - coverage PASS (96.53%)
   - bench PASS (3-run median: sendBatch 49,062 / extract 16,416 ops/s)
   - build PASS (`npm --prefix chrome-extension run build`)
 - Manual Steps:

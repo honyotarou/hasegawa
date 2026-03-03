@@ -18,6 +18,7 @@ type MainScreenProps = {
   pendingCount: number;
   pendingRehab: number;
   pendingDiag: number;
+  pendingAge: number;
   canSubmit: boolean;
   diagnosis: {
     top5: string[];
@@ -42,6 +43,7 @@ export function MainScreen({
   pendingCount,
   pendingRehab,
   pendingDiag,
+  pendingAge,
   canSubmit,
   diagnosis,
 }: MainScreenProps) {
@@ -99,15 +101,28 @@ export function MainScreen({
 
   function renderPendingStatus(): React.ReactNode {
     if (patientCount === 0) {
-      return <span className={styles['status-pill']}>患者データを取得してください</span>;
+      return (
+        <div className={`${styles['risk-banner']} ${styles['risk-banner-neutral']}`}>
+          <div className={styles['risk-heading']}>準備待ち</div>
+          <div className={styles['risk-breakdown']}>患者データを取得してください</div>
+        </div>
+      );
     }
     if (pendingCount === 0) {
-      return <span className={`${styles['status-pill']} ${styles['status-good']}`}>✅ 全員入力済み</span>;
+      return (
+        <div className={`${styles['risk-banner']} ${styles['risk-banner-ok']}`}>
+          <div className={styles['risk-heading']}>✅ 全員入力済み</div>
+          <div className={styles['risk-breakdown']}>確認画面へ進んで送信できます</div>
+        </div>
+      );
     }
     return (
-      <span className={styles['status-pill']}>
-        リハ未選択: {pendingRehab}件 / 診断名未入力: {pendingDiag}件
-      </span>
+      <div className={`${styles['risk-banner']} ${styles['risk-banner-warn']}`}>
+        <div className={styles['risk-heading']}>未解決リスク: {pendingCount}件</div>
+        <div className={styles['risk-breakdown']}>
+          リハ未選択: {pendingRehab}件 / 診断名未入力: {pendingDiag}件 / 年齢エラー: {pendingAge}件
+        </div>
+      </div>
     );
   }
 
@@ -119,7 +134,12 @@ export function MainScreen({
       />
 
       <div className={styles.content}>
-        <h2>入力画面</h2>
+        <div className={styles['screen-heading-wrap']}>
+          <h2 className={styles['screen-heading']}>入力画面</h2>
+          <p className={styles['screen-subheading']}>
+            未解決リスクを0件にしてから送信してください。
+          </p>
+        </div>
 
         <div className={styles.toolbar}>
           <div className={styles['toolbar-top']}>
@@ -142,7 +162,7 @@ export function MainScreen({
               disabled={patientCount === 0 || pendingCount === 0}
               onClick={jumpToPending}
             >
-              次の未選択へ↓
+              次の未解決へ↓
             </button>
           </div>
         </div>
@@ -187,6 +207,10 @@ export function MainScreen({
             全件送信（{patientCount}件）
           </button>
         </div>
+
+        <p className={styles['action-note']}>
+          送信前に「未解決リスク」「日付」「診断名」を最終確認してください。
+        </p>
 
         {state.submitError ? <div className={styles['status-error']}>{state.submitError}</div> : null}
       </div>

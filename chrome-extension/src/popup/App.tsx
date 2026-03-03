@@ -9,7 +9,7 @@ import { SettingsScreen } from './screens/SettingsScreen';
 import { SetupScreen } from './screens/SetupScreen';
 
 export function App() {
-  const { state, dispatch, goToScreen, pendingCount, pendingRehab, pendingDiag, canSubmit } =
+  const { state, dispatch, goToScreen, pendingCount, pendingRehab, pendingDiag, pendingAge, canSubmit } =
     useAppState();
   const storage = useStorage();
   const diagnosis = useDiagnosis(storage.settings.diagnosisMaster);
@@ -42,6 +42,7 @@ export function App() {
           pendingCount={pendingCount}
           pendingRehab={pendingRehab}
           pendingDiag={pendingDiag}
+          pendingAge={pendingAge}
           canSubmit={canSubmit}
           diagnosis={diagnosis}
         />

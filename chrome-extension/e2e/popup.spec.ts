@@ -128,6 +128,7 @@ test('main -> confirm -> done happy path', async ({ page }) => {
   // When
   await page.goto('/popup.html');
   await page.getByRole('button', { name: 'ChatGPTから取得' }).click();
+  await expect(page.getByRole('button', { name: /全件送信/ })).toBeDisabled();
   await page.getByLabel('diag-trigger').click();
   await page.getByRole('button', { name: /★\s*腰痛/ }).click();
   await page.getByRole('button', { name: 'あり' }).click();

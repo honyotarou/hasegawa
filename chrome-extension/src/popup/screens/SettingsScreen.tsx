@@ -91,7 +91,12 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
     <section className={styles.screen}>
       <Header onSettings={() => goToScreen('MAIN')} />
       <div className={styles['settings-screen']}>
-        <h2 className={styles['settings-title']}>設定</h2>
+        <div className={styles['screen-heading-wrap']}>
+          <h2 className={styles['settings-title']}>設定</h2>
+          <p className={styles['screen-subheading']}>
+            運用設定を更新します。保存前に本番URL・医師ID・API_SECRETを確認してください。
+          </p>
+        </div>
         <div className={styles['settings-grid']}>
           {error ? <p className={styles['status-error']}>{error}</p> : null}
 
@@ -163,6 +168,9 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
           <p className={styles['settings-note']}>
             API_SECRET はブラウザ再起動後に消えます。再入力が必要です。
             EVIDENCE_SECRET は監査同期スクリプト側で管理します。
+          </p>
+          <p className={styles['settings-note']}>
+            エラー表示時は、原因を修正してから保存を再実行してください。
           </p>
           <div className={styles.panel}>
             <div className={styles.content}>

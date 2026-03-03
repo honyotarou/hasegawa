@@ -13,11 +13,13 @@ export function DiagDropdown({ value, top5, rest, onChange }: DiagDropdownProps)
   const [open, setOpen] = useState(false);
 
   const merged = useMemo(() => [...top5, ...rest], [top5, rest]);
+  const hasKeyword = keyword.trim().length > 0;
 
   const options = useMemo(() => {
-    if (!keyword.trim()) return merged;
-    return merged.filter((name) => name.includes(keyword.trim()));
-  }, [merged, keyword]);
+    if (!hasKeyword) return [];
+    const needle = keyword.trim();
+    return merged.filter((name) => name.includes(needle));
+  }, [merged, keyword, hasKeyword]);
 
   function handleSelect(name: string): void {
     onChange(name);
@@ -44,7 +46,7 @@ export function DiagDropdown({ value, top5, rest, onChange }: DiagDropdownProps)
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
-          {!keyword.trim() && top5.length > 0 ? (
+          {!hasKeyword && top5.length > 0 ? (
             <>
               <div className={styles['diag-section-label']}>よく使う</div>
               <div className={styles['diag-list']}>
@@ -61,19 +63,24 @@ export function DiagDropdown({ value, top5, rest, onChange }: DiagDropdownProps)
               </div>
             </>
           ) : null}
-          <div className={styles['diag-section-label']}>一覧</div>
-          <div className={styles['diag-list']}>
-            {options.map((name, idx) => (
-              <button
-                key={`${name}-${idx}`}
-                type="button"
-                className={`${styles['diag-item']} ${value === name ? styles['diag-item-active'] : ''}`}
-                onClick={() => handleSelect(name)}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
+          {hasKeyword ? (
+            <>
+              <div className={styles['diag-section-label']}>検索結果</div>
+              <div className={styles['diag-list']}>
+                {options.map((name, idx) => (
+                  <button
+                    key={`${name}-${idx}`}
+                    type="button"
+                    className={`${styles['diag-item']} ${value === name ? styles['diag-item-active'] : ''}`}
+                    onClick={() => handleSelect(name)}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+              {options.length === 0 ? <div className={styles['diag-selected']}>該当なし</div> : null}
+            </>
+          ) : null}
         </div>
       ) : (
         <div className={styles['diag-selected']}>選択中: {value || '未選択'}</div>
