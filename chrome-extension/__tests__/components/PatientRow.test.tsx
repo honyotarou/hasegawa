@@ -30,4 +30,24 @@ describe('PatientRow', () => {
     expect(onPatch).toHaveBeenCalled();
     expect(screen.getByTestId('patient-row-0').getAttribute('data-pending')).toBe('true');
   });
+
+  test('ageエラー単独でもpending行として扱う', () => {
+    // Given
+    const onPatch = vi.fn();
+
+    // When
+    render(
+      <PatientRow
+        index={0}
+        patient={{ age: 0, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' }}
+        top5={['腰痛']}
+        rest={[]}
+        onPatch={onPatch}
+      />,
+    );
+
+    // Then
+    expect(screen.getByText('年齢エラー')).toBeInTheDocument();
+    expect(screen.getByTestId('patient-row-0').getAttribute('data-pending')).toBe('true');
+  });
 });

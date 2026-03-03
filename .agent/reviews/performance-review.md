@@ -1,9 +1,9 @@
 # Performance Review (診療記録くん v11)
 
 ## Measured Results
-- Unit/UI: 114 tests pass
+- Unit/UI: 117 tests pass
 - E2E: 4 scenarios pass
-- Coverage: 96.52% (statement)
+- Coverage: 96.53% (statement)
 - Bench (3 runs median):
   - `sendBatch` 40件 payload 生成+応答parse: 約49,062 ops/s
   - `extractPatients` 40件 parse: 約16,416 ops/s

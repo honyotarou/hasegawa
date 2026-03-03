@@ -54,6 +54,33 @@ describe('useAppState', () => {
     expect(result.current.pendingDiag).toBe(1);
   });
 
+  test('ageエラーがある場合はcanSubmit=falseかつ未解決件数に含まれる', () => {
+    // Given
+    const hook = (appStateModule as any).useAppState;
+    expect(hook).toBeTypeOf('function');
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.storage.session.remove = vi.fn().mockResolvedValue(undefined);
+
+    // When
+    const { result } = renderHook(() => hook());
+    act(() => {
+      result.current.dispatch({
+        type: 'SET_PATIENTS',
+        batchId: 'b1',
+        patients: [{ age: 0, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' }],
+      });
+    });
+
+    // Then
+    expect(result.current.canSubmit).toBe(false);
+    expect(result.current.pendingRehab).toBe(0);
+    expect(result.current.pendingDiag).toBe(0);
+    expect(result.current.pendingAge).toBe(1);
+    expect(result.current.pendingCount).toBe(1);
+  });
+
   test('SUBMIT_SUCCESSでDONE遷移しsnapshotを削除する', async () => {
     // Given
     const hook = (appStateModule as any).useAppState;

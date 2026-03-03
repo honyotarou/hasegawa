@@ -10,13 +10,13 @@
 
 ### Test scale
 - `main`: 93 tests pass
-- `current`: 114 tests pass
-- Delta: +21 tests
+- `current`: 117 tests pass
+- Delta: +24 tests
 
 ### Coverage
 - `main`: 92.71%
-- `current`: 96.52%
-- Delta: +3.81pt
+- `current`: 96.53%
+- Delta: +3.82pt
 
 ### E2E
 - `main`: 2 scenarios pass

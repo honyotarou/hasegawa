@@ -18,6 +18,7 @@ type MainScreenProps = {
   pendingCount: number;
   pendingRehab: number;
   pendingDiag: number;
+  pendingAge: number;
   canSubmit: boolean;
   diagnosis: {
     top5: string[];
@@ -42,6 +43,7 @@ export function MainScreen({
   pendingCount,
   pendingRehab,
   pendingDiag,
+  pendingAge,
   canSubmit,
   diagnosis,
 }: MainScreenProps) {
@@ -106,7 +108,7 @@ export function MainScreen({
     }
     return (
       <span className={styles['status-pill']}>
-        リハ未選択: {pendingRehab}件 / 診断名未入力: {pendingDiag}件
+        未解決リスク: {pendingCount}件（リハ未選択: {pendingRehab}件 / 診断名未入力: {pendingDiag}件 / 年齢エラー: {pendingAge}件）
       </span>
     );
   }
@@ -142,7 +144,7 @@ export function MainScreen({
               disabled={patientCount === 0 || pendingCount === 0}
               onClick={jumpToPending}
             >
-              次の未選択へ↓
+              次の未解決へ↓
             </button>
           </div>
         </div>
