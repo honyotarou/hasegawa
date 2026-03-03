@@ -508,8 +508,16 @@ body::after {
   background: rgba(255, 255, 255, 0.9);
   color: var(--text-secondary);
   font-size: 11px;
-  height: 22px;
-  padding: 0 8px;
+  height: 24px;
+  max-width: 100%;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
   cursor: pointer;
 }
 
