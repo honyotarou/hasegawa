@@ -32,8 +32,17 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
     }
   }
 
+  const gasUrl = state.mode === 'prod' ? storage.settings.gasUrlProd : storage.settings.gasUrlDev;
+  const blockingReasons: string[] = [];
+  if (!state.currentBatchId) blockingReasons.push('batchId未生成');
+  if (total === 0) blockingReasons.push('患者データ0件');
+  if (!gasUrl) blockingReasons.push('GAS URL未設定');
+  if (gasUrl && !isAllowedGasUrl(gasUrl)) blockingReasons.push('GAS URLが許可ドメイン外');
+  if (!storage.apiSecret?.trim()) blockingReasons.push('API_SECRET未設定');
+  if (!storage.settings.doctorId?.trim()) blockingReasons.push('医師ID未設定');
+  const shortBatchId = state.currentBatchId ? `${state.currentBatchId.slice(0, 8)}...` : '-';
+
   async function handleSubmit() {
-    const gasUrl = state.mode === 'prod' ? storage.settings.gasUrlProd : storage.settings.gasUrlDev;
     if (!gasUrl) {
       dispatch({ type: 'SUBMIT_ERROR', error: 'GAS URLが未設定です。設定画面を確認してください。' });
       return;
@@ -126,6 +135,18 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
           合計 {total}件 / リハあり {yesCount}件 なし {noCount}件
           <br />
           日付: {displayDate || '-'} / 医師ID: {storage.settings.doctorId || '-'}
+          <br />
+          batchId: {shortBatchId}
+        </div>
+
+        <div className={styles['confirm-summary']}>
+          {blockingReasons.length === 0 ? (
+            <span className={styles['status-good']}>送信判定: 送信可能</span>
+          ) : (
+            <span className={styles['status-error']}>
+              送信判定: 送信不可（{blockingReasons.join(' / ')}）
+            </span>
+          )}
         </div>
 
         <div className={styles.footer}>

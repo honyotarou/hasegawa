@@ -108,6 +108,13 @@
 4. Phase D: Doneの監査表示強化。  
 5. Phase E: 回帰テストと実環境スモーク。  
 
+### 8.1 実行状況（2026-03-03）
+1. Phase A: 完了
+2. Phase B: 完了
+3. Phase C: 完了
+4. Phase D: 完了
+5. Phase E: 自動ゲート完了（unit/e2e/coverage/bench/build）、実環境スモークは手動確認待ち
+
 ## 9. リリース判定条件
 1. 自動ゲート: unit/e2e/coverage/bench/build がすべて通る。  
 2. 手動ゲート: 本番GAS送信、実ChatGPT抽出、運用証跡入力が完了する。  

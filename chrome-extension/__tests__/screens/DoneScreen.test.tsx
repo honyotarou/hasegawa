@@ -25,8 +25,10 @@ describe('DoneScreen', () => {
 
     // Then
     expect(screen.getByText(/6件/)).toBeInTheDocument();
-    expect(screen.getByText(/スキップ/)).toBeInTheDocument();
+    expect(screen.getByText('重複スキップ: 2')).toBeInTheDocument();
     expect(screen.getByText(/batchId/)).toBeInTheDocument();
+    expect(screen.getByText('書き込み件数: 6')).toBeInTheDocument();
+    expect(screen.getByText(/送信時刻:/)).toBeInTheDocument();
   });
 
   test('resultがnullなら送信完了文言を表示する', () => {

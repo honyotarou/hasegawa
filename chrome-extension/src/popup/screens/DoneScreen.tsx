@@ -23,10 +23,14 @@ export function DoneScreen({ result, dispatch }: DoneScreenProps) {
             次の患者リストを取得するには「ChatGPTから取得」を押してください
           </div>
           {result ? (
-            <div className={styles['done-meta']}>
-              {result.submittedAt}
-              {result.batchId && <> batchId: {result.batchId.slice(0, 8)}...</>}
-            </div>
+            <>
+              <div className={styles['done-meta']}>書き込み件数: {result.written}</div>
+              <div className={styles['done-meta']}>重複スキップ: {result.skipped}</div>
+              <div className={styles['done-meta']}>送信時刻: {result.submittedAt}</div>
+              <div className={styles['done-meta']}>
+                batchId: {result.batchId ? `${result.batchId.slice(0, 8)}...` : '-'}
+              </div>
+            </>
           ) : null}
           <div className={styles.content}>
             <button
