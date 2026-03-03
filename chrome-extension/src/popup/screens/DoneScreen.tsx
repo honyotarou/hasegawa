@@ -1,11 +1,11 @@
-import React from 'react';
+import type { Dispatch } from 'react';
 import type { SubmitResult } from '../../types';
 import styles from '../app.module.css';
 import { Header } from '../components/Header';
 
 type DoneScreenProps = {
   result: SubmitResult | null;
-  dispatch: React.Dispatch<any>;
+  dispatch: Dispatch<any>;
 };
 
 export function DoneScreen({ result, dispatch }: DoneScreenProps) {

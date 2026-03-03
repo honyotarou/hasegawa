@@ -1,4 +1,3 @@
-import React from 'react';
 import { sendBatch } from '../../sendBatch';
 import type { AppState } from '../../types';
 import styles from '../app.module.css';
@@ -22,10 +21,40 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
   const noCount = state.patients.filter((p) => p.rehab === false).length;
   const displayDate = (state.selectedDate || '').replace(/-/g, '/');
 
-  async function handleSubmit() {
-    dispatch({ type: 'SUBMIT_START' });
+  function isAllowedGasUrl(urlStr: string): boolean {
+    if (!urlStr) return false;
+    try {
+      const url = new URL(urlStr);
+      if (url.protocol !== 'https:') return false;
+      return url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com';
+    } catch {
+      return false;
+    }
+  }
 
+  async function handleSubmit() {
     const gasUrl = state.mode === 'prod' ? storage.settings.gasUrlProd : storage.settings.gasUrlDev;
+    if (!gasUrl) {
+      dispatch({ type: 'SUBMIT_ERROR', error: 'GAS URLが未設定です。設定画面を確認してください。' });
+      return;
+    }
+    if (!isAllowedGasUrl(gasUrl)) {
+      dispatch({
+        type: 'SUBMIT_ERROR',
+        error: 'GAS URLは script.google.com / script.googleusercontent.com のHTTPS URLを指定してください。',
+      });
+      return;
+    }
+    if (!storage.apiSecret?.trim()) {
+      dispatch({ type: 'SUBMIT_ERROR', error: '送信用シークレット(API_SECRET)を再入力してください。' });
+      return;
+    }
+    if (!storage.settings.doctorId?.trim()) {
+      dispatch({ type: 'SUBMIT_ERROR', error: '社員番号（医師ID）が未設定です。' });
+      return;
+    }
+
+    dispatch({ type: 'SUBMIT_START' });
 
     try {
       const response = await sendBatch(

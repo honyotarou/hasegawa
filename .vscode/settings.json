@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "**/coverage": true,
+    "**/test-results": true
+  },
+  "search.exclude": {
+    "**/coverage/**": true,
+    "**/test-results/**": true
+  }
+}

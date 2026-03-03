@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { useDiagnosis } from './hooks/useDiagnosis';
 import { useStorage } from './hooks/useStorage';
@@ -19,6 +19,14 @@ export function App() {
     if (state.screen !== 'SETUP') return;
     goToScreen(storage.isConfigured ? 'MAIN' : 'SETUP');
   }, [storage.isLoaded, storage.isConfigured, state.screen, goToScreen]);
+
+  useEffect(() => {
+    if (!storage.isLoaded) return;
+    if (state.mode !== 'dev') return;
+    if (storage.settings.gasUrlDev) return;
+    // 開発URL未設定時にdevモードが復元されると送信不能になるためprodへ戻す。
+    dispatch({ type: 'SET_MODE', mode: 'prod' });
+  }, [storage.isLoaded, storage.settings.gasUrlDev, state.mode, dispatch]);
 
   if (!storage.isLoaded) return null;
 

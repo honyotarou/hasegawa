@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import {
-  renderAuditTable,
-  replaceMarkdownSection,
-  syncEvidenceRegisterContent,
-} from '../../scripts/evidence-sync-lib.mjs';
+// @ts-ignore mjs utility module is loaded at runtime in tests.
+import { renderAuditTable, replaceMarkdownSection, syncEvidenceRegisterContent } from '../../scripts/evidence-sync-lib.mjs';
 
 describe('evidence-sync-lib', () => {
   test('イベントが空の場合はAUDITテンプレート行を返す', () => {
@@ -44,6 +41,29 @@ describe('evidence-sync-lib', () => {
     // Then
     expect(result).toContain('| 2026-03-02 | recordBatch / success | 12345 | evt-1 | OK |');
     expect(result).toContain('| 2026-03-02 | recordBatch / error (recordsが空配列です) | 12345 | evt-2 | 要確認 |');
+  });
+
+  test('Markdown注入文字（改行・パイプ・HTML）をエスケープする', () => {
+    // Given
+    const events = [
+      {
+        timestamp: '2026-03-02 11:23:33',
+        action: 'recordBatch',
+        status: 'error',
+        doctorId: 'dr|1',
+        eventId: 'evt-2',
+        error: 'bad input\n## PWNED\n| x | y | z |\n<script>alert(1)</script>',
+      },
+    ];
+
+    // When
+    const result = renderAuditTable(events);
+
+    // Then
+    expect(result).toContain('dr\\|1');
+    expect(result).not.toContain('\n## PWNED');
+    expect(result).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(result).toContain('\\| x \\| y \\| z \\|');
   });
 
   test('AUDITセクションのみ置換し他セクションは維持する', () => {

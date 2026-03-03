@@ -76,3 +76,84 @@ function testValidation_invalid_object_guard() {
   // Then
   assertFalse_(res.valid, 'null object should be invalid');
 }
+
+function testVerifyRequestSecret_action_separation() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty('API_SECRET', 'api-secret-test');
+  props.setProperty('EVIDENCE_SECRET', 'evidence-secret-test');
+
+  // When
+  const writeOk = verifyRequestSecret_({ action: 'recordBatch', secret: 'api-secret-test' });
+  const evidenceNg = verifyRequestSecret_({ action: 'getEvidenceEvents', secret: 'api-secret-test' });
+  const evidenceOk = verifyRequestSecret_({
+    action: 'getEvidenceEvents',
+    secret: 'evidence-secret-test',
+  });
+
+  // Then
+  assertTrue_(writeOk.valid, 'recordBatch must use API_SECRET');
+  assertFalse_(evidenceNg.valid, 'evidence action must reject API_SECRET');
+  assertTrue_(evidenceOk.valid, 'evidence action must use EVIDENCE_SECRET');
+}
+
+function testStrongHash_stability() {
+  // Given
+  const input = 'doctor_12345_payload';
+
+  // When
+  const h1 = strongHash_(input);
+  const h2 = strongHash_(input);
+  const h3 = strongHash_(input + '_x');
+
+  // Then
+  assertEquals_(h1.length, 64, 'strongHash length must be 64 hex chars');
+  assertEquals_(h1, h2, 'strongHash must be stable');
+  assertFalse_(h1 === h3, 'different input should produce different hash');
+}
+
+function testAppendAuditFallback_buffered() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.deleteProperty('AUDIT_FALLBACK_BUFFER');
+  const event = {
+    action: 'recordBatch',
+    status: 'error',
+    doctorId: '12345',
+    batchId: 'batch-x',
+  };
+
+  // When
+  appendAuditFallback_(event, new Error('audit write failed'));
+  const raw = props.getProperty('AUDIT_FALLBACK_BUFFER');
+  const list = raw ? JSON.parse(raw) : [];
+
+  // Then
+  assertTrue_(Array.isArray(list), 'fallback buffer must be an array');
+  assertTrue_(list.length >= 1, 'fallback buffer must contain at least one event');
+}
+
+function testAppendAuditFallback_sizeBounded() {
+  // Given
+  const props = PropertiesService.getScriptProperties();
+  props.deleteProperty('AUDIT_FALLBACK_BUFFER');
+  const event = {
+    action: 'recordBatch',
+    status: 'error',
+    doctorId: '12345',
+    batchId: 'batch-x',
+  };
+  const longError = new Error(new Array(2000).join('x'));
+
+  // When
+  for (let i = 0; i < 60; i++) {
+    appendAuditFallback_(event, longError);
+  }
+  const raw = props.getProperty('AUDIT_FALLBACK_BUFFER') || '';
+  const list = raw ? JSON.parse(raw) : [];
+
+  // Then
+  assertTrue_(raw.length <= 8000, 'fallback buffer payload must be <= 8000 chars');
+  assertTrue_(Array.isArray(list), 'fallback buffer must remain an array');
+  assertTrue_(list.length <= 30, 'fallback buffer length must be capped');
+}

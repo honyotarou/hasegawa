@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { SettingsScreen } from '../../src/popup/screens/SettingsScreen';
 
@@ -192,7 +191,7 @@ describe('SettingsScreen', () => {
     // Then
     expect(saveSettings).not.toHaveBeenCalled();
     expect(goToScreen).not.toHaveBeenCalled();
-    expect(screen.getByText('シークレットキーは必須です')).toBeInTheDocument();
+    expect(screen.getByText('送信用シークレット（API_SECRET）は必須です')).toBeInTheDocument();
   });
 
   test('社員番号が空の場合は保存しない', async () => {

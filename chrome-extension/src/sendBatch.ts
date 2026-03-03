@@ -1,5 +1,26 @@
 import type { AppState, BatchPayload, GasResponse } from './types';
 
+let lastCheckedGasUrl = '';
+let lastCheckedGasUrlAllowed = false;
+
+function isAllowedGasUrl(urlStr: string): boolean {
+  if (!urlStr) return false;
+  if (urlStr === lastCheckedGasUrl) return lastCheckedGasUrlAllowed;
+  try {
+    const url = new URL(urlStr);
+    const allowed =
+      url.protocol === 'https:' &&
+      (url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com');
+    lastCheckedGasUrl = urlStr;
+    lastCheckedGasUrlAllowed = allowed;
+    return allowed;
+  } catch {
+    lastCheckedGasUrl = urlStr;
+    lastCheckedGasUrlAllowed = false;
+    return false;
+  }
+}
+
 export function sendBatch(
   state: AppState,
   gasUrl: string,
@@ -12,6 +33,20 @@ export function sendBatch(
     }
     if (state.patients.length === 0) {
       throw new Error('患者データがありません');
+    }
+    if (!gasUrl) {
+      throw new Error('GAS URLが未設定です');
+    }
+    if (!isAllowedGasUrl(gasUrl)) {
+      throw new Error('GAS URLが許可ドメイン外です');
+    }
+    const trimmedApiSecret = apiSecret?.trim();
+    if (!trimmedApiSecret) {
+      throw new Error('送信用シークレット(API_SECRET)が未設定です');
+    }
+    const trimmedDoctorId = doctorId?.trim();
+    if (!trimmedDoctorId) {
+      throw new Error('医師IDが未設定です');
     }
 
     const baseMs = Date.now();
@@ -34,9 +69,9 @@ export function sendBatch(
     });
 
     const payload: BatchPayload = {
-      secret: apiSecret,
+      secret: trimmedApiSecret,
       action: 'recordBatch',
-      doctorId,
+      doctorId: trimmedDoctorId,
       batchId: state.currentBatchId,
       records,
     };

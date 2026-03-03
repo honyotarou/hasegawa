@@ -124,14 +124,18 @@ export function useAppState() {
   }, []);
 
   useEffect(() => {
-    saveSnapshot(state).catch((err) => {
-      console.error('Failed to save session snapshot:', err);
-    });
+    if (!state.currentBatchId) return;
+    const timer = setTimeout(() => {
+      saveSnapshot(state).catch((err) => {
+        console.error('Failed to save session snapshot:', err);
+      });
+    }, 250);
+    return () => clearTimeout(timer);
   }, [state.patients, state.currentBatchId, state.selectedDate, state.mode]);
 
   useEffect(() => {
     if (state.screen === 'DONE') {
-      chrome.storage.session.remove('inputSnapshot').catch((err) => {
+      chrome.storage.session.remove(['inputSnapshot', 'currentBatchId']).catch((err) => {
         console.error('Failed to clear session snapshot:', err);
       });
     }

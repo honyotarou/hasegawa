@@ -3,11 +3,22 @@ function toDateText(timestamp) {
   return text.length >= 10 ? text.slice(0, 10) : 'YYYY-MM-DD';
 }
 
+function sanitizeMarkdownCell(value) {
+  return (value || '')
+    .toString()
+    .replace(/\r?\n/g, ' ')
+    .replace(/\|/g, '\\|')
+    .replace(/`/g, '\\`')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function toItemText(event) {
-  const action = (event.action || 'unknown').toString();
-  const status = (event.status || 'unknown').toString();
+  const action = sanitizeMarkdownCell(event.action || 'unknown');
+  const status = sanitizeMarkdownCell(event.status || 'unknown');
   if (event.error) {
-    return `${action} / ${status} (${String(event.error).slice(0, 80)})`;
+    const error = sanitizeMarkdownCell(String(event.error).slice(0, 80));
+    return `${action} / ${status} (${error})`;
   }
   return `${action} / ${status}`;
 }
@@ -27,10 +38,10 @@ export function renderAuditTable(events) {
   }
 
   const rows = events.map((event) => {
-    const dateText = toDateText(event.timestamp);
+    const dateText = sanitizeMarkdownCell(toDateText(event.timestamp));
     const itemText = toItemText(event);
-    const actor = (event.doctorId || '').toString() || '-';
-    const evidenceId = (event.eventId || '').toString() || '-';
+    const actor = sanitizeMarkdownCell((event.doctorId || '').toString()) || '-';
+    const evidenceId = sanitizeMarkdownCell((event.eventId || '').toString()) || '-';
     const judge = toJudgeText((event.status || '').toString());
     return `| ${dateText} | ${itemText} | ${actor} | ${evidenceId} | ${judge} |`;
   });

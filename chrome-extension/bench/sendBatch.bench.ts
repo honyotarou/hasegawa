@@ -33,6 +33,6 @@ describe('sendBatch benchmarks', () => {
       writable: true,
     });
 
-    await sendBatch(state40, 'https://example.com', 'secret', 'doctor');
+    await sendBatch(state40, 'https://script.google.com/macros/s/bench/exec', 'secret', 'doctor');
   });
 });

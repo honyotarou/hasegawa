@@ -1,4 +1,3 @@
-import React from 'react';
 import { extractPatientsFromDOM } from '../../content/extractPatients';
 import type { AppState, Patient } from '../../types';
 import styles from '../app.module.css';

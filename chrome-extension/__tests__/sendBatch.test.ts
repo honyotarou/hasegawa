@@ -38,7 +38,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () => JSON.stringify({ success: true, written: 1, skipped: 0 }) }));
 
     // When
-    const result = await fn(state, 'https://example.com', 'secret', '12345');
+    const result = await fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     expect(result.success).toBe(true);
@@ -51,7 +51,7 @@ describe('sendBatch', () => {
     const state = createState({ currentBatchId: null });
 
     // When
-    const action = fn(state, 'https://example.com', 'secret', '12345');
+    const action = fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     await expect(action).rejects.toThrow('batchId');
@@ -64,10 +64,70 @@ describe('sendBatch', () => {
     const state = createState({ patients: [] });
 
     // When
-    const action = fn(state, 'https://example.com', 'secret', '12345');
+    const action = fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     await expect(action).rejects.toThrow('患者データ');
+  });
+
+  test('GAS URLが空ならエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), '', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('GAS URLが未設定');
+  });
+
+  test('GAS URLが許可ドメイン外ならエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), 'https://example.com/exec', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('許可ドメイン外');
+  });
+
+  test('GAS URLが不正フォーマットでもエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), '::::', 'secret', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('許可ドメイン外');
+  });
+
+  test('apiSecretが空ならエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', '', '12345');
+
+    // Then
+    await expect(action).rejects.toThrow('API_SECRET');
+  });
+
+  test('doctorIdが空ならエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '');
+
+    // Then
+    await expect(action).rejects.toThrow('医師ID');
   });
 
   test('diagnoses は6要素に補完される', async () => {
@@ -79,7 +139,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // When
-    await fn(state, 'https://example.com', 'secret', '12345');
+    await fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
@@ -102,7 +162,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // When
-    await fn(state, 'https://example.com', 'secret', '12345');
+    await fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
@@ -124,7 +184,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // When
-    await fn(state, 'https://example.com', 'secret', '12345');
+    await fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
@@ -141,11 +201,29 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // When
-    await fn(state, 'https://example.com', 'secret', '12345');
+    await fn(state, 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
     expect(payload.records[0].timestamp.startsWith('2026-03-01')).toBe(true);
+  });
+
+  test('apiSecret/doctorIdはtrimして送信する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ text: async () => JSON.stringify({ success: true, written: 1, skipped: 0 }) });
+    vi.stubGlobal('fetch', fetchMock);
+
+    // When
+    await fn(createState(), 'https://script.google.com/macros/s/xxx', '  secret  ', '  12345  ');
+
+    // Then
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    expect(payload.secret).toBe('secret');
+    expect(payload.doctorId).toBe('12345');
   });
 
   test('30秒タイムアウトで AbortError を throw する', async () => {
@@ -160,7 +238,7 @@ describe('sendBatch', () => {
     }));
 
     // When
-    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
     await vi.advanceTimersByTimeAsync(30000);
 
     // Then
@@ -174,7 +252,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () => '<html>error</html>' }));
 
     // When
-    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     await expect(action).rejects.toThrow('JSON以外');
@@ -187,7 +265,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: async () => JSON.stringify({ success: false, error: 'NG' }) }));
 
     // When
-    const result = await fn(createState(), 'https://example.com', 'secret', '12345');
+    const result = await fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     expect(result.success).toBe(false);
@@ -202,7 +280,7 @@ describe('sendBatch', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // When
-    await fn(createState(), 'https://example.com', 'secret', '12345');
+    await fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     expect(fetchMock.mock.calls[0][1].redirect).toBe('follow');
@@ -218,7 +296,7 @@ describe('sendBatch', () => {
     );
 
     // When
-    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     await expect(action).rejects.toThrow('HTTP 502');
@@ -234,7 +312,7 @@ describe('sendBatch', () => {
     );
 
     // When
-    const action = fn(createState(), 'https://example.com', 'secret', '12345');
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12345');
 
     // Then
     await expect(action).rejects.toThrow('HTTP 500');

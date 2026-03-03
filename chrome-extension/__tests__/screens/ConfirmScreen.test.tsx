@@ -18,7 +18,11 @@ function baseProps(overrides: any = {}) {
     },
     dispatch: vi.fn(),
     storage: {
-      settings: { gasUrlProd: 'https://prod', gasUrlDev: 'https://dev', doctorId: '12345' },
+      settings: {
+        gasUrlProd: 'https://script.google.com/macros/s/prod/exec',
+        gasUrlDev: 'https://script.google.com/macros/s/dev/exec',
+        doctorId: '12345',
+      },
       apiSecret: 's',
       ...overrides.storage,
     },
@@ -114,5 +118,76 @@ describe('ConfirmScreen', () => {
 
     // Then
     expect(screen.getByRole('button', { name: '送信中...' })).toBeDisabled();
+  });
+
+  test('GAS URL未設定なら送信前にSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      storage: {
+        settings: { gasUrlProd: '', gasUrlDev: '', doctorId: '12345' },
+        apiSecret: 's',
+      },
+    });
+    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
+
+    // Then
+    expect(sendSpy).not.toHaveBeenCalled();
+    expect(props.dispatch).toHaveBeenCalledWith({
+      type: 'SUBMIT_ERROR',
+      error: 'GAS URLが未設定です。設定画面を確認してください。',
+    });
+  });
+
+  test('許可外GAS URLなら送信前にSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      storage: {
+        settings: { gasUrlProd: 'https://example.com/exec', gasUrlDev: '', doctorId: '12345' },
+        apiSecret: 's',
+      },
+    });
+    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
+
+    // Then
+    expect(sendSpy).not.toHaveBeenCalled();
+    const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
+    expect(submitErrorCall).toBeDefined();
+    expect(submitErrorCall![0].error).toContain('script.google.com');
+  });
+
+  test('apiSecret未設定なら送信前にSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      storage: {
+        settings: { gasUrlProd: 'https://script.google.com/macros/s/prod/exec', gasUrlDev: '', doctorId: '12345' },
+        apiSecret: '',
+      },
+    });
+    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
+
+    // Then
+    expect(sendSpy).not.toHaveBeenCalled();
+    expect(props.dispatch).toHaveBeenCalledWith({
+      type: 'SUBMIT_ERROR',
+      error: '送信用シークレット(API_SECRET)を再入力してください。',
+    });
   });
 });
