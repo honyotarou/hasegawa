@@ -1,6 +1,6 @@
 # Security Review (診療記録くん v11)
 
-最終再評価: 2026-03-03（追加の高優先度所見なし）
+最終再評価: 2026-03-03（視覚階層リデザイン後も追加の高優先度所見なし）
 
 ## Findings (Severity順)
 
@@ -50,6 +50,12 @@
   - Evidence: [Code.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.gs:461), [Code.test.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.test.gs:136)
 - Recommendation:
   - 退避バッファ件数の定期監視（0件運用）を追加する。
+
+7. Low: UI文言を「送信判定/理由」へ変更し、運用ミスの再現性は改善したが、技術的制御の代替にはならない
+- Evidence: [MainScreen.tsx](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/popup/screens/MainScreen.tsx:102), [ConfirmScreen.tsx](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/popup/screens/ConfirmScreen.tsx:142)
+- Risk: 文言改善のみでは誤操作を完全防止できない。
+- Recommendation:
+  - 重要操作は現行どおり `canSubmit` とサーバー検証の二重防衛を維持する。
 
 ## Good Practices確認
 - 式インジェクション対策（`= + - @` 先頭値をエスケープ）: [Validation.gs](gas/Validation.gs#L24)

@@ -13,6 +13,12 @@ export function DoneScreen({ result, dispatch }: DoneScreenProps) {
     <section className={styles.screen}>
       <Header onSettings={() => dispatch({ type: 'GOTO_SCREEN', screen: 'SETTINGS' })} />
       <div className={styles.content}>
+        <div className={styles['screen-heading-wrap']}>
+          <h2 className={styles['screen-heading']}>送信完了</h2>
+          <p className={styles['screen-subheading']}>
+            送信結果を確認し、次の患者リスト取得へ進んでください。
+          </p>
+        </div>
         <div className={styles['done-card']}>
           <div className={styles['done-icon']}>✅</div>
           <div className={styles['done-title']}>{result ? `${result.written}件を送信しました` : '送信完了'}</div>
@@ -32,7 +38,7 @@ export function DoneScreen({ result, dispatch }: DoneScreenProps) {
               </div>
             </>
           ) : null}
-          <div className={styles.content}>
+          <div className={styles['done-actions']}>
             <button
               className={styles['primary-btn']}
               type="button"

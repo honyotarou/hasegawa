@@ -103,6 +103,26 @@ body {
   gap: 10px;
 }
 
+.screen-heading-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.screen-heading {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.screen-subheading {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
 .toolbar {
   background: var(--bg-toolbar);
   border: 1px solid var(--border);
@@ -134,6 +154,40 @@ body {
 .status-good {
   color: var(--success);
   font-weight: 600;
+}
+
+.risk-banner {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #fff;
+}
+
+.risk-banner-neutral {
+  background: #fffdfb;
+}
+
+.risk-banner-ok {
+  border-color: #a9e8df;
+  background: #f3fcfa;
+}
+
+.risk-banner-warn {
+  border-color: #f4b8a8;
+  background: #fff8f6;
+}
+
+.risk-heading {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.risk-breakdown {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-secondary);
 }
 
 .primary-btn {
@@ -429,6 +483,26 @@ body {
   color: var(--text-secondary);
 }
 
+.decision-block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fffdfb;
+}
+
+.decision-title {
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.decision-reasons {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #b05039;
+}
+
 .done-card {
   margin-top: 18px;
   border: 1px solid var(--border);
@@ -459,6 +533,10 @@ body {
   margin-top: 8px;
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.done-actions {
+  margin-top: 14px;
 }
 
 .settings-screen {
@@ -502,6 +580,13 @@ body {
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-secondary);
+}
+
+.action-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: right;
 }
 
 .setup-screen {

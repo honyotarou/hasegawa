@@ -18,6 +18,7 @@
 2. サーバは GAS Web App + Google Sheets
 3. 1ユーザーあたり 1日 2バッチ送信、1バッチ 30件（100 usersで1日200リクエスト）
 4. GAS処理は1リクエスト1秒未満（現実的な目安）
+5. ActiveUser 100人 = 日次200バッチ送信（1人2バッチ）
 
 ## Capacity check (100 users)
 - 推定実行時間: 200 sec/day ≒ 3.3 min/day
@@ -28,6 +29,7 @@
 ### Scenario A: 既存Workspace/既存ChatGPTを流用
 - Incremental infra cost: ほぼ $0 / 100 users
 - 主な追加コスト: 運用工数（人件費）
+- この構成（Chrome拡張 + GAS + Sheets）では、クラウド従量課金は実質ゼロに近い。
 
 ### Scenario B: Workspace席を新規追加
 - Workspace Business Starter: 価格ページ表示単価を `W` とする（本実測例: `W = ¥800 / user / month`）
@@ -57,6 +59,11 @@
   - 200 users: ¥160,000
   - 300 users: ¥240,000
 - ChatGPT併用は上記に `100 * P_*` を加算（`P_*` は契約プラン単価）
+
+## ActiveUser 100人ごとの要約（意思決定用）
+1. 既存契約を流用できる場合: **追加インフラ費はほぼ 0円/月**
+2. Workspace席を新規100席追加する場合: **約 ¥80,000/月**（`W=¥800`仮定）
+3. ChatGPT席を各100席追加する場合: **`100 * P_*` を上乗せ**
 
 ## Notes
 - 実際の契約単価は地域/年契約/キャンペーンで変動するため、導入時に最新価格で再見積が必要。

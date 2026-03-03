@@ -45,7 +45,8 @@ describe('DoneScreen', () => {
     );
 
     // Then
-    expect(screen.getByText('送信完了')).toBeInTheDocument();
+    expect(screen.getAllByText('送信完了').length).toBeGreaterThan(0);
+    expect(screen.getByText('送信結果を確認し、次の患者リスト取得へ進んでください。')).toBeInTheDocument();
   });
 
   test('ChatGPTから取得ボタン押下でMAIN遷移dispatchを呼ぶ', async () => {

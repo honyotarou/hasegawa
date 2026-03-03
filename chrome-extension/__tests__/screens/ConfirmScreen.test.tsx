@@ -84,6 +84,8 @@ describe('ConfirmScreen', () => {
     render(React.createElement(ConfirmScreen, props));
 
     // Then
+    expect(screen.getByText('送信前チェック')).toBeInTheDocument();
+    expect(screen.getByText('誤送信を防ぐため、件数・医師ID・batchIdを確認してから送信してください。')).toBeInTheDocument();
     expect(screen.getByText(/batchId: 550e8400\.\.\./)).toBeInTheDocument();
     expect(screen.getByText('送信判定: 送信可能')).toBeInTheDocument();
   });

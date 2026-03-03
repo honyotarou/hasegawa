@@ -36,6 +36,7 @@ describe('MainScreen', () => {
 
     // Then
     expect(screen.getByRole('button', { name: /全件送信/ })).toBeEnabled();
+    expect(screen.getByText('未解決リスクを0件にしてから送信してください。')).toBeInTheDocument();
   });
 
   test('診断名未入力がある場合は送信ボタンが無効', () => {

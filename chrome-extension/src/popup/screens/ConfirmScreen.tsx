@@ -109,7 +109,12 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
       />
 
       <div className={styles.content}>
-        <h2>送信内容を確認してください</h2>
+        <div className={styles['screen-heading-wrap']}>
+          <h2 className={styles['screen-heading']}>送信内容を確認してください</h2>
+          <p className={styles['screen-subheading']}>
+            誤送信を防ぐため、件数・医師ID・batchIdを確認してから送信してください。
+          </p>
+        </div>
         <div className={styles.panel}>
           <div className={styles['table-head']}>
             <span>No</span>
@@ -139,13 +144,17 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
           batchId: {shortBatchId}
         </div>
 
-        <div className={styles['confirm-summary']}>
+        <div className={`${styles['confirm-summary']} ${styles['decision-block']}`}>
+          <div className={styles['decision-title']}>送信前チェック</div>
           {blockingReasons.length === 0 ? (
             <span className={styles['status-good']}>送信判定: 送信可能</span>
           ) : (
-            <span className={styles['status-error']}>
-              送信判定: 送信不可（{blockingReasons.join(' / ')}）
-            </span>
+            <>
+              <span className={styles['status-error']}>送信判定: 送信不可</span>
+              <div className={styles['decision-reasons']}>
+                理由: {blockingReasons.join(' / ')}
+              </div>
+            </>
           )}
         </div>
 
