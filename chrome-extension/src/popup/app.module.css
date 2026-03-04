@@ -480,6 +480,41 @@ body::after {
   font-size: 12px;
 }
 
+.diag-side-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.diag-side-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.diag-side-select {
+  border: 1px solid var(--border-lt);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  height: 24px;
+  font-size: 11px;
+  padding: 0 6px;
+}
+
+.diag-free-btn {
+  margin-top: 4px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-secondary);
+  font-size: 11px;
+  height: 24px;
+  cursor: pointer;
+}
+
 .diag-selected {
   font-size: 11px;
   color: var(--text-secondary);

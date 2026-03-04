@@ -52,4 +52,36 @@ describe('DiagDropdown', () => {
     expect(screen.queryByText('一覧')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '肩痛' })).not.toBeInTheDocument();
   });
+
+  test('左右指定を選んで候補を選択すると主診断へ反映する', async () => {
+    // Given
+    const DiagDropdown = (moduleDiag as any).DiagDropdown;
+    expect(DiagDropdown).toBeTypeOf('function');
+    const onChange = vi.fn();
+
+    // When
+    render(React.createElement(DiagDropdown, { value: '', top5: ['腰痛'], rest: ['肩痛'], onChange }));
+    await userEvent.click(screen.getByLabelText('diag-trigger'));
+    await userEvent.selectOptions(screen.getByLabelText('diag-side'), '右');
+    await userEvent.click(screen.getByRole('button', { name: /★\s*腰痛/ }));
+
+    // Then
+    expect(onChange).toHaveBeenCalledWith('腰痛（右）');
+  });
+
+  test('検索欄へ入力した病名を自由入力として反映できる', async () => {
+    // Given
+    const DiagDropdown = (moduleDiag as any).DiagDropdown;
+    expect(DiagDropdown).toBeTypeOf('function');
+    const onChange = vi.fn();
+
+    // When
+    render(React.createElement(DiagDropdown, { value: '', top5: ['腰痛'], rest: ['肩痛'], onChange }));
+    await userEvent.click(screen.getByLabelText('diag-trigger'));
+    await userEvent.type(screen.getByLabelText('diag-search'), '腓骨筋腱炎');
+    await userEvent.click(screen.getByRole('button', { name: '「腓骨筋腱炎」を入力' }));
+
+    // Then
+    expect(onChange).toHaveBeenCalledWith('腓骨筋腱炎');
+  });
 });
