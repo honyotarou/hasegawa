@@ -192,7 +192,7 @@ describe('ConfirmScreen', () => {
     expect(screen.queryByText('❌ なし')).not.toBeInTheDocument();
   });
 
-  test('GAS URL未設定なら送信前にSUBMIT_ERRORをdispatchする', async () => {
+  test('GAS URL未設定なら送信不可表示になり送信ボタンはdisabled', () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
     expect(ConfirmScreen).toBeTypeOf('function');
@@ -202,22 +202,17 @@ describe('ConfirmScreen', () => {
         apiSecret: 's',
       },
     });
-    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
 
     // When
     render(React.createElement(ConfirmScreen, props));
-    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
 
     // Then
-    expect(sendSpy).not.toHaveBeenCalled();
-    expect(props.dispatch).toHaveBeenCalledWith({
-      type: 'SUBMIT_ERROR',
-      error: 'GAS URLが未設定です。設定画面を確認してください。',
-    });
     expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
+    expect(screen.getByText(/GAS URL未設定/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
   });
 
-  test('許可外GAS URLなら送信前にSUBMIT_ERRORをdispatchする', async () => {
+  test('許可外GAS URLなら送信不可表示になり送信ボタンはdisabled', () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
     expect(ConfirmScreen).toBeTypeOf('function');
@@ -227,20 +222,17 @@ describe('ConfirmScreen', () => {
         apiSecret: 's',
       },
     });
-    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
 
     // When
     render(React.createElement(ConfirmScreen, props));
-    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
 
     // Then
-    expect(sendSpy).not.toHaveBeenCalled();
-    const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
-    expect(submitErrorCall).toBeDefined();
-    expect(submitErrorCall![0].error).toContain('script.google.com');
+    expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
+    expect(screen.getByText(/GAS URLが許可ドメイン外/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
   });
 
-  test('apiSecret未設定なら送信前にSUBMIT_ERRORをdispatchする', async () => {
+  test('apiSecret未設定なら送信不可表示になり送信ボタンはdisabled', () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
     expect(ConfirmScreen).toBeTypeOf('function');
@@ -250,17 +242,33 @@ describe('ConfirmScreen', () => {
         apiSecret: '',
       },
     });
-    const sendSpy = vi.spyOn(sendBatchModule, 'sendBatch');
 
     // When
     render(React.createElement(ConfirmScreen, props));
-    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
 
     // Then
-    expect(sendSpy).not.toHaveBeenCalled();
-    expect(props.dispatch).toHaveBeenCalledWith({
-      type: 'SUBMIT_ERROR',
-      error: '送信用シークレット(API_SECRET)を再入力してください。',
+    expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
+    expect(screen.getByText(/API_SECRET未設定/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
+  });
+
+  test('doctorId未設定なら送信不可表示になり送信ボタンはdisabled', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      storage: {
+        settings: { gasUrlProd: 'https://script.google.com/macros/s/prod/exec', gasUrlDev: '', doctorId: '   ' },
+        apiSecret: 's',
+      },
     });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
+    expect(screen.getByText(/医師ID未設定/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
   });
 });

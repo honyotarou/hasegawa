@@ -50,6 +50,9 @@ function createFakeSheet(initialRows: any[][]): FakeSheet {
 
 export function createGasContext(sheetRows: any[][]) {
   const masterSheet = createFakeSheet(sheetRows);
+  const sheets: Record<string, FakeSheet> = {
+    RehaTrueFalse: masterSheet,
+  };
   const scriptProperties = new Map<string, string>();
   const context = {
     console,
@@ -88,8 +91,12 @@ export function createGasContext(sheetRows: any[][]) {
       openById() {
         return {
           getSheetByName(name: string) {
-            if (name === 'RehaTrueFalse') return masterSheet;
-            return null;
+            return sheets[name] || null;
+          },
+          insertSheet(name: string) {
+            const sheet = createFakeSheet([]);
+            sheets[name] = sheet;
+            return sheet;
           },
         };
       },
@@ -162,5 +169,8 @@ export function createGasContext(sheetRows: any[][]) {
   return {
     context: context as any,
     masterSheet,
+    getSheet(name: string) {
+      return sheets[name] || null;
+    },
   };
 }

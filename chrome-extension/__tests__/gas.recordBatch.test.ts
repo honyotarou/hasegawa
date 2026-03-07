@@ -48,6 +48,31 @@ describe('GAS recordBatch contract', () => {
     expect(noClientRecordId.error).toContain('clientRecordId');
   });
 
+  test('doctorId/batchId/clientRecordIdが空白だけならエラーになる', () => {
+    // Given
+    const { context } = createGasContext([new Array(15).fill('header')]);
+    const baseRecord = createBatchBody().records[0];
+
+    // When
+    const blankDoctor = JSON.parse(context.handleRecordBatch(createBatchBody({ doctorId: '   ' })).text);
+    const blankBatch = JSON.parse(context.handleRecordBatch(createBatchBody({ batchId: '   ' })).text);
+    const blankClientRecordId = JSON.parse(
+      context.handleRecordBatch(
+        createBatchBody({
+          records: [{ ...baseRecord, clientRecordId: '   ' }],
+        }),
+      ).text,
+    );
+
+    // Then
+    expect(blankDoctor).toMatchObject({ success: false });
+    expect(blankDoctor.error).toContain('doctorId');
+    expect(blankBatch).toMatchObject({ success: false });
+    expect(blankBatch.error).toContain('batchId');
+    expect(blankClientRecordId).toMatchObject({ success: false });
+    expect(blankClientRecordId.error).toContain('clientRecordId');
+  });
+
   test('同一clientRecordId再送はskippedになり15列で書き込まれる', () => {
     // Given
     const { context, masterSheet } = createGasContext([new Array(15).fill('header')]);
@@ -92,5 +117,37 @@ describe('GAS recordBatch contract', () => {
     expect(masterSheet.rows).toHaveLength(2);
     expect(masterSheet.rows[1]).toHaveLength(15);
     expect(masterSheet.rows[1][4]).toBe('batch-1_0');
+  });
+
+  test('recordBatchはシート書き込み前にdoctorId/batchId/clientRecordId/timestampをサニタイズする', () => {
+    // Given
+    const { context, masterSheet, getSheet } = createGasContext([new Array(15).fill('header')]);
+
+    // When
+    const response = JSON.parse(
+      context.handleRecordBatch(
+        createBatchBody({
+          doctorId: '=doctor',
+          batchId: '@batch',
+          records: [
+            {
+              ...createBatchBody().records[0],
+              clientRecordId: '+client',
+              timestamp: '-2026-03-07T10:00:00',
+            },
+          ],
+        }),
+      ).text,
+    );
+    const auditSheet = getSheet('AuditEvidence');
+
+    // Then
+    expect(response).toMatchObject({ success: true, written: 1, skipped: 0 });
+    expect(masterSheet.rows[1][0]).toBe("'-2026-03-07T10:00:00");
+    expect(masterSheet.rows[1][2]).toBe("'=doctor");
+    expect(masterSheet.rows[1][3]).toBe("'@batch");
+    expect(masterSheet.rows[1][4]).toBe("'+client");
+    expect(auditSheet?.rows[1][4]).toBe("'=doctor");
+    expect(auditSheet?.rows[1][5]).toBe("'@batch");
   });
 });
