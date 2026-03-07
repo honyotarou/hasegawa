@@ -1,70 +1,71 @@
 # Security Review (診療記録くん v11)
 
-最終再評価: 2026-03-03（視覚階層リデザイン後も追加の高優先度所見なし）
+最終再評価: 2026-03-08
+
+## Test Evidence
+- `npm test`: 25 files / 141 tests pass
+- `npm run test:e2e`: 5 scenarios pass
+- `npm run test:coverage`: Statements 94.60% / Branches 84.54% / Functions 82.92%
 
 ## Findings (Severity順)
 
-1. Medium: `getEvidenceEvents` は読み取り専用secretで分離されたが、漏えい時の閲覧リスクは残る
-- Evidence: [Code.gs](gas/Code.gs#L19), [Code.gs](gas/Code.gs#L42), [Code.gs](gas/Code.gs#L283), [sync-evidence-register.mjs](chrome-extension/scripts/sync-evidence-register.mjs#L14)
-- Status: `API_SECRET`（送信）と `EVIDENCE_SECRET`（監査取得）を分離済み。
-- Residual Risk: `EVIDENCE_SECRET` 単体漏えいで監査ログ閲覧が可能。
+1. Medium: `doctorId` は監査上重要な属性なのに、認証主体へ結び付いていない
+- Evidence:
+  - `chrome-extension/src/popup/screens/SetupScreen.tsx:147`
+  - `chrome-extension/src/popup/screens/SettingsScreen.tsx:125`
+  - `chrome-extension/src/popup/hooks/useStorage.ts:39`
+  - `gas/Code.gs:166`
+  - `gas/Code.gs:258`
+- Risk:
+  - `API_SECRET` を知るクライアントは任意の `doctorId` を名乗って送信できる。
+  - スプレッドシートの監査証跡は「誰が送ったか」ではなく「何と名乗ったか」になる。
 - Recommendation:
-  - 同期専用secretを短期ローテーション運用にする。
-  - 必要なら監査取得専用WebAppを別デプロイし、アクセスIPを制限する。
+  - `doctorId` を共有secretと分離し、端末別または利用者別 credential に結び付ける。
+  - 少なくとも server 側で `doctorId` の正規表現制約を追加し、棚卸し済み ID 一覧と突合できる形にする。
 
-2. Medium: 監査同期Markdownはエスケープ実装済みだが、証跡改ざん検知までは未実装
-- Evidence: [evidence-sync-lib.mjs](chrome-extension/scripts/evidence-sync-lib.mjs#L6)
-- Status: 改行・`|`・HTMLタグの注入対策を追加済み。
-- Residual Risk: 監査ファイル自体の改ざん検知（署名/ハッシュ鎖）は未実装。
+2. Medium: 監査取得 API は `EVIDENCE_SECRET` の単独知識で監査イベント全文を読める
+- Evidence:
+  - `gas/Code.gs:95`
+  - `gas/Code.gs:329`
+  - `chrome-extension/scripts/sync-evidence-register.mjs:13`
+  - `chrome-extension/scripts/sync-evidence-register.mjs:49`
+- Risk:
+  - `EVIDENCE_SECRET` 漏えい時に、送信成否・医師ID・batchId・エラー内容が一覧取得される。
 - Recommendation:
-  - 同期出力にSHA-256ハッシュを付与し、別媒体へハッシュ保存する。
+  - 監査取得は別 Web App / 別 secret / 実行元制限付き proxy に切り出す。
+  - `EVIDENCE_SECRET` は `API_SECRET` と別ローテーション表で管理する。
 
-3. Medium: 準拠判定で必須となる運用証跡はテンプレート整備段階
-- Evidence: [.agent/compliance/access-control-matrix.md](.agent/compliance/access-control-matrix.md), [.agent/compliance/audit-log-policy.md](.agent/compliance/audit-log-policy.md), [.agent/compliance/backup-recovery-runbook.md](.agent/compliance/backup-recovery-runbook.md), [.agent/compliance/incident-response-playbook.md](.agent/compliance/incident-response-playbook.md), [.agent/compliance/endpoint-vendor-management.md](.agent/compliance/endpoint-vendor-management.md), [.agent/compliance/policy-training-raci.md](.agent/compliance/policy-training-raci.md), [.agent/compliance/evidence-register.md](.agent/compliance/evidence-register.md)
-- Risk: 文書雛形のみで、実績証跡（実施日時・担当者・証跡ID）が未入力だと監査で不適合。
-- Recommendation:
-  - `evidence-register.md` を週次更新し、証跡ID（Drive/チケットID）を必ず記録。
-  - 権限棚卸し/復旧訓練/教育受講の実施記録を初回入力。
-
-4. Low: `handleRecord` 単件経路の hash衝突耐性は改善されたが、旧データ互換ロジック依存が残る
-- Evidence: [Code.gs](gas/Code.gs#L257), [Code.gs](gas/Code.gs#L260), [Code.gs](gas/Code.gs#L576)
+3. Medium: 旧 `record` action がまだ公開されており、守るべき API 契約面が増えている
+- Evidence:
+  - `gas/Code.gs:126`
+  - `gas/Code.gs:284`
+  - `gas/Code.gs:308`
 - Status:
-  - `strongHash_(SHA-256)` を導入し、`clientRecordId` と行内容照合を併用。
+  - 永続化 core は `processRecordBatch_` に統合済みで、重複判定やサニタイズの差異は解消した。
 - Residual Risk:
-  - 旧データ（clientRecordId なし）との比較は内容一致判定に依存。
+  - 公開 action が 2 本ある以上、今後の仕様変更・認証変更・メトリクス整備が二重化しやすい。
 - Recommendation:
-  - 旧データ移行時に `clientRecordId` 付与バッチを一度流すと判定品質が安定する。
+  - 旧クライアントが残っていないなら `record` を閉じる。
+  - 残すなら `.agent/spec.md` に legacy shim として明記し、期限付き deprecation にする。
 
-5. Medium: 冪等性保証は直近200件のみで、古い再送は重複書き込み余地がある
-- Evidence: [Code.gs](gas/Code.gs#L5), [Code.gs](gas/Code.gs#L87)
-- Risk: 再送遅延が大きい運用で重複発生。
+4. Low: 認証失敗や例外は監査されるが、レート制限や遮断はない
+- Evidence:
+  - `gas/Code.gs:114`
+  - `gas/Code.gs:145`
+  - `gas/Code.gs:369`
+  - `gas/Code.gs:402`
+- Risk:
+  - 認証失敗を繰り返すクライアントがいると、監査シートや fallback buffer がノイズで埋まりやすい。
 - Recommendation:
-  - hashの永続インデックスシートを別管理し全期間照合
-
-6. Low: 監査ログ書き込み失敗時は silent ではなくなったが、業務フロー停止まではしない
-- Evidence: [Code.gs](gas/Code.gs#L214), [Code.gs](gas/Code.gs#L298), [Code.gs](gas/Code.gs#L351), [Code.gs](gas/Code.gs#L399)
-- Status:
-  - `auditLogged` をレスポンスで返却し、失敗時は `AUDIT_FALLBACK_BUFFER` に退避する実装へ更新。
-- Update (2026-03-03):
-  - fallbackバッファは「最大30件」かつ「8,000文字以内」に制限し、PropertiesServiceの容量超過で再失敗しにくくした。
-  - Evidence: [Code.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.gs:461), [Code.test.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.test.gs:136)
-- Recommendation:
-  - 退避バッファ件数の定期監視（0件運用）を追加する。
-
-7. Low: UI文言を「送信判定/理由」へ変更し、運用ミスの再現性は改善したが、技術的制御の代替にはならない
-- Evidence: [MainScreen.tsx](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/popup/screens/MainScreen.tsx:102), [ConfirmScreen.tsx](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/popup/screens/ConfirmScreen.tsx:142)
-- Risk: 文言改善のみでは誤操作を完全防止できない。
-- Recommendation:
-  - 重要操作は現行どおり `canSubmit` とサーバー検証の二重防衛を維持する。
+  - `auth_error` 件数の週次レビューを追加する。
+  - 必要なら Web App の前段に reverse proxy / allowlist を置く。
 
 ## Good Practices確認
-- 式インジェクション対策（`= + - @` 先頭値をエスケープ）: [Validation.gs](gas/Validation.gs#L24)
-- Markdown注入対策（改行/`|`/HTMLエスケープ）: [evidence-sync-lib.mjs](chrome-extension/scripts/evidence-sync-lib.mjs#L6)
-- `apiSecret` を `storage.session` 保持（永続化回避）: [useStorage.ts](chrome-extension/src/popup/hooks/useStorage.ts#L34)
-- 送信タイムアウト（30秒）: [sendBatch.ts](chrome-extension/src/sendBatch.ts#L45)
-- 送信前URLの許可ドメイン検証（ConfirmScreen）: [ConfirmScreen.tsx](chrome-extension/src/popup/screens/ConfirmScreen.tsx#L25)
-- サーバー側二重防衛（age/rehab/diagnoses[0] + objガード）: [Validation.gs](gas/Validation.gs#L1)
-- storage/session操作失敗時のcatch実装: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L112), [useDiagnosis.ts](chrome-extension/src/popup/hooks/useDiagnosis.ts#L8)
-- Setup/SettingsのGAS URL許可ドメイン検証: [SetupScreen.tsx](chrome-extension/src/popup/screens/SetupScreen.tsx#L23), [SettingsScreen.tsx](chrome-extension/src/popup/screens/SettingsScreen.tsx#L27)
-- 監査ログ自動追記（AuditEvidenceシート）: [Code.gs](gas/Code.gs#L307)
-- 送信時の`apiSecret`/`doctorId` trim適用（検証と実送信の不整合を解消）: [sendBatch.ts](/Users/apple/Documents/GitHub/hasegawa/chrome-extension/src/sendBatch.ts:33)
+- シート式注入対策を master / audit の文字列列へ適用済み: `gas/Validation.gs:5`, `gas/Code.gs:19`, `gas/Code.gs:24`, `gas/Code.gs:43`
+- `batchId` / `doctorId` / `clientRecordId` は server 側でも trim + non-blank 強制: `gas/Code.gs:11`, `gas/Code.gs:166`, `gas/Code.gs:177`
+- `apiSecret` は `chrome.storage.session` 保持で再起動後に消える: `chrome-extension/src/popup/hooks/useStorage.ts:19`, `chrome-extension/src/popup/hooks/useStorage.ts:49`
+- Confirm 画面は表示ロジックと送信可否ロジックを共通化済み: `chrome-extension/src/popup/screens/ConfirmScreen.tsx:29`, `chrome-extension/src/popup/screens/ConfirmScreen.tsx:70`, `chrome-extension/src/popup/screens/ConfirmScreen.tsx:189`
+- 復元セッションで `API_SECRET` が欠けるケースを E2E で確認済み: `chrome-extension/e2e/popup.spec.ts:142`
+
+## Overall
+高優先度のコード注入・未検証入力の問題は前回までの修正でかなり解消した。残る主な論点は「共有 secret 前提の監査真正性」と「legacy action をいつ閉じるか」で、どちらもコード品質より運用設計の問題として扱うべき段階に入っている。

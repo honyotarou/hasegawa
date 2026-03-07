@@ -1,57 +1,67 @@
 # OSS Comparison (類似実装調査)
 
+最終確認日: 2026-03-08
+
 ## Compared Repositories
 1. `Jonghakseo/chrome-extension-boilerplate-react-vite`
-- Local: `/tmp/oss-chrome-react-vite`
-- Checked commit: `6fde1ac`
+- Local: `/tmp/hasegawa-oss-20260308/chrome-extension-boilerplate-react-vite`
+- Commit: `6fde1ac`
 2. `GoogleChrome/chrome-extensions-samples`
-- Local: `/tmp/oss-chrome-extensions-samples`
-- Checked commit: `4ffe03c`
+- Local: `/tmp/hasegawa-oss-20260308/chrome-extensions-samples`
+- Commit: `c439386`
 3. `wxt-dev/wxt`
-- Local: `/tmp/oss-wxt`
-- Checked commit: `19cebbf`
+- Local: `/tmp/hasegawa-oss-20260308/wxt`
+- Commit: `5fe4681`
 4. `PlasmoHQ/plasmo`
-- Local: `/tmp/oss-plasmo`
-- Checked commit: `9369e28`
-
-再確認日: 2026-03-03（同一commitで再チェック）
+- Local: `/tmp/hasegawa-oss-20260308/plasmo`
+- Commit: `9369e28`
 
 ## Observations
 
-### A. Extension boilerplate (React + Vite)
-- Dynamic script injection pattern:
-  - Reference: [/tmp/oss-chrome-react-vite/pages/popup/src/Popup.tsx](/tmp/oss-chrome-react-vite/pages/popup/src/Popup.tsx:24)
-  - Uses `chrome.scripting.executeScript({ files: [...] })` and explicit error handling for restricted URLs.
-- Manifest generated from TS:
-  - Reference: [/tmp/oss-chrome-react-vite/chrome-extension/manifest.ts](/tmp/oss-chrome-react-vite/chrome-extension/manifest.ts:1)
-  - Advantage: env/version driven build-time generation.
+### A. `chrome-extension-boilerplate-react-vite`
+- Restricted URL (`chrome://`, `about:`) での script injection 失敗を popup 側で通知している。
+- Reference:
+  - `/tmp/hasegawa-oss-20260308/chrome-extension-boilerplate-react-vite/pages/popup/src/Popup.tsx:20`
+- 学び:
+  - 本 repo でも `ChatGPTから取得` 実行時に restricted URL を明示通知すると、運用問い合わせが減る。
 
-### B. Official samples
-- `storage.session` usage for ephemeral runtime data:
-  - Reference: [/tmp/oss-chrome-extensions-samples/api-samples/idle/service-worker.js](/tmp/oss-chrome-extensions-samples/api-samples/idle/service-worker.js:5)
-- Popup/workerからの `executeScript` standard pattern:
-  - Reference: [/tmp/oss-chrome-extensions-samples/functional-samples/reference.mv3-content-scripts/popup.js](/tmp/oss-chrome-extensions-samples/functional-samples/reference.mv3-content-scripts/popup.js:13)
-- session data handoff across extension surfaces:
-  - Reference: [/tmp/oss-chrome-extensions-samples/functional-samples/sample.sidepanel-dictionary/service-worker.js](/tmp/oss-chrome-extensions-samples/functional-samples/sample.sidepanel-dictionary/service-worker.js:29)
-  - Reference: [/tmp/oss-chrome-extensions-samples/functional-samples/sample.sidepanel-dictionary/sidepanel.js](/tmp/oss-chrome-extensions-samples/functional-samples/sample.sidepanel-dictionary/sidepanel.js:22)
+### B. `chrome-extensions-samples`
+- `chrome.scripting.executeScript` の最小構成サンプルが明快で、`storage.session` の surface 間受け渡し例もある。
+- Reference:
+  - `/tmp/hasegawa-oss-20260308/chrome-extensions-samples/functional-samples/reference.mv3-content-scripts/popup.js:10`
+  - `/tmp/hasegawa-oss-20260308/chrome-extensions-samples/functional-samples/sample.sidepanel-dictionary/service-worker.js:27`
+- 学び:
+  - 現在の `activeTab + scripting + storage.session` 構成は公式サンプルの最小方針と整合している。
 
-### C. WXT
-- Runtime configにsecretを入れない方針を明確化:
-  - Reference: [/tmp/oss-wxt/docs/guide/essentials/config/runtime.md](/tmp/oss-wxt/docs/guide/essentials/config/runtime.md:23)
-- manifest生成フックで permission を明示的に管理:
-  - Reference: [/tmp/oss-wxt/packages/analytics/modules/analytics/index.ts](/tmp/oss-wxt/packages/analytics/modules/analytics/index.ts:34)
+### C. `wxt`
+- runtime config に secret を置くな、と公式ドキュメントで明示している。
+- manifest 生成 hook で必要 permission だけを注入する設計を採っている。
+- Reference:
+  - `/tmp/hasegawa-oss-20260308/wxt/docs/guide/essentials/config/runtime.md:22`
+  - `/tmp/hasegawa-oss-20260308/wxt/packages/analytics/modules/analytics/index.ts:33`
+- 学び:
+  - 本 repo は既に `API_SECRET` を `storage.session` に逃がしていて方向は正しい。
+  - ただし manifest を静的 JSON で持っているため、将来環境別差分が増えるなら build-time 生成へ寄せる価値がある。
 
-### D. Plasmo
-- manifestをビルド時生成し、配布パイプラインを統合:
-  - Reference: [/tmp/oss-plasmo/cli/plasmo/src/commands/build.ts](/tmp/oss-plasmo/cli/plasmo/src/commands/build.ts:10)
-- ストア提出の自動化導線を公式テンプレートで提供:
-  - Reference: [/tmp/oss-plasmo/packages/init/templates/README.md](/tmp/oss-plasmo/packages/init/templates/README.md:29)
+### D. `plasmo`
+- build と zip、さらに store submission まで配布導線が揃っている。
+- Reference:
+  - `/tmp/hasegawa-oss-20260308/plasmo/cli/plasmo/src/commands/build.ts:13`
+  - `/tmp/hasegawa-oss-20260308/plasmo/packages/init/templates/README.md:31`
+- 学び:
+  - 本 repo に欠けているのは extension 本体の実装力ではなく、release pipeline の自動化。
 
 ## Gap vs 診療記録くん v11
-- Current app already follows key best practices:
-  - `storage.session` for secret/snapshot
-  - `executeScript` with active tab + allFrames false
-- Additional patterns worth adopting:
-  1. Restricted URL handling UX (e.g., `chrome://` injection不可時の通知)
-  2. build-time manifest generation for env-specific values
-  3. CI上の配布/提出自動化（Plasmoのようなパイプライン）
+- Better than generic boilerplates:
+  - 権限面はかなり絞れている。
+  - `tabs` permission を取らず、`activeTab` で済ませている。
+  - host permission も `script.google.com` / `script.googleusercontent.com` に限定している。
+- Weaker than specialized frameworks:
+  - restricted URL UX がまだ薄い
+  - manifest 生成と配布 pipeline が手動寄り
+  - store 提出や release artifact の自動化がない
+
+## Concrete Adoptions Worth Doing
+1. `ChatGPTから取得` 実行時の restricted URL エラー表示を追加する
+2. manifest を build-time 生成に寄せ、環境差分をコード化する
+3. GitHub Actions で build + zip + release artifact 生成を自動化する

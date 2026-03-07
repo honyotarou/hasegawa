@@ -1,64 +1,77 @@
 # SRE Review (診療記録くん v11)
 
-最終再評価: 2026-03-03（運用ガイド更新、重大所見追加なし）
+最終再評価: 2026-03-08
 
 ## Reliability
 1. Medium: 送信失敗時の自動再試行がない
-- Current: ユーザー手動再送（batchId保持）
-- Recommendation: 指数バックオフ1-2回をクライアントで追加（UIに再試行回数表示）
-
-2. Low: GAS実行の可観測性は改善済みだが、アラート連携は未実装
-- Current: `AuditEvidence` シートへ `record/recordBatch` の成功・失敗を自動追記（改善済み）
-- Remaining Recommendation:
-  - 週次で失敗率・遅延の集計を自動化（Apps Script trigger）
-  - 重要エラー時の通知（メール/ChatOps）連携
-
-3. Medium: 単一スプレッドシート依存
+- Evidence:
+  - `chrome-extension/src/sendBatch.ts:79`
+  - `chrome-extension/src/popup/screens/ConfirmScreen.tsx:107`
+- Current:
+  - 30秒タイムアウト後は手動再送。
 - Recommendation:
-  - 日次バックアップ（CSV export / Drive複製）
-  - 破損時の復旧Runbook整備
+  - 1〜2回の指数バックオフ再試行をクライアント側で追加し、最終的な失敗だけ UI へ出す。
 
-4. Low: クライアント側ストレージ失敗時はログのみで復旧導線が弱い
-- Current: `console.error` で記録。デバウンス保存で失敗頻度は抑制。
+2. Medium: 単一 Spreadsheet / 単一 GAS deployment 依存
+- Evidence:
+  - `gas/Code.gs:1`
+  - `gas/Code.gs:219`
+  - `gas/Code.gs:339`
+  - `gas/Code.gs:437`
+- Risk:
+  - シート破損、権限変更、デプロイ事故がそのまま全停止につながる。
 - Recommendation:
-  - status領域に「セッション保存失敗」警告を出し、再読込/再入力導線を追加
+  - 日次バックアップと復旧 drill を運用化する。
+  - デプロイ URL 固定確認を release checklist に入れる。
 
-5. Medium: secret運用が2系統になり、ローテーション漏れリスクが増加
-- Current: `API_SECRET` と `EVIDENCE_SECRET` を分離（改善）
+3. Medium: 可観測性は audit sheet 中心で、アラートや SLI が未整備
+- Evidence:
+  - `gas/Code.gs:266`
+  - `gas/Code.gs:369`
+  - `gas/Code.gs:402`
+  - `gas/Code.gs:446`
+- Risk:
+  - `auth_error` 増加、audit fallback 発生、14時台集計失敗に気付きにくい。
 - Recommendation:
-  - 月次ローテーション表に2種secretを明示し、更新担当者を分離する。
-  - `sync:evidence` 実行環境を限定し、平文環境変数は「即時削除」を標準運用にする。
+  - 週次で `AuditEvidence` の `status` 集計を自動出力する。
+  - 失敗件数閾値でメールまたは Chat 通知を送る。
 
-6. Fixed in this run: `dev` モード固定化で送信不能になる経路を解消
-- Current: `gasUrlDev` 未設定かつ `mode=dev` 復元時に自動で `prod` へフォールバック
-- Evidence: [App.tsx](chrome-extension/src/popup/App.tsx#L23)
+4. Low: secret rotation は依然として手動運用
+- Evidence:
+  - `chrome-extension/src/popup/screens/SettingsScreen.tsx:184`
+- Risk:
+  - 端末ごとの更新漏れで部分障害が起きやすい。
+- Recommendation:
+  - rotation 日、担当者、更新済み端末一覧を `evidence-register.md` に残す。
 
-7. Fixed in this run: 送信成功後の `currentBatchId` 残留を解消
-- Current: DONE遷移時に `inputSnapshot` と `currentBatchId` を同時削除
-- Evidence: [useAppState.ts](chrome-extension/src/popup/hooks/useAppState.ts#L133)
-
-8. Fixed in this run: 監査fallbackの過大化による二次障害リスクを縮小
-- Current: `AUDIT_FALLBACK_BUFFER` は30件上限かつ8,000文字上限で切り詰め
-- Evidence: [Code.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.gs:461), [Code.test.gs](/Users/apple/Documents/GitHub/hasegawa/gas/Code.test.gs:136)
-- Effect: PropertiesServiceサイズ超過でfallback保存が再失敗する確率を下げた。
-
-## Governance Evidence Status (準拠判定で不足しやすい項目)
-- アクセス権限管理: テンプレート作成済み（`access-control-matrix.md`）、実績ログは `evidence-register.md` へ追記運用が必要。
-- 監査ログ保管/定期レビュー: `audit-log-policy.md` で手順化済み、週次レビュー実績入力が未実施。
-- バックアップ/復旧/訓練: `backup-recovery-runbook.md` でRTO/RPO定義済み、訓練記録は未入力。
-- インシデント対応: `incident-response-playbook.md` 整備済み、初動訓練の実績化が必要。
-- 端末/マルウェア/委託先: `endpoint-vendor-management.md` 整備済み、端末台帳との突合が必要。
-- 規程/教育/RACI: `policy-training-raci.md` 整備済み、受講記録投入が必要。
+5. Improvement in this run: 復元セッションで `API_SECRET` が消えた状態を E2E で固定化した
+- Evidence:
+  - `chrome-extension/e2e/popup.spec.ts:142`
+- Effect:
+  - 「Main までは復元されるが Confirm で必ず止まる」ことを自動で検証できるようになった。
 
 ## Capacity / Quota
-- Apps Scriptは同時実行や実行時間上限あり（詳細は cost-estimate.md 参照）。
-- 100 Active Users規模は通常運用で吸収可能だが、ピーク時の同時送信に備えて:
-  - 送信リクエスト分散（UI側ランダム遅延 0-2s）
-  - 失敗時の再送間隔制御
+- Official quotas checked on 2026-03-08:
+  - Simultaneous executions per user: `30`
+  - Simultaneous executions per script: `1,000`
+  - Script runtime per execution: `6 min`
+  - Triggers total runtime: `6 hr / day`
+- Source:
+  - https://developers.google.com/apps-script/guides/services/quotas
+- Assumption:
+  - 100 active users
+  - 1 user あたり 1日 2 バッチ送信
+  - 合計 `200 requests/day`
+- Assessment:
+  - 現構成では 100 active users 規模は十分吸収可能。
+  - 危険なのは日量よりも「昼休み直後に全員が同時送信する」ような burst で、ここでは retry/backoff とランダム遅延の方が効く。
 
 ## Operability Checklist
-- [ ] `API_SECRET`/`EVIDENCE_SECRET` のローテーション運用テスト
-- [ ] GASデプロイ更新時のURL固定確認
-- [ ] 14時台トリガー監視（失敗アラート到達確認）
-- [ ] `npm run sync:evidence` の週次実行運用開始
-- [ ] `AUDIT_FALLBACK_BUFFER` が0件であることを週次確認
+- [ ] `API_SECRET` / `EVIDENCE_SECRET` rotation 実績を記録する
+- [ ] `AuditEvidence` の `auth_error` / `exception` / `success` を週次集計する
+- [ ] `AUDIT_FALLBACK_BUFFER` が 0 件であることを週次確認する
+- [ ] 14時台 trigger の失敗通知を追加する
+- [ ] Spreadsheet バックアップと復旧 drill を四半期で回す
+
+## Overall
+コード側の境界防御はかなり固まった。今の主要な SRE 課題は、アプリの correctness ではなく、単一シート運用と手動オペレーションをどう監視・復旧可能にするかに移っている。
