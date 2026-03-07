@@ -40,9 +40,18 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
   if (gasUrl && !isAllowedGasUrl(gasUrl)) blockingReasons.push('GAS URLが許可ドメイン外');
   if (!storage.apiSecret?.trim()) blockingReasons.push('API_SECRET未設定');
   if (!storage.settings.doctorId?.trim()) blockingReasons.push('医師ID未設定');
+  const canSubmit = Boolean(state.currentBatchId) && total > 0;
   const shortBatchId = state.currentBatchId ? `${state.currentBatchId.slice(0, 8)}...` : '-';
 
   async function handleSubmit() {
+    if (!state.currentBatchId) {
+      dispatch({ type: 'SUBMIT_ERROR', error: 'batchIdがありません。患者データを再取得してください。' });
+      return;
+    }
+    if (total === 0) {
+      dispatch({ type: 'SUBMIT_ERROR', error: '患者データがありません。患者データを再取得してください。' });
+      return;
+    }
     if (!gasUrl) {
       dispatch({ type: 'SUBMIT_ERROR', error: 'GAS URLが未設定です。設定画面を確認してください。' });
       return;
@@ -130,7 +139,9 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
                 <span className={styles['row-no']}>{p.age}歳</span>
                 <span className={styles['row-no']}>{p.gender}</span>
                 <span className={styles['row-no']}>{p.diagnoses[0] || '未入力'}</span>
-                <span className={styles['row-no']}>{p.rehab ? '✅ あり' : '❌ なし'}</span>
+                <span className={styles['row-no']}>
+                  {p.rehab === null ? '未入力' : p.rehab ? '✅ あり' : '❌ なし'}
+                </span>
               </div>
             ))}
           </div>
@@ -170,7 +181,7 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
             className={styles['primary-btn']}
             type="button"
             onClick={() => void handleSubmit()}
-            disabled={state.isSubmitting}
+            disabled={state.isSubmitting || !canSubmit}
           >
             {state.isSubmitting ? '送信中...' : '送信する'}
           </button>

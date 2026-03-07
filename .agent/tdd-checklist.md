@@ -49,7 +49,7 @@ Redログテンプレート:
 | 9 | age=150 | success |
 | 10 | age=1.5 | ageエラー |
 | 11 | gender=男 | 男性化 |
-| 12 | gender=female | その他化 |
+| 12 | gender=female | 女性化 |
 | 13 | 壊れJSON | 次候補へ |
 
 ## 2) sendBatch
@@ -101,7 +101,7 @@ Redログテンプレート:
 | 9 | 二度押し防止 | disabled |
 | 10 | DONE時snapshot削除 | remove呼び出し |
 
-## 5) GAS（手動）
+## 5) GAS
 
 | # | 観点 | 期待 |
 |---|---|---|
