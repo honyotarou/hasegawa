@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
@@ -116,6 +117,16 @@ export function createGasContext(sheetRows: any[][]) {
       },
     },
     Utilities: {
+      DigestAlgorithm: {
+        SHA_256: 'SHA_256',
+      },
+      Charset: {
+        UTF_8: 'UTF_8',
+      },
+      computeDigest(_algorithm: string, value: string) {
+        return Array.from(crypto.createHash('sha256').update(String(value), 'utf8').digest())
+          .map((byte) => (byte > 127 ? byte - 256 : byte));
+      },
       formatDate(date: Date, _timezone?: string, format?: string) {
         if (format === 'yyyy-MM-dd') return date.toISOString().slice(0, 10);
         return date.toISOString().slice(0, 19).replace('T', ' ');
