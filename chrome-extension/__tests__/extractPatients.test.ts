@@ -213,4 +213,28 @@ describe('extractPatientsFromDOM', () => {
     expect(result.success).toBe(true);
     expect(result.patients).toEqual([{ age: 27, gender: '女性' }]);
   });
+
+  test('fallback本文で患者配列でない候補は飛ばして後続の患者配列を採用する', () => {
+    // Given
+    const html = '<main><article>noise [1,2,3] text [{"age":28,"gender":"male"}]</article></main>';
+
+    // When
+    const result = runWithDom(html);
+
+    // Then
+    expect(result.success).toBe(true);
+    expect(result.patients).toEqual([{ age: 28, gender: '男性' }]);
+  });
+
+  test('fallback本文で壊れた候補しかない場合はJSON未検出で失敗する', () => {
+    // Given
+    const html = '<main><article>broken [{"age":28,"gender":"male"</article></main>';
+
+    // When
+    const result = runWithDom(html);
+
+    // Then
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('JSONが見つかりません');
+  });
 });
