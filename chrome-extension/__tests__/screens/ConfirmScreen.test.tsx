@@ -138,6 +138,60 @@ describe('ConfirmScreen', () => {
     expect(screen.getByRole('button', { name: '送信中...' })).toBeDisabled();
   });
 
+  test('batchIdがない場合は送信不可表示になり送信ボタンもdisabled', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      state: { currentBatchId: null },
+    });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText('送信判定: 送信不可')).toBeInTheDocument();
+    expect(screen.getByText(/batchId未生成/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
+  });
+
+  test('患者0件の場合は送信不可表示になり送信ボタンもdisabled', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      state: { patients: [] },
+    });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText('送信判定: 送信不可')).toBeInTheDocument();
+    expect(screen.getByText(/患者データ0件/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
+  });
+
+  test('rehabが未入力の患者は確認画面で未入力と表示される', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      state: {
+        patients: [
+          { age: 10, gender: '男性', diagnoses: ['腰痛'], rehab: null, remarks: '' },
+        ],
+      },
+    });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText('未入力')).toBeInTheDocument();
+    expect(screen.queryByText('❌ なし')).not.toBeInTheDocument();
+  });
+
   test('GAS URL未設定なら送信前にSUBMIT_ERRORをdispatchする', async () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
