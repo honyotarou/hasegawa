@@ -86,4 +86,22 @@ describe('GAS legacy record compatibility contract', () => {
     expect(masterSheet.rows[1][6]).toBe('女性');
     expect(auditSheet?.rows[1][2]).toBe('record');
   });
+
+  test('record は doctorId形式不正と allowlist を batch と同じ境界で扱う', () => {
+    // Given
+    const { context } = createGasContext([new Array(15).fill('header')]);
+    context.PropertiesService.getScriptProperties().setProperty('DOCTOR_ID_ALLOWLIST', '12345');
+
+    // When
+    const invalidFormat = JSON.parse(context.handleRecord(createRecordBody({ doctorId: '12 345' })).text);
+    const denied = JSON.parse(context.handleRecord(createRecordBody({ doctorId: 'abc123' })).text);
+
+    // Then
+    expect(invalidFormat).toMatchObject({ success: false });
+    expect(invalidFormat.error).toContain('doctorId');
+    expect(invalidFormat.error).toContain('形式');
+    expect(denied).toMatchObject({ success: false });
+    expect(denied.error).toContain('doctorId');
+    expect(denied.error).toContain('未登録');
+  });
 });

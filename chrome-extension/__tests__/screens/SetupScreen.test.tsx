@@ -176,6 +176,30 @@ describe('SetupScreen', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('社員番号は必須です');
   });
 
+  test('社員番号の形式が不正な場合は保存しない', async () => {
+    // Given
+    const SetupScreen = (moduleSetup as any).SetupScreen;
+    expect(SetupScreen).toBeTypeOf('function');
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+
+    // When
+    render(React.createElement(SetupScreen, { storage: { saveSettings }, goToScreen: vi.fn() }));
+    await userEvent.type(
+      screen.getByLabelText('gasUrlProd'),
+      'https://script.google.com/macros/s/xxx/exec',
+    );
+    await userEvent.type(screen.getByLabelText('apiSecret'), 'secret');
+    await userEvent.type(screen.getByLabelText('doctorId'), '12 345');
+    await userEvent.type(screen.getByLabelText('diagnosisMaster'), '腰痛');
+    await userEvent.click(screen.getByRole('button', { name: /保存|始める/ }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '社員番号（医師ID）は英数字・ハイフン・アンダースコアのみ3〜32文字で入力してください',
+    );
+  });
+
   test('診断名マスタが空の場合は保存しない', async () => {
     // Given
     const SetupScreen = (moduleSetup as any).SetupScreen;

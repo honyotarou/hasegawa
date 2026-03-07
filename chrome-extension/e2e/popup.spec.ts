@@ -2,9 +2,15 @@ import { test, expect, Page } from '@playwright/test';
 
 type KV = Record<string, any>;
 
-async function mountChromeMock(page: Page, localData: KV, sessionData: KV, executeResult?: any) {
+async function mountChromeMock(
+  page: Page,
+  localData: KV,
+  sessionData: KV,
+  executeResult?: any,
+  tab: KV = { id: 1 },
+) {
   await page.addInitScript(
-    ({ localDataArg, sessionDataArg, executeResultArg }) => {
+    ({ localDataArg, sessionDataArg, executeResultArg, tabArg }) => {
       const localStore: KV = { ...localDataArg };
       const sessionStore: KV = { ...sessionDataArg };
 
@@ -58,7 +64,7 @@ async function mountChromeMock(page: Page, localData: KV, sessionData: KV, execu
           },
         },
         tabs: {
-          query: async () => [{ id: 1 }],
+          query: async () => [tabArg ?? { id: 1 }],
         },
         scripting: {
           executeScript: async () => [{ result: executeResultArg ?? { success: false, error: 'no mock result' } }],
@@ -69,6 +75,7 @@ async function mountChromeMock(page: Page, localData: KV, sessionData: KV, execu
       localDataArg: localData,
       sessionDataArg: sessionData,
       executeResultArg: executeResult,
+      tabArg: tab,
     },
   );
 }
@@ -137,6 +144,61 @@ test('main -> confirm -> done happy path', async ({ page }) => {
 
   // Then
   await expect(page.getByText('1件を送信しました')).toBeVisible();
+});
+
+test('restored session without API_SECRET reaches confirm but blocks final submit', async ({ page }) => {
+  // Given
+  await mountChromeMock(
+    page,
+    {
+      gasUrlProd: 'https://script.google.com/macros/s/xxx/exec',
+      gasUrlDev: '',
+      doctorId: '12345',
+      diagnosisMaster: ['腰痛'],
+    },
+    {
+      inputSnapshot: {
+        batchId: 'restored-batch',
+        selectedDate: '2026-03-08',
+        mode: 'prod',
+        patients: [
+          { age: 70, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+        ],
+      },
+    },
+  );
+
+  // When
+  await page.goto('/popup.html');
+  await page.getByRole('button', { name: /全件送信/ }).click();
+
+  // Then
+  await expect(page.getByText('送信判定: 送信不可')).toBeVisible();
+  await expect(page.getByText(/API_SECRET未設定/)).toBeVisible();
+  await expect(page.getByRole('button', { name: '送信する' })).toBeDisabled();
+});
+
+test('restricted URL では取得せず案内エラーを表示する', async ({ page }) => {
+  // Given
+  await mountChromeMock(
+    page,
+    {
+      gasUrlProd: 'https://script.google.com/macros/s/xxx/exec',
+      gasUrlDev: '',
+      doctorId: '12345',
+      diagnosisMaster: ['腰痛'],
+    },
+    { apiSecret: 'secret-value' },
+    { success: true, patients: [{ age: 70, gender: '男性' }] },
+    { id: 1, url: 'chrome://settings' },
+  );
+
+  // When
+  await page.goto('/popup.html');
+  await page.getByRole('button', { name: 'ChatGPTから取得' }).click();
+
+  // Then
+  await expect(page.getByText('このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。')).toBeVisible();
 });
 
 test('setup blocks non-google GAS URL', async ({ page }) => {

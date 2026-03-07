@@ -130,6 +130,18 @@ describe('sendBatch', () => {
     await expect(action).rejects.toThrow('医師ID');
   });
 
+  test('doctorIdが不正フォーマットならエラーを throw する', async () => {
+    // Given
+    const fn = (sendBatchModule as any).sendBatch;
+    expect(fn).toBeTypeOf('function');
+
+    // When
+    const action = fn(createState(), 'https://script.google.com/macros/s/xxx', 'secret', '12 345');
+
+    // Then
+    await expect(action).rejects.toThrow('社員番号（医師ID）の形式');
+  });
+
   test('diagnoses は6要素に補完される', async () => {
     // Given
     const fn = (sendBatchModule as any).sendBatch;

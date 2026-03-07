@@ -126,6 +126,25 @@ describe('ConfirmScreen', () => {
     });
   });
 
+  test('一般的なネットワークエラーはメッセージ付きでSUBMIT_ERRORをdispatchする', async () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    vi.spyOn(sendBatchModule, 'sendBatch').mockRejectedValue(new Error('socket hang up'));
+    const props = baseProps();
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+    await userEvent.click(screen.getByRole('button', { name: '送信する' }));
+
+    // Then
+    await waitFor(() => {
+      const submitErrorCall = props.dispatch.mock.calls.find((c: any[]) => c[0]?.type === 'SUBMIT_ERROR');
+      expect(submitErrorCall).toBeDefined();
+      expect(submitErrorCall![0].error).toBe('ネットワークエラー: socket hang up');
+    });
+  });
+
   test('isSubmitting=true のとき送信ボタンはdisabled', () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
@@ -269,6 +288,30 @@ describe('ConfirmScreen', () => {
     // Then
     expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
     expect(screen.getByText(/医師ID未設定/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
+  });
+
+  test('doctorIdの形式が不正なら送信不可表示になり送信ボタンはdisabled', () => {
+    // Given
+    const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
+    expect(ConfirmScreen).toBeTypeOf('function');
+    const props = baseProps({
+      storage: {
+        settings: {
+          gasUrlProd: 'https://script.google.com/macros/s/prod/exec',
+          gasUrlDev: '',
+          doctorId: '12 345',
+        },
+        apiSecret: 's',
+      },
+    });
+
+    // When
+    render(React.createElement(ConfirmScreen, props));
+
+    // Then
+    expect(screen.getByText(/送信判定: 送信不可/)).toBeInTheDocument();
+    expect(screen.getByText(/医師ID形式不正/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '送信する' })).toBeDisabled();
   });
 });

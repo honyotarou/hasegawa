@@ -73,6 +73,35 @@ describe('GAS recordBatch contract', () => {
     expect(blankClientRecordId.error).toContain('clientRecordId');
   });
 
+  test('doctorIdの形式が不正ならエラーになる', () => {
+    // Given
+    const { context } = createGasContext([new Array(15).fill('header')]);
+
+    // When
+    const invalid = JSON.parse(context.handleRecordBatch(createBatchBody({ doctorId: '12 345' })).text);
+
+    // Then
+    expect(invalid).toMatchObject({ success: false });
+    expect(invalid.error).toContain('doctorId');
+    expect(invalid.error).toContain('形式');
+  });
+
+  test('doctorId allowlist が設定されている場合は未登録IDを拒否する', () => {
+    // Given
+    const { context } = createGasContext([new Array(15).fill('header')]);
+    context.PropertiesService.getScriptProperties().setProperty('DOCTOR_ID_ALLOWLIST', '12345\n99999');
+
+    // When
+    const denied = JSON.parse(context.handleRecordBatch(createBatchBody({ doctorId: 'abc123' })).text);
+    const allowed = JSON.parse(context.handleRecordBatch(createBatchBody({ doctorId: '12345' })).text);
+
+    // Then
+    expect(denied).toMatchObject({ success: false });
+    expect(denied.error).toContain('doctorId');
+    expect(denied.error).toContain('未登録');
+    expect(allowed).toMatchObject({ success: true, written: 1, skipped: 0 });
+  });
+
   test('同一clientRecordId再送はskippedになり15列で書き込まれる', () => {
     // Given
     const { context, masterSheet } = createGasContext([new Array(15).fill('header')]);

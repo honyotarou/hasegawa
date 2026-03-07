@@ -224,6 +224,38 @@ describe('SettingsScreen', () => {
     expect(screen.getByText('社員番号は必須です')).toBeInTheDocument();
   });
 
+  test('社員番号の形式が不正な場合は保存しない', async () => {
+    // Given
+    const saveSettings = vi.fn().mockResolvedValue(undefined);
+    const goToScreen = vi.fn();
+
+    render(
+      <SettingsScreen
+        storage={{
+          settings: {
+            gasUrlProd: 'https://script.google.com/macros/s/prod/exec',
+            gasUrlDev: '',
+            doctorId: '12 345',
+            diagnosisMaster: ['腰痛'],
+          },
+          apiSecret: 'secret',
+          saveSettings,
+        }}
+        goToScreen={goToScreen}
+      />,
+    );
+
+    // When
+    await userEvent.click(screen.getByRole('button', { name: '保存' }));
+
+    // Then
+    expect(saveSettings).not.toHaveBeenCalled();
+    expect(goToScreen).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('社員番号（医師ID）は英数字・ハイフン・アンダースコアのみ3〜32文字で入力してください'),
+    ).toBeInTheDocument();
+  });
+
   test('診断名マスタが空の場合は保存しない', async () => {
     // Given
     const saveSettings = vi.fn().mockResolvedValue(undefined);

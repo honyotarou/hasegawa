@@ -207,6 +207,29 @@ describe('MainScreen', () => {
     ]);
   });
 
+  test('restricted URL では executeScript を呼ばずに案内文言をdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.tabs.query = vi.fn().mockResolvedValue([{ id: 99, url: 'chrome://settings' }]);
+    chromeAny.scripting.executeScript = vi.fn();
+
+    // When
+    render(React.createElement(MainScreen, baseProps({ dispatch })));
+    await userEvent.click(screen.getByRole('button', { name: 'ChatGPTから取得' }));
+
+    // Then
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({
+        type: 'SUBMIT_ERROR',
+        error: 'このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。',
+      });
+    });
+    expect(chromeAny.scripting.executeScript).not.toHaveBeenCalled();
+  });
+
   test('日付変更でSET_DATEをdispatchする', () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
