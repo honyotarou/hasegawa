@@ -1,3 +1,13 @@
+function normalizeRequiredText(str) {
+  return (str || '').toString().trim();
+}
+
+function sanitizeForSheetText(str) {
+  const text = (str || '').toString();
+  if (/^[=+\-@]/.test(text)) return "'" + text;
+  return text;
+}
+
 function validateAndNormalize(obj) {
   if (!obj || typeof obj !== 'object') {
     return { valid: false, error: '入力オブジェクトが不正です', normalized: null };
@@ -25,11 +35,6 @@ function validateAndNormalize(obj) {
   }
 
   const gender = normalizeGender(obj.gender);
-  function sanitizeForSheetText(str) {
-    const text = (str || '').toString();
-    if (/^[=+\-@]/.test(text)) return "'" + text;
-    return text;
-  }
   let diag = obj.diagnoses.map(function (d) {
     return sanitizeForSheetText(d).slice(0, 100);
   });
@@ -50,8 +55,8 @@ function validateAndNormalize(obj) {
 }
 
 function normalizeGender(str) {
-  const s = (str || '').toString().trim();
-  if (/^(男|男性)$/.test(s)) return '男性';
-  if (/^(女|女性)$/.test(s)) return '女性';
+  const s = normalizeRequiredText(str);
+  if (/^(男|男性|male)$/i.test(s)) return '男性';
+  if (/^(女|女性|female)$/i.test(s)) return '女性';
   return 'その他';
 }

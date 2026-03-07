@@ -6,7 +6,59 @@ const CONFIG = {
   RECENT_HASH_LIMIT: 200,
 };
 
-// validateAndNormalize / normalizeGender are defined in Validation.gs.
+// validateAndNormalize / normalizeGender / normalizeRequiredText / sanitizeForSheetText are defined in Validation.gs.
+
+function requireNonBlankText_(value, fieldName) {
+  const normalized = normalizeRequiredText(value);
+  if (!normalized) {
+    throw new Error(fieldName + 'が必須です');
+  }
+  return normalized;
+}
+
+function sanitizeSheetCellText_(value, limit) {
+  const text = sanitizeForSheetText(value);
+  return typeof limit === 'number' ? text.slice(0, limit) : text;
+}
+
+function buildAuditRow_(event) {
+  return [
+    Utilities.formatDate(
+      new Date(),
+      Session.getScriptTimeZone(),
+      'yyyy-MM-dd HH:mm:ss',
+    ),
+    Utilities.getUuid(),
+    sanitizeSheetCellText_(event.action || '', 50),
+    sanitizeSheetCellText_(event.status || '', 50),
+    sanitizeSheetCellText_(event.doctorId || '', 100),
+    sanitizeSheetCellText_(event.batchId || '', 100),
+    Number(event.written || 0),
+    Number(event.skipped || 0),
+    sanitizeSheetCellText_(event.error || '', 500),
+    event.meta ? sanitizeSheetCellText_(JSON.stringify(event.meta), 1000) : '',
+  ];
+}
+
+function buildMasterRow_(entry, doctorId, batchId, hashKey, normalized) {
+  return [
+    sanitizeSheetCellText_(entry.timestamp || new Date().toISOString(), 100), // A
+    hashKey, // B
+    sanitizeSheetCellText_(doctorId, 100), // C
+    sanitizeSheetCellText_(batchId, 100), // D
+    sanitizeSheetCellText_(entry.clientRecordId, 100), // E
+    normalized.age, // F
+    normalized.gender, // G
+    normalized.diagnoses[0], // H
+    normalized.diagnoses[1], // I
+    normalized.diagnoses[2], // J
+    normalized.diagnoses[3], // K
+    normalized.diagnoses[4], // L
+    normalized.diagnoses[5], // M
+    normalized.rehab, // N
+    normalized.remarks, // O
+  ];
+}
 
 function setupSecret() {
   const secret = 'YOUR_SECRET_HERE';
@@ -107,18 +159,24 @@ function handleRecordBatch(body) {
   if (!Array.isArray(body.records) || body.records.length === 0) {
     return batchErrorResponse_(body, 'recordsが空配列です');
   }
-  if (!body.batchId) {
-    return batchErrorResponse_(body, 'batchIdが必須です');
-  }
-  if (!body.doctorId) {
-    return batchErrorResponse_(body, 'doctorIdが必須です');
+
+  let batchId;
+  let doctorId;
+  try {
+    batchId = requireNonBlankText_(body.batchId, 'batchId');
+    doctorId = requireNonBlankText_(body.doctorId, 'doctorId');
+  } catch (err) {
+    return batchErrorResponse_(body, err.message);
   }
 
   const validated = [];
   for (let i = 0; i < body.records.length; i++) {
     const rec = body.records[i];
-    if (!rec.clientRecordId) {
-      return batchErrorResponse_(body, 'records[' + i + ']: clientRecordIdが必須です');
+    let clientRecordId;
+    try {
+      clientRecordId = requireNonBlankText_(rec.clientRecordId, 'clientRecordId');
+    } catch (err) {
+      return batchErrorResponse_(body, 'records[' + i + ']: ' + err.message);
     }
 
     const obj = {
@@ -134,13 +192,19 @@ function handleRecordBatch(body) {
       return batchErrorResponse_(body, 'records[' + i + ']: ' + v.error);
     }
 
-    validated.push({ entry: rec, normalized: v.normalized });
+    validated.push({
+      entry: {
+        timestamp: rec.timestamp,
+        clientRecordId: clientRecordId,
+      },
+      normalized: v.normalized,
+    });
   }
 
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    return appendRecordBatch(body.doctorId, body.batchId, validated);
+    return appendRecordBatch(doctorId, batchId, validated);
   } finally {
     SpreadsheetApp.flush();
     lock.releaseLock();
@@ -187,23 +251,7 @@ function appendRecordBatch(doctorId, batchId, validatedList) {
       return;
     }
 
-    rowsToWrite.push([
-      entry.timestamp || new Date().toISOString(), // A
-      hashKey, // B
-      doctorId, // C
-      batchId, // D
-      entry.clientRecordId, // E
-      normalized.age, // F
-      normalized.gender, // G
-      normalized.diagnoses[0], // H
-      normalized.diagnoses[1], // I
-      normalized.diagnoses[2], // J
-      normalized.diagnoses[3], // K
-      normalized.diagnoses[4], // L
-      normalized.diagnoses[5], // M
-      normalized.rehab, // N
-      normalized.remarks, // O
-    ]);
+    rowsToWrite.push(buildMasterRow_(entry, doctorId, batchId, hashKey, normalized));
     existingHashToClientIds[hashKey][entry.clientRecordId] = true;
   });
 
@@ -317,23 +365,13 @@ function appendRecord(body, normalized) {
     }
   }
 
-  const rowData = [
-    body.timestamp || new Date().toISOString(), // A
-    hashKey, // B
-    body.doctorId || '', // C
-    body.batchId || '', // D
-    clientRecordId, // E
-    normalized.age, // F
-    normalized.gender, // G
-    normalized.diagnoses[0], // H
-    normalized.diagnoses[1], // I
-    normalized.diagnoses[2], // J
-    normalized.diagnoses[3], // K
-    normalized.diagnoses[4], // L
-    normalized.diagnoses[5], // M
-    normalized.rehab, // N
-    normalized.remarks, // O
-  ];
+  const rowData = buildMasterRow_(
+    { timestamp: body.timestamp, clientRecordId: clientRecordId },
+    body.doctorId || '',
+    body.batchId || '',
+    hashKey,
+    normalized,
+  );
 
   sheet.getRange(lastRow + 1, 1, 1, 15).setValues([rowData]);
   const auditLogged = appendAuditEvent_({
@@ -411,25 +449,8 @@ function appendAuditEvent_(event) {
       ]]);
     }
 
-    const timestamp = Utilities.formatDate(
-      new Date(),
-      Session.getScriptTimeZone(),
-      'yyyy-MM-dd HH:mm:ss',
-    );
-    const errorText = (event.error || '').toString().slice(0, 500);
-    const metaText = event.meta ? JSON.stringify(event.meta).slice(0, 1000) : '';
-    sheet.appendRow([
-      timestamp,
-      Utilities.getUuid(),
-      event.action || '',
-      event.status || '',
-      event.doctorId || '',
-      event.batchId || '',
-      Number(event.written || 0),
-      Number(event.skipped || 0),
-      errorText,
-      metaText,
-    ]);
+    const row = buildAuditRow_(event);
+    sheet.getRange(sheet.getLastRow() + 1, 1, 1, 10).setValues([row]);
     return true;
   } catch (err) {
     Logger.log('監査ログ書き込み失敗: ' + err.message);

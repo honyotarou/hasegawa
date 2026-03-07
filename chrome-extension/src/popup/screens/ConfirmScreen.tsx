@@ -15,60 +15,65 @@ type ConfirmScreenProps = {
   };
 };
 
+function isAllowedGasUrl(urlStr: string): boolean {
+  if (!urlStr) return false;
+  try {
+    const url = new URL(urlStr);
+    if (url.protocol !== 'https:') return false;
+    return url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com';
+  } catch {
+    return false;
+  }
+}
+
+function getBlockingReasons(
+  state: Pick<AppState, 'currentBatchId' | 'patients' | 'mode'>,
+  storage: ConfirmScreenProps['storage'],
+  gasUrl: string,
+): string[] {
+  const reasons: string[] = [];
+  if (!state.currentBatchId) reasons.push('batchId未生成');
+  if (state.patients.length === 0) reasons.push('患者データ0件');
+  if (!gasUrl) reasons.push('GAS URL未設定');
+  if (gasUrl && !isAllowedGasUrl(gasUrl)) reasons.push('GAS URLが許可ドメイン外');
+  if (!storage.apiSecret?.trim()) reasons.push('API_SECRET未設定');
+  if (!storage.settings.doctorId?.trim()) reasons.push('医師ID未設定');
+  return reasons;
+}
+
+function blockingReasonToError(reason: string): string {
+  switch (reason) {
+    case 'batchId未生成':
+      return 'batchIdがありません。患者データを再取得してください。';
+    case '患者データ0件':
+      return '患者データがありません。患者データを再取得してください。';
+    case 'GAS URL未設定':
+      return 'GAS URLが未設定です。設定画面を確認してください。';
+    case 'GAS URLが許可ドメイン外':
+      return 'GAS URLは script.google.com / script.googleusercontent.com のHTTPS URLを指定してください。';
+    case 'API_SECRET未設定':
+      return '送信用シークレット(API_SECRET)を再入力してください。';
+    case '医師ID未設定':
+      return '社員番号（医師ID）が未設定です。';
+    default:
+      return reason;
+  }
+}
+
 export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmScreenProps) {
   const total = state.patients.length;
   const yesCount = state.patients.filter((p) => p.rehab === true).length;
   const noCount = state.patients.filter((p) => p.rehab === false).length;
   const displayDate = (state.selectedDate || '').replace(/-/g, '/');
 
-  function isAllowedGasUrl(urlStr: string): boolean {
-    if (!urlStr) return false;
-    try {
-      const url = new URL(urlStr);
-      if (url.protocol !== 'https:') return false;
-      return url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com';
-    } catch {
-      return false;
-    }
-  }
-
   const gasUrl = state.mode === 'prod' ? storage.settings.gasUrlProd : storage.settings.gasUrlDev;
-  const blockingReasons: string[] = [];
-  if (!state.currentBatchId) blockingReasons.push('batchId未生成');
-  if (total === 0) blockingReasons.push('患者データ0件');
-  if (!gasUrl) blockingReasons.push('GAS URL未設定');
-  if (gasUrl && !isAllowedGasUrl(gasUrl)) blockingReasons.push('GAS URLが許可ドメイン外');
-  if (!storage.apiSecret?.trim()) blockingReasons.push('API_SECRET未設定');
-  if (!storage.settings.doctorId?.trim()) blockingReasons.push('医師ID未設定');
-  const canSubmit = Boolean(state.currentBatchId) && total > 0;
+  const blockingReasons = getBlockingReasons(state, storage, gasUrl);
+  const canSubmit = blockingReasons.length === 0;
   const shortBatchId = state.currentBatchId ? `${state.currentBatchId.slice(0, 8)}...` : '-';
 
   async function handleSubmit() {
-    if (!state.currentBatchId) {
-      dispatch({ type: 'SUBMIT_ERROR', error: 'batchIdがありません。患者データを再取得してください。' });
-      return;
-    }
-    if (total === 0) {
-      dispatch({ type: 'SUBMIT_ERROR', error: '患者データがありません。患者データを再取得してください。' });
-      return;
-    }
-    if (!gasUrl) {
-      dispatch({ type: 'SUBMIT_ERROR', error: 'GAS URLが未設定です。設定画面を確認してください。' });
-      return;
-    }
-    if (!isAllowedGasUrl(gasUrl)) {
-      dispatch({
-        type: 'SUBMIT_ERROR',
-        error: 'GAS URLは script.google.com / script.googleusercontent.com のHTTPS URLを指定してください。',
-      });
-      return;
-    }
-    if (!storage.apiSecret?.trim()) {
-      dispatch({ type: 'SUBMIT_ERROR', error: '送信用シークレット(API_SECRET)を再入力してください。' });
-      return;
-    }
-    if (!storage.settings.doctorId?.trim()) {
-      dispatch({ type: 'SUBMIT_ERROR', error: '社員番号（医師ID）が未設定です。' });
+    if (blockingReasons.length > 0) {
+      dispatch({ type: 'SUBMIT_ERROR', error: blockingReasonToError(blockingReasons[0]) });
       return;
     }
 
