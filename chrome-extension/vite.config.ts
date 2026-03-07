@@ -19,9 +19,17 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./__tests__/setup.ts'],
     include: ['__tests__/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['e2e/**', 'dist/**'],
+    exclude: ['e2e/**', 'dist/**', 'playwright-report/**', 'test-results/**', 'coverage/**'],
     coverage: {
-      exclude: ['**/vite.config.ts', 'bench/**', 'e2e/**', 'dist/**'],
+      exclude: [
+        '**/vite.config.ts',
+        'bench/**',
+        'e2e/**',
+        'dist/**',
+        'playwright-report/**',
+        'test-results/**',
+        'coverage/**',
+      ],
     },
   },
 });

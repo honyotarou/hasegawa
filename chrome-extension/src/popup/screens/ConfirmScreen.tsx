@@ -1,5 +1,6 @@
 import { sendBatch } from '../../sendBatch';
 import type { AppState } from '../../types';
+import { DOCTOR_ID_FORMAT_ERROR, getDoctorIdError, normalizeDoctorId } from '../../doctorId';
 import styles from '../app.module.css';
 import { Header } from '../components/Header';
 
@@ -37,7 +38,10 @@ function getBlockingReasons(
   if (!gasUrl) reasons.push('GAS URL未設定');
   if (gasUrl && !isAllowedGasUrl(gasUrl)) reasons.push('GAS URLが許可ドメイン外');
   if (!storage.apiSecret?.trim()) reasons.push('API_SECRET未設定');
-  if (!storage.settings.doctorId?.trim()) reasons.push('医師ID未設定');
+  const doctorId = normalizeDoctorId(storage.settings.doctorId || '');
+  const doctorIdError = getDoctorIdError(doctorId);
+  if (doctorIdError === '社員番号は必須です') reasons.push('医師ID未設定');
+  else if (doctorIdError) reasons.push('医師ID形式不正');
   return reasons;
 }
 
@@ -55,6 +59,8 @@ function blockingReasonToError(reason: string): string {
       return '送信用シークレット(API_SECRET)を再入力してください。';
     case '医師ID未設定':
       return '社員番号（医師ID）が未設定です。';
+    case '医師ID形式不正':
+      return DOCTOR_ID_FORMAT_ERROR;
     default:
       return reason;
   }
@@ -84,7 +90,7 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
         state,
         gasUrl,
         storage.apiSecret,
-        storage.settings.doctorId || '',
+        normalizeDoctorId(storage.settings.doctorId || ''),
       );
 
       if (!response.success) {
@@ -155,7 +161,7 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
         <div className={styles['confirm-summary']}>
           合計 {total}件 / リハあり {yesCount}件 なし {noCount}件
           <br />
-          日付: {displayDate || '-'} / 医師ID: {storage.settings.doctorId || '-'}
+          日付: {displayDate || '-'} / 医師ID: {normalizeDoctorId(storage.settings.doctorId || '') || '-'}
           <br />
           batchId: {shortBatchId}
         </div>

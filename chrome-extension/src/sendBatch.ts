@@ -1,4 +1,5 @@
 import type { AppState, BatchPayload, GasResponse } from './types';
+import { getDoctorIdError, normalizeDoctorId } from './doctorId';
 
 let lastCheckedGasUrl = '';
 let lastCheckedGasUrlAllowed = false;
@@ -44,9 +45,12 @@ export function sendBatch(
     if (!trimmedApiSecret) {
       throw new Error('送信用シークレット(API_SECRET)が未設定です');
     }
-    const trimmedDoctorId = doctorId?.trim();
-    if (!trimmedDoctorId) {
-      throw new Error('医師IDが未設定です');
+    const trimmedDoctorId = normalizeDoctorId(doctorId);
+    const doctorIdError = getDoctorIdError(trimmedDoctorId);
+    if (doctorIdError) {
+      throw new Error(
+        doctorIdError === '社員番号は必須です' ? '医師IDが未設定です' : '社員番号（医師ID）の形式が不正です',
+      );
     }
 
     const baseMs = Date.now();

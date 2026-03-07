@@ -6,7 +6,8 @@ const CONFIG = {
   RECENT_HASH_LIMIT: 200,
 };
 
-// validateAndNormalize / normalizeGender / normalizeRequiredText / sanitizeForSheetText are defined in Validation.gs.
+// validateAndNormalize / normalizeGender / normalizeRequiredText / normalizeDoctorId /
+// isDoctorIdFormatValid / sanitizeForSheetText are defined in Validation.gs.
 
 function requireNonBlankText_(value, fieldName) {
   const normalized = normalizeRequiredText(value);
@@ -14,6 +15,38 @@ function requireNonBlankText_(value, fieldName) {
     throw new Error(fieldName + 'が必須です');
   }
   return normalized;
+}
+
+function parseDoctorIdAllowlist_() {
+  const raw = normalizeRequiredText(
+    PropertiesService.getScriptProperties().getProperty('DOCTOR_ID_ALLOWLIST'),
+  );
+  if (!raw) return null;
+  const entries = raw
+    .split(/[\r\n,]+/)
+    .map(function (entry) {
+      return normalizeDoctorId(entry);
+    })
+    .filter(Boolean);
+  if (entries.length === 0) return null;
+
+  const allowlist = {};
+  entries.forEach(function (entry) {
+    allowlist[entry] = true;
+  });
+  return allowlist;
+}
+
+function requireAuthorizedDoctorId_(value) {
+  const doctorId = requireNonBlankText_(value, 'doctorId');
+  if (!isDoctorIdFormatValid(doctorId)) {
+    throw new Error('doctorIdの形式が不正です');
+  }
+  const allowlist = parseDoctorIdAllowlist_();
+  if (allowlist && !allowlist[doctorId]) {
+    throw new Error('doctorIdが未登録です');
+  }
+  return doctorId;
 }
 
 function sanitizeSheetCellText_(value, limit) {
@@ -164,7 +197,7 @@ function processRecordBatch_(body, auditAction) {
   let doctorId;
   try {
     batchId = requireNonBlankText_(body.batchId, 'batchId');
-    doctorId = requireNonBlankText_(body.doctorId, 'doctorId');
+    doctorId = requireAuthorizedDoctorId_(body.doctorId);
   } catch (err) {
     return batchErrorResult_(auditAction, body, err.message);
   }

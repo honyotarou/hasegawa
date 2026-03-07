@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { extractPatientsFromDOM } from '../../content/extractPatients';
 import type { AppState, Patient } from '../../types';
 import styles from '../app.module.css';
@@ -36,6 +37,26 @@ function patchPatient(
   dispatch({ type: 'UPDATE_PATIENT', index, patch });
 }
 
+const RESTRICTED_TAB_ERROR =
+  'このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。';
+
+function isRestrictedTabUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  return /^(about:|chrome:\/\/|chrome-extension:\/\/|edge:\/\/)/i.test(url);
+}
+
+function getExtractionErrorMessage(err: unknown): string {
+  const message = err instanceof Error ? err.message : String(err);
+  if (
+    /Cannot access a chrome:\/\/ URL/i.test(message) ||
+    /Cannot access contents of url/i.test(message) ||
+    /extensions gallery cannot be scripted/i.test(message)
+  ) {
+    return RESTRICTED_TAB_ERROR;
+  }
+  return message;
+}
+
 export function MainScreen({
   state,
   dispatch,
@@ -48,12 +69,19 @@ export function MainScreen({
   diagnosis,
 }: MainScreenProps) {
   const patientCount = state.patients.length;
+  const handlePatientPatch = useCallback((index: number, patch: Partial<Patient>) => {
+    patchPatient(dispatch, index, patch);
+  }, [dispatch]);
 
-  async function handleFetch() {
+  const handleFetch = useCallback(async () => {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) {
         dispatch({ type: 'SUBMIT_ERROR', error: 'アクティブなタブが見つかりません' });
+        return;
+      }
+      if (isRestrictedTabUrl(tab.url)) {
+        dispatch({ type: 'SUBMIT_ERROR', error: RESTRICTED_TAB_ERROR });
         return;
       }
 
@@ -84,16 +112,16 @@ export function MainScreen({
     } catch (err: any) {
       dispatch({
         type: 'SUBMIT_ERROR',
-        error: err?.message || String(err),
+        error: getExtractionErrorMessage(err),
       });
     }
-  }
+  }, [dispatch]);
 
-  function jumpToPending() {
+  const jumpToPending = useCallback(() => {
     const pending = document.querySelector('[data-pending="true"]');
     const target = pending || document.body;
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  }, []);
 
   function dateForDisplay(dateText: string): string {
     return dateText.replace(/-/g, '/');
@@ -183,7 +211,7 @@ export function MainScreen({
                 patient={patient}
                 top5={diagnosis.top5}
                 rest={diagnosis.rest}
-                onPatch={(idx, patch) => patchPatient(dispatch, idx, patch)}
+                onPatch={handlePatientPatch}
               />
             ))}
           </div>

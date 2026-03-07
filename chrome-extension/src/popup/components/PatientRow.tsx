@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Patient } from '../../types';
 import { DiagDropdown } from './DiagDropdown';
 import { RehabToggle } from './RehabToggle';
@@ -15,7 +16,7 @@ type PatientRowProps = {
   onPatch: (index: number, patch: Partial<Patient>) => void;
 };
 
-export function PatientRow({ index, patient, top5, rest, onPatch }: PatientRowProps) {
+function PatientRowInner({ index, patient, top5, rest, onPatch }: PatientRowProps) {
   const ageError = !isValidAge(patient.age);
   const isPending = ageError || patient.rehab === null || !patient.diagnoses[0]?.trim();
   const noLabel = String(index + 1).padStart(2, '0');
@@ -72,3 +73,6 @@ export function PatientRow({ index, patient, top5, rest, onPatch }: PatientRowPr
     </div>
   );
 }
+
+export const PatientRow = memo(PatientRowInner);
+PatientRow.displayName = 'PatientRow';

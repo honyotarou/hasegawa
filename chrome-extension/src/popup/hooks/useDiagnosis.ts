@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DiagnosisCount } from '../../types';
 
 export function useDiagnosis(diagnosisMaster: string[]) {
@@ -18,12 +18,16 @@ export function useDiagnosis(diagnosisMaster: string[]) {
       });
   }, []);
 
-  const top5 = diagnosisMaster
-    .slice()
-    .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
-    .slice(0, 5);
+  const top5 = useMemo(() => {
+    return diagnosisMaster
+      .slice()
+      .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
+      .slice(0, 5);
+  }, [diagnosisMaster, counts]);
 
-  const rest = diagnosisMaster.filter((name) => !top5.includes(name));
+  const rest = useMemo(() => {
+    return diagnosisMaster.filter((name) => !top5.includes(name));
+  }, [diagnosisMaster, top5]);
 
   const incrementCounts = useCallback(async (diagNames: string[]) => {
     const next = { ...countsRef.current };

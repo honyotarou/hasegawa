@@ -2,6 +2,14 @@ function normalizeRequiredText(str) {
   return (str || '').toString().trim();
 }
 
+function normalizeDoctorId(str) {
+  return normalizeRequiredText(str);
+}
+
+function isDoctorIdFormatValid(str) {
+  return /^(?:[A-Za-z0-9_-]{3,32}|[=+\-@][A-Za-z0-9_-]{2,31})$/.test(normalizeDoctorId(str));
+}
+
 function sanitizeForSheetText(str) {
   const text = (str || '').toString();
   if (/^[=+\-@]/.test(text)) return "'" + text;

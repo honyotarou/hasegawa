@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { AppSettings, Screen } from '../../types';
+import { getDoctorIdError, normalizeDoctorId } from '../../doctorId';
 import styles from '../app.module.css';
 import { Header } from '../components/Header';
 
@@ -42,7 +43,7 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
       .filter(Boolean);
     const prod = gasUrlProd.trim();
     const dev = gasUrlDev.trim();
-    const doc = doctorId.trim();
+    const doc = normalizeDoctorId(doctorId);
     const sec = secret.trim();
 
     if (!prod) {
@@ -61,8 +62,9 @@ export function SettingsScreen({ storage, goToScreen }: SettingsScreenProps) {
       setError('送信用シークレット（API_SECRET）は必須です');
       return;
     }
-    if (!doc) {
-      setError('社員番号は必須です');
+    const doctorIdError = getDoctorIdError(doc);
+    if (doctorIdError) {
+      setError(doctorIdError);
       return;
     }
     if (diagnosisMaster.length === 0) {

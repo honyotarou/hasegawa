@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getDoctorIdError } from '../../doctorId';
 import type { AppSettings } from '../../types';
 
 const DEFAULTS: AppSettings = {
@@ -36,7 +37,7 @@ export function useStorage() {
       });
   }, []);
 
-  const isConfigured = Boolean(settings.gasUrlProd && apiSecret && settings.doctorId);
+  const isConfigured = Boolean(settings.gasUrlProd && apiSecret && !getDoctorIdError(settings.doctorId));
 
   async function saveSettings(next: AppSettings, secret: string): Promise<void> {
     await Promise.all([
