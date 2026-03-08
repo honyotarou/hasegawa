@@ -10,3 +10,4 @@ chrome-extension/test-results/
 
 # GAS clasp local settings
 gas/.clasp.json
+gas/.webapp-deployment.json

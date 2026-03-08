@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GAS_DIR="$ROOT_DIR/gas"
+DEPLOY_LIB="$ROOT_DIR/chrome-extension/scripts/gas-deploy-lib.mjs"
+DEPLOYMENT_CONFIG_PATH="$ROOT_DIR/gas/.webapp-deployment.json"
 
 RUN_TESTS=1
 RUN_GIT_PUSH=1
@@ -15,6 +17,14 @@ Options:
   --skip-tests   Skip chrome-extension unit tests.
   --no-git-push  Skip git push and only run clasp push.
   -h, --help     Show this help message.
+
+One-time bootstrap:
+  1. Create or identify a valid Web app deployment in the Apps Script UI.
+  2. Save its deployment ID locally:
+     scripts/configure-gas-webapp.sh <deployment-id>
+
+Environment:
+  GAS_WEBAPP_DEPLOYMENT_ID  Override the managed Web app deployment ID for this run.
 USAGE
 }
 
@@ -78,11 +88,31 @@ if [ ! -f "$GAS_DIR/appsscript.json" ]; then
   exit 1
 fi
 
-echo "[3/4] Pushing GAS sources with clasp"
+DEPLOYMENT_ID="$(node "$DEPLOY_LIB" resolve --config "$DEPLOYMENT_CONFIG_PATH")"
+if [ -z "$DEPLOYMENT_ID" ]; then
+  echo "[ERROR] Managed Web app deployment ID is not configured." >&2
+  echo "Run one-time bootstrap in Apps Script UI, then save it locally:" >&2
+  echo "  scripts/configure-gas-webapp.sh <deployment-id>" >&2
+  echo "Or override per run with GAS_WEBAPP_DEPLOYMENT_ID=<deployment-id>" >&2
+  exit 1
+fi
+
+echo "[3/5] Pushing GAS sources with clasp"
 (
   cd "$GAS_DIR"
   npx clasp push
 )
 
-echo "[4/4] Next manual step in GAS UI"
-echo "Update the existing Web App deployment to keep URL fixed."
+echo "[4/5] Creating immutable GAS version"
+VERSION_OUTPUT="$(
+  cd "$GAS_DIR"
+  npx clasp version "deploy $(git rev-parse --short HEAD)"
+)"
+echo "$VERSION_OUTPUT"
+VERSION_NUMBER="$(printf '%s' "$VERSION_OUTPUT" | node "$DEPLOY_LIB" parse-version)"
+
+echo "[5/5] Updating managed Web App deployment: $DEPLOYMENT_ID -> version $VERSION_NUMBER"
+(
+  cd "$GAS_DIR"
+  npx clasp redeploy "$DEPLOYMENT_ID" -V "$VERSION_NUMBER" -d "deploy $(git rev-parse --short HEAD)"
+)
