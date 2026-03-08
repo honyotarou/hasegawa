@@ -14,6 +14,7 @@ npx clasp clone <SCRIPT_ID> --rootDir .
 Notes:
 - `gas/.clasp.json` is machine/environment specific and should not be committed.
 - `gas/.claspignore` allows only `.gs`, `.html`, and `appsscript.json`.
+- `gas/appsscript.json` の `webapp` 設定が無いと `clasp deploy` は Web app entry point を作らない。
 
 ## One-time Web app bootstrap
 1. Apps Script UI で `Deploy > Manage deployments` を開く
@@ -41,6 +42,9 @@ This does, in order:
 3. `npx clasp push` from `gas/`
 4. `npx clasp version`
 5. `npx clasp redeploy <managed-deployment-id> -V <new-version>`
+
+Tip:
+- manifest を変えた直後は `npx clasp push -f` で force push した方が確実。
 
 ## Optional flags
 ```bash
