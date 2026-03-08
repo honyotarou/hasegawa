@@ -17,7 +17,7 @@
 - GASデプロイ更新日時
 - 実行者
 - 変更コミットSHA
-- API_SECRETローテーション実施記録
+- doctor secret / EVIDENCE_SECRET ローテーション実施記録
 
 ## 保管と保持期間
 - 保管先: 院内共有ストレージ（監査フォルダ）

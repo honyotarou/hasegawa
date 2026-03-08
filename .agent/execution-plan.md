@@ -101,7 +101,7 @@
 - [x] `npm run build` 成功
 - [x] `dist/` 生成物に manifest/icons を確認
 - [ ] GAS 15列ヘッダーを設定
-- [x] `setupSecret()` / `createDailyTrigger()` 実行手順を記録
+- [x] `setupDoctorSecretMap()` / `createDailyTrigger()` 実行手順を記録
 
 証跡:
 
