@@ -20,7 +20,7 @@
 | GAS URL/secret設定変更 | - | - | R/W | R |
 | RehaTrueFalseシート閲覧 | R | R | R/W | R |
 | RehaTrueFalseシート編集 | R/W(誤送信訂正) | R/W(依頼時) | R/W | R |
-| Script Properties(DOCTOR_SECRET_MAP / EVIDENCE_SECRET) | - | - | R/W | R |
+| Script Properties(API_SECRET) | - | - | R/W | R |
 | デプロイ更新 | - | - | R/W | R |
 
 ## 運用証跡

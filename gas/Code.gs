@@ -120,148 +120,24 @@ function setupEvidenceSecret() {
   PropertiesService.getScriptProperties().setProperty('EVIDENCE_SECRET', secret);
 }
 
-function setupDoctorSecretMap() {
-  const doctorSecrets = {
-    12345: 'YOUR_SECRET_FOR_12345_HERE',
-  };
-  const hashedMap = {};
-
-  for (const rawDoctorId in doctorSecrets) {
-    if (!Object.prototype.hasOwnProperty.call(doctorSecrets, rawDoctorId)) continue;
-    const doctorId = normalizeDoctorId(rawDoctorId);
-    const secret = normalizeSecret_(doctorSecrets[rawDoctorId]);
-    if (!doctorId || !isDoctorIdFormatValid(doctorId)) {
-      throw new Error('doctorIdの形式が不正です: ' + rawDoctorId);
-    }
-    if (!secret || secret.indexOf('YOUR_SECRET_FOR_') === 0) {
-      throw new Error('doctor secret must be changed from the placeholder before setup');
-    }
-    hashedMap[doctorId] = strongHash_(secret);
-  }
-
-  if (Object.keys(hashedMap).length === 0) {
-    throw new Error('doctor secret must be configured before setup');
-  }
-
-  PropertiesService.getScriptProperties().setProperty(
-    'DOCTOR_SECRET_MAP',
-    JSON.stringify(hashedMap),
-  );
-}
-
-function normalizeSecret_(value) {
-  return normalizeRequiredText(value) || '';
-}
-
-function constantTimeEquals_(left, right) {
-  const a = String(left || '');
-  const b = String(right || '');
-  let mismatch = a.length === b.length ? 0 : 1;
-  const len = Math.max(a.length, b.length);
-  for (let i = 0; i < len; i++) {
-    const aCode = i < a.length ? a.charCodeAt(i) : 0;
-    const bCode = i < b.length ? b.charCodeAt(i) : 0;
-    mismatch |= aCode ^ bCode;
-  }
-  return mismatch === 0;
-}
-
-function normalizeDoctorSecretHash_(entry) {
-  if (typeof entry === 'string') {
-    return entry.trim().toLowerCase();
-  }
-  if (entry && typeof entry === 'object' && typeof entry.secretHash === 'string') {
-    return entry.secretHash.trim().toLowerCase();
-  }
-  return '';
-}
-
-function parseDoctorSecretMap_() {
-  const raw = normalizeSecret_(
-    PropertiesService.getScriptProperties().getProperty('DOCTOR_SECRET_MAP'),
-  );
-  if (!raw) return { map: null };
-
-  let parsed;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (_) {
-    return { error: 'DOCTOR_SECRET_MAPが不正です' };
-  }
-
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    return { error: 'DOCTOR_SECRET_MAPが不正です' };
-  }
-
-  const normalizedMap = {};
-  let count = 0;
-  for (const rawDoctorId in parsed) {
-    if (!Object.prototype.hasOwnProperty.call(parsed, rawDoctorId)) continue;
-    const doctorId = normalizeDoctorId(rawDoctorId);
-    const secretHash = normalizeDoctorSecretHash_(parsed[rawDoctorId]);
-    if (!doctorId || !isDoctorIdFormatValid(doctorId) || !/^[0-9a-f]{64}$/.test(secretHash)) {
-      return { error: 'DOCTOR_SECRET_MAPが不正です' };
-    }
-    normalizedMap[doctorId] = secretHash;
-    count += 1;
-  }
-
-  return count > 0 ? { map: normalizedMap } : { error: 'DOCTOR_SECRET_MAPが不正です' };
-}
-
-function verifyLegacyApiSecret_(providedSecret, props) {
-  const expectedApiSecret = normalizeSecret_(props.getProperty('API_SECRET'));
-  if (!expectedApiSecret) {
-    return { valid: false, reason: 'API_SECRETが未設定です' };
-  }
-  return {
-    valid: constantTimeEquals_(providedSecret, expectedApiSecret),
-    reason: '認証失敗',
-  };
-}
-
-function verifyDoctorSecret_(body, providedSecret) {
-  const parsed = parseDoctorSecretMap_();
-  if (parsed.error) {
-    return { valid: false, reason: parsed.error };
-  }
-  if (!parsed.map) {
-    return verifyLegacyApiSecret_(providedSecret, PropertiesService.getScriptProperties());
-  }
-
-  const doctorId = normalizeDoctorId(body && body.doctorId);
-  if (!doctorId || !isDoctorIdFormatValid(doctorId)) {
-    return { valid: false, reason: '認証失敗' };
-  }
-
-  const expectedHash = parsed.map[doctorId];
-  if (!expectedHash || !providedSecret) {
-    return { valid: false, reason: '認証失敗' };
-  }
-
-  return {
-    valid: constantTimeEquals_(strongHash_(providedSecret), expectedHash),
-    reason: '認証失敗',
-  };
-}
-
 function verifyRequestSecret_(body) {
   const action = (body && body.action ? String(body.action) : '').trim();
-  const provided = normalizeSecret_(body && body.secret);
+  const provided = (body && body.secret ? String(body.secret) : '').trim();
   const props = PropertiesService.getScriptProperties();
 
   if (action === 'getEvidenceEvents') {
-    const expectedEvidenceSecret = normalizeSecret_(props.getProperty('EVIDENCE_SECRET'));
+    const expectedEvidenceSecret = (props.getProperty('EVIDENCE_SECRET') || '').trim();
     if (!expectedEvidenceSecret) {
       return { valid: false, reason: 'EVIDENCE_SECRETが未設定です' };
     }
-    return {
-      valid: constantTimeEquals_(provided, expectedEvidenceSecret),
-      reason: '認証失敗',
-    };
+    return { valid: provided === expectedEvidenceSecret, reason: '認証失敗' };
   }
 
-  return verifyDoctorSecret_(body, provided);
+  const expectedApiSecret = (props.getProperty('API_SECRET') || '').trim();
+  if (!expectedApiSecret) {
+    return { valid: false, reason: 'API_SECRETが未設定です' };
+  }
+  return { valid: provided === expectedApiSecret, reason: '認証失敗' };
 }
 
 function doPost(e) {

@@ -41,5 +41,4 @@ scripts/deploy-gas.sh --no-git-push
 - Use "既存のデプロイを更新" in GAS deployment UI (URL fixed).
 - `AuditEvidence` シートが自動作成されることを確認する。
 - 監査同期を使う場合は `getEvidenceEvents` action が secret 認証で応答することを確認する。
-- `DOCTOR_SECRET_MAP` と `EVIDENCE_SECRET` を設定する（`setupDoctorSecretMap`, `setupEvidenceSecret`）。
-- `API_SECRET` は `DOCTOR_SECRET_MAP` 未設定時だけ使う migration fallback。移行後は削除対象。
+- `API_SECRET` と `EVIDENCE_SECRET` を別値で設定する（`setupSecret`, `setupEvidenceSecret`）。

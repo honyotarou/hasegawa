@@ -254,6 +254,7 @@ v10同等を移植し、列インデックスを v11 列へ更新する。
 3. `dist/` を拡張として読み込む
 4. GASへ `Code.gs`/`Validation.gs` 反映
 5. RehaTrueFalse ヘッダー15列化
-6. `setupDoctorSecretMap()` 実行
+6. `setupSecret()` 実行
 7. Webアプリ更新は「既存のデプロイを更新」
 8. `createDailyTrigger()` 実行
+
