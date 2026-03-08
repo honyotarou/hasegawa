@@ -195,20 +195,6 @@ body::after {
   gap: 12px;
 }
 
-.screen > .content::before {
-  content: 'FRESH SOUR';
-  position: absolute;
-  top: 134px;
-  left: 4px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: 29px;
-  letter-spacing: 0.2em;
-  color: rgba(112, 86, 42, 0.42);
-  font-family: 'Zen Old Mincho', serif;
-  pointer-events: none;
-}
-
 .screen > .content > * {
   position: relative;
   z-index: 1;
@@ -776,20 +762,6 @@ body::after {
     radial-gradient(circle at 70% 26%, rgba(255, 250, 213, 0.8) 0 44px, rgba(233, 198, 83, 0.62) 45px 60px, transparent 61px),
     radial-gradient(circle at 88% 40%, rgba(255, 244, 166, 0.74) 0 35px, rgba(222, 184, 65, 0.56) 36px 49px, transparent 50px),
     linear-gradient(136deg, rgba(98, 79, 33, 0.46), rgba(168, 140, 57, 0.2));
-}
-
-.setup-screen::after {
-  content: 'FRESH SOUR';
-  position: absolute;
-  top: 248px;
-  left: 4px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: 30px;
-  letter-spacing: 0.19em;
-  color: rgba(112, 86, 42, 0.42);
-  font-family: 'Zen Old Mincho', serif;
-  pointer-events: none;
 }
 
 .setup-title {
