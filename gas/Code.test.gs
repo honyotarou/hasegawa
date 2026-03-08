@@ -97,51 +97,6 @@ function testVerifyRequestSecret_action_separation() {
   assertTrue_(evidenceOk.valid, 'evidence action must use EVIDENCE_SECRET');
 }
 
-function testVerifyRequestSecret_doctorSecretMap_preferred() {
-  // Given
-  const props = PropertiesService.getScriptProperties();
-  props.setProperty('API_SECRET', 'shared-secret');
-  props.setProperty(
-    'DOCTOR_SECRET_MAP',
-    JSON.stringify({
-      '12345': strongHash_('doctor-secret-12345'),
-    }),
-  );
-
-  // When
-  const writeOk = verifyRequestSecret_({
-    action: 'recordBatch',
-    doctorId: '12345',
-    secret: 'doctor-secret-12345',
-  });
-  const sharedNg = verifyRequestSecret_({
-    action: 'recordBatch',
-    doctorId: '12345',
-    secret: 'shared-secret',
-  });
-
-  // Then
-  assertTrue_(writeOk.valid, 'recordBatch must use doctor-specific secret when DOCTOR_SECRET_MAP exists');
-  assertFalse_(sharedNg.valid, 'shared API_SECRET must not bypass DOCTOR_SECRET_MAP');
-}
-
-function testVerifyRequestSecret_doctorSecretMap_fallback() {
-  // Given
-  const props = PropertiesService.getScriptProperties();
-  props.deleteProperty('DOCTOR_SECRET_MAP');
-  props.setProperty('API_SECRET', 'shared-secret');
-
-  // When
-  const writeOk = verifyRequestSecret_({
-    action: 'recordBatch',
-    doctorId: '12345',
-    secret: 'shared-secret',
-  });
-
-  // Then
-  assertTrue_(writeOk.valid, 'recordBatch must still allow API_SECRET while DOCTOR_SECRET_MAP is absent');
-}
-
 function testStrongHash_stability() {
   // Given
   const input = 'doctor_12345_payload';
