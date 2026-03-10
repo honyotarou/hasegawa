@@ -185,7 +185,17 @@ test('patient removal requires confirmation and updates patient count', async ({
 
   // Then
   await expect(page.getByRole('button', { name: /全件送信（1件）/ })).toBeVisible();
+  await expect(page.getByText('患者02を削除しました')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'undo-remove' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'remove-1' })).toHaveCount(0);
+
+  // When
+  await page.getByRole('button', { name: 'undo-remove' }).click();
+
+  // Then
+  await expect(page.getByRole('button', { name: /全件送信（2件）/ })).toBeVisible();
+  await expect(page.getByText('患者02を削除しました')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'remove-1' })).toBeVisible();
 });
 
 test('restored session without API_SECRET reaches confirm but blocks final submit', async ({ page }) => {

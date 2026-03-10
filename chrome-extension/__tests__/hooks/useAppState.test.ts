@@ -248,4 +248,41 @@ describe('useAppState', () => {
     expect(result.current.pendingCount).toBe(0);
     expect(result.current.canSubmit).toBe(false);
   });
+
+  test('INSERT_PATIENTで指定位置へ患者を戻せる', () => {
+    // Given
+    const hook = (appStateModule as any).useAppState;
+    expect(hook).toBeTypeOf('function');
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.storage.session.remove = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => hook());
+    act(() => {
+      result.current.dispatch({
+        type: 'SET_PATIENTS',
+        batchId: 'b1',
+        patients: [
+          { age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+          { age: 65, gender: '女性', diagnoses: ['膝痛'], rehab: false, remarks: '' },
+        ],
+      });
+      result.current.dispatch({ type: 'REMOVE_PATIENT', index: 0 });
+    });
+
+    // When
+    act(() => {
+      result.current.dispatch({
+        type: 'INSERT_PATIENT',
+        index: 0,
+        patient: { age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+      });
+    });
+
+    // Then
+    expect(result.current.state.patients).toEqual([
+      { age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+      { age: 65, gender: '女性', diagnoses: ['膝痛'], rehab: false, remarks: '' },
+    ]);
+  });
 });

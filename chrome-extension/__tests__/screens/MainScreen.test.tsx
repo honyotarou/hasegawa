@@ -327,6 +327,56 @@ describe('MainScreen', () => {
     confirmSpy.mockRestore();
   });
 
+  test('削除後にtoastを表示し元に戻すでINSERT_PATIENTをdispatchする', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const removedPatient = {
+      age: 32,
+      gender: '女性',
+      diagnoses: ['肩痛'],
+      rehab: false,
+      remarks: '',
+    };
+
+    // When
+    render(
+      React.createElement(
+        MainScreen,
+        baseProps({
+          dispatch,
+          state: {
+            patients: [
+              { age: 50, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+              removedPatient,
+            ],
+            mode: 'prod',
+            selectedDate: '2026-02-28',
+          },
+        }),
+      ),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'remove-1' }));
+
+    // Then
+    expect(screen.getByText('患者02を削除しました')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'undo-remove' })).toBeInTheDocument();
+
+    // When
+    await userEvent.click(screen.getByRole('button', { name: 'undo-remove' }));
+
+    // Then
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'INSERT_PATIENT',
+      index: 1,
+      patient: removedPatient,
+    });
+    expect(screen.queryByText('患者02を削除しました')).not.toBeInTheDocument();
+    confirmSpy.mockRestore();
+  });
+
   test('タブ取得処理で例外時はSUBMIT_ERRORをdispatchする', async () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
