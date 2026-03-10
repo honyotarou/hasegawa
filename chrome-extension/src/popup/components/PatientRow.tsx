@@ -14,9 +14,10 @@ type PatientRowProps = {
   top5: string[];
   rest: string[];
   onPatch: (index: number, patch: Partial<Patient>) => void;
+  onRemove?: (index: number) => void;
 };
 
-function PatientRowInner({ index, patient, top5, rest, onPatch }: PatientRowProps) {
+function PatientRowInner({ index, patient, top5, rest, onPatch, onRemove }: PatientRowProps) {
   const ageError = !isValidAge(patient.age);
   const isPending = ageError || patient.rehab === null || !patient.diagnoses[0]?.trim();
   const noLabel = String(index + 1).padStart(2, '0');
@@ -70,6 +71,16 @@ function PatientRowInner({ index, patient, top5, rest, onPatch }: PatientRowProp
         value={patient.rehab}
         onChange={(value) => onPatch(index, { rehab: value })}
       />
+      <div className={styles['row-action']}>
+        <button
+          aria-label={`remove-${index}`}
+          className={styles['row-delete-btn']}
+          type="button"
+          onClick={() => onRemove?.(index)}
+        >
+          削除
+        </button>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ type Action =
   | { type: 'GOTO_SCREEN'; screen: Screen }
   | { type: 'SET_PATIENTS'; patients: Patient[]; batchId: string }
   | { type: 'UPDATE_PATIENT'; index: number; patch: Partial<Patient> }
+  | { type: 'REMOVE_PATIENT'; index: number }
   | { type: 'SET_MODE'; mode: Mode }
   | { type: 'SET_DATE'; date: string }
   | { type: 'SUBMIT_START' }
@@ -55,6 +56,14 @@ function reducer(state: AppState, action: Action): AppState {
       const patients = state.patients.map((patient, idx) =>
         idx === action.index ? { ...patient, ...action.patch } : patient,
       );
+      return { ...state, patients };
+    }
+
+    case 'REMOVE_PATIENT': {
+      if (action.index < 0 || action.index >= state.patients.length) {
+        return state;
+      }
+      const patients = state.patients.filter((_, idx) => idx !== action.index);
       return { ...state, patients };
     }
 

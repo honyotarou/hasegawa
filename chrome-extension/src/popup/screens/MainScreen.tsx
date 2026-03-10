@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { extractPatientsFromDOM } from '../../content/extractPatients';
 import type { AppState, Patient } from '../../types';
 import styles from '../app.module.css';
@@ -37,6 +37,10 @@ function patchPatient(
   dispatch({ type: 'UPDATE_PATIENT', index, patch });
 }
 
+function removePatient(dispatch: React.Dispatch<any>, index: number): void {
+  dispatch({ type: 'REMOVE_PATIENT', index });
+}
+
 const RESTRICTED_TAB_ERROR =
   'このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。';
 
@@ -69,9 +73,25 @@ export function MainScreen({
   diagnosis,
 }: MainScreenProps) {
   const patientCount = state.patients.length;
+  const rowKeyMapRef = useRef<WeakMap<Patient, string>>(new WeakMap());
+  const rowKeySeqRef = useRef(0);
   const handlePatientPatch = useCallback((index: number, patch: Partial<Patient>) => {
     patchPatient(dispatch, index, patch);
   }, [dispatch]);
+  const handlePatientRemove = useCallback((index: number) => {
+    removePatient(dispatch, index);
+  }, [dispatch]);
+
+  const getRowKey = useCallback((patient: Patient, index: number) => {
+    const current = rowKeyMapRef.current.get(patient);
+    if (current) {
+      return current;
+    }
+    rowKeySeqRef.current += 1;
+    const next = `patient-row-${rowKeySeqRef.current}-${index}`;
+    rowKeyMapRef.current.set(patient, next);
+    return next;
+  }, []);
 
   const handleFetch = useCallback(async () => {
     try {
@@ -202,16 +222,18 @@ export function MainScreen({
             <span>性別</span>
             <span>診断名</span>
             <span>リハ</span>
+            <span>削除</span>
           </div>
           <div className={styles.rows}>
             {state.patients.map((patient, index) => (
               <PatientRow
-                key={`${index}-${patient.age}`}
+                key={getRowKey(patient, index)}
                 index={index}
                 patient={patient}
                 top5={diagnosis.top5}
                 rest={diagnosis.rest}
                 onPatch={handlePatientPatch}
+                onRemove={handlePatientRemove}
               />
             ))}
           </div>
