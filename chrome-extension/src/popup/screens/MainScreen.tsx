@@ -211,6 +211,8 @@ export function MainScreen({
     return dateText.replace(/-/g, '/');
   }
 
+  const submitLabel = canSubmit ? '送信可能' : '送信保留';
+
   function renderPendingStatus(): React.ReactNode {
     if (patientCount === 0) {
       return (
@@ -247,16 +249,51 @@ export function MainScreen({
 
       <div className={styles.content}>
         <div className={styles['screen-heading-wrap']}>
-          <h2 className={styles['screen-heading']}>入力画面</h2>
+          <h2 className={styles['screen-heading']}>入力監査</h2>
           <p className={styles['screen-subheading']}>
-            未解決リスクを0件にしてから送信してください。
+            抽出結果を確認し、未解決を解消してから送信してください。
           </p>
+        </div>
+
+        <div className={styles['ops-grid']}>
+          <div className={styles['ops-card']}>
+            <div className={styles['ops-label']}>記録対象</div>
+            <div className={styles['ops-value']}>患者 {patientCount}件</div>
+            <div className={styles['ops-note']}>取得元: ChatGPT / JSON</div>
+          </div>
+          <div className={styles['ops-card']}>
+            <div className={styles['ops-label']}>未解決</div>
+            <div
+              className={`${styles['ops-value']} ${pendingCount === 0 ? styles['ops-value-ok'] : styles['ops-value-warn']}`}
+            >
+              {pendingCount}件
+            </div>
+            <div className={styles['ops-note']}>
+              リハ {pendingRehab}件 / 診断 {pendingDiag}件 / 年齢 {pendingAge}件
+            </div>
+          </div>
+          <div className={styles['ops-card']}>
+            <div className={styles['ops-label']}>送信判定</div>
+            <div
+              className={`${styles['ops-value']} ${canSubmit ? styles['ops-value-ok'] : styles['ops-value-warn']}`}
+            >
+              {submitLabel}
+            </div>
+            <div className={styles['ops-note']}>
+              {canSubmit ? '確認画面へ進めます' : '未解決が残っているため送信できません'}
+            </div>
+          </div>
         </div>
 
         <div className={styles.toolbar}>
           <div className={styles['toolbar-top']}>
-            <button className={styles['primary-btn']} type="button" onClick={() => void handleFetch()}>
-              ChatGPTから取得
+            <button
+              aria-label="ChatGPTから取得"
+              className={styles['primary-btn']}
+              type="button"
+              onClick={() => void handleFetch()}
+            >
+              患者一覧を取得
             </button>
             <input
               aria-label="selected-date"

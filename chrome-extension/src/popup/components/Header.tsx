@@ -11,7 +11,10 @@ export function Header({ title = '診療記録くん', dateText, onSettings }: H
     <header className={styles.header}>
       <div className={styles['header-left']}>
         <span className={styles['header-dot']} />
-        <h1 className={styles['header-title']}>{title}</h1>
+        <div className={styles['header-copy']}>
+          <span className={styles['header-kicker']}>CLINICAL RECORD OPS</span>
+          <h1 className={styles['header-title']}>{title}</h1>
+        </div>
       </div>
       <div className={styles['header-right']}>
         {dateText ? <span className={styles['header-date']}>{dateText}</span> : null}

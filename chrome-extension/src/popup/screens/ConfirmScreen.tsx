@@ -71,11 +71,13 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
   const yesCount = state.patients.filter((p) => p.rehab === true).length;
   const noCount = state.patients.filter((p) => p.rehab === false).length;
   const displayDate = (state.selectedDate || '').replace(/-/g, '/');
+  const doctorId = normalizeDoctorId(storage.settings.doctorId || '') || '-';
 
   const gasUrl = state.mode === 'prod' ? storage.settings.gasUrlProd : storage.settings.gasUrlDev;
   const blockingReasons = getBlockingReasons(state, storage, gasUrl);
   const canSubmit = blockingReasons.length === 0;
   const shortBatchId = state.currentBatchId ? `${state.currentBatchId.slice(0, 8)}...` : '-';
+  const modeLabel = state.mode === 'prod' ? '本番' : '開発';
 
   async function handleSubmit() {
     if (blockingReasons.length > 0) {
@@ -130,11 +132,35 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
 
       <div className={styles.content}>
         <div className={styles['screen-heading-wrap']}>
-          <h2 className={styles['screen-heading']}>送信内容を確認してください</h2>
+          <h2 className={styles['screen-heading']}>送信承認</h2>
           <p className={styles['screen-subheading']}>
-            誤送信を防ぐため、件数・医師ID・batchIdを確認してから送信してください。
+            送信先・担当者・件数・batchIdを確認してから送信してください。
           </p>
         </div>
+
+        <div className={styles['summary-grid']}>
+          <div className={styles['summary-card']}>
+            <div className={styles['summary-label']}>送信先</div>
+            <div className={styles['summary-value']}>{modeLabel}</div>
+            <div className={styles['summary-note']}>{gasUrl || '-'}</div>
+          </div>
+          <div className={styles['summary-card']}>
+            <div className={styles['summary-label']}>担当者</div>
+            <div className={styles['summary-value']}>{doctorId}</div>
+            <div className={styles['summary-note']}>送信日: {displayDate || '-'}</div>
+          </div>
+          <div className={styles['summary-card']}>
+            <div className={styles['summary-label']}>対象件数</div>
+            <div className={styles['summary-value']}>{total}件</div>
+            <div className={styles['summary-note']}>リハあり {yesCount}件 / なし {noCount}件</div>
+          </div>
+          <div className={styles['summary-card']}>
+            <div className={styles['summary-label']}>batchId</div>
+            <div className={styles['summary-value']}>{shortBatchId}</div>
+            <div className={styles['summary-note']}>batchId: {shortBatchId}</div>
+          </div>
+        </div>
+
         <div className={styles.panel}>
           <div className={styles['table-head']}>
             <span>No</span>
@@ -156,14 +182,6 @@ export function ConfirmScreen({ state, dispatch, storage, diagnosis }: ConfirmSc
               </div>
             ))}
           </div>
-        </div>
-
-        <div className={styles['confirm-summary']}>
-          合計 {total}件 / リハあり {yesCount}件 なし {noCount}件
-          <br />
-          日付: {displayDate || '-'} / 医師ID: {normalizeDoctorId(storage.settings.doctorId || '') || '-'}
-          <br />
-          batchId: {shortBatchId}
         </div>
 
         <div className={`${styles['confirm-summary']} ${styles['decision-block']}`}>
