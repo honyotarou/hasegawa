@@ -41,6 +41,10 @@ function removePatient(dispatch: React.Dispatch<any>, index: number): void {
   dispatch({ type: 'REMOVE_PATIENT', index });
 }
 
+function confirmPatientRemoval(index: number): boolean {
+  return window.confirm(`患者${index + 1}を一覧から削除します。よろしいですか？`);
+}
+
 const RESTRICTED_TAB_ERROR =
   'このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。';
 
@@ -79,6 +83,9 @@ export function MainScreen({
     patchPatient(dispatch, index, patch);
   }, [dispatch]);
   const handlePatientRemove = useCallback((index: number) => {
+    if (!confirmPatientRemoval(index)) {
+      return;
+    }
     removePatient(dispatch, index);
   }, [dispatch]);
 
