@@ -72,7 +72,7 @@ describe('ConfirmScreen', () => {
     });
   });
 
-  test('確認サマリーにbatchId短縮表示と送信判定を表示する', () => {
+  test('確認サマリーに承認情報と送信判定を表示する', () => {
     // Given
     const ConfirmScreen = (moduleConfirm as any).ConfirmScreen;
     expect(ConfirmScreen).toBeTypeOf('function');
@@ -84,8 +84,12 @@ describe('ConfirmScreen', () => {
     render(React.createElement(ConfirmScreen, props));
 
     // Then
+    expect(screen.getByText('送信承認')).toBeInTheDocument();
+    expect(screen.getByText('送信先')).toBeInTheDocument();
+    expect(screen.getByText('担当者')).toBeInTheDocument();
+    expect(screen.getByText('対象件数')).toBeInTheDocument();
     expect(screen.getByText('送信前チェック')).toBeInTheDocument();
-    expect(screen.getByText('誤送信を防ぐため、件数・医師ID・batchIdを確認してから送信してください。')).toBeInTheDocument();
+    expect(screen.getByText('送信先・担当者・件数・batchIdを確認してから送信してください。')).toBeInTheDocument();
     expect(screen.getByText(/batchId: 550e8400\.\.\./)).toBeInTheDocument();
     expect(screen.getByText('送信判定: 送信可能')).toBeInTheDocument();
   });

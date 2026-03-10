@@ -42,7 +42,7 @@ describe('App', () => {
 
     // Then
     await waitFor(() => {
-      expect(screen.getByText(/ChatGPTから取得|メイン/)).toBeInTheDocument();
+      expect(screen.getByText(/入力監査|ChatGPTから取得/)).toBeInTheDocument();
     });
   });
 });

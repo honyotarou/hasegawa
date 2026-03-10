@@ -24,6 +24,7 @@ describe('DoneScreen', () => {
     );
 
     // Then
+    expect(screen.getByText('送信記録')).toBeInTheDocument();
     expect(screen.getByText(/6件/)).toBeInTheDocument();
     expect(screen.getByText('重複スキップ: 2')).toBeInTheDocument();
     expect(screen.getByText(/batchId/)).toBeInTheDocument();
@@ -31,7 +32,7 @@ describe('DoneScreen', () => {
     expect(screen.getByText(/送信時刻:/)).toBeInTheDocument();
   });
 
-  test('resultがnullなら送信完了文言を表示する', () => {
+  test('resultがnullなら送信記録の案内文言を表示する', () => {
     // Given
     const DoneScreen = (moduleDone as any).DoneScreen;
     expect(DoneScreen).toBeTypeOf('function');
@@ -45,8 +46,9 @@ describe('DoneScreen', () => {
     );
 
     // Then
+    expect(screen.getByText('送信記録')).toBeInTheDocument();
     expect(screen.getAllByText('送信完了').length).toBeGreaterThan(0);
-    expect(screen.getByText('送信結果を確認し、次の患者リスト取得へ進んでください。')).toBeInTheDocument();
+    expect(screen.getByText('送信結果を確認し、次の一覧取得へ進んでください。')).toBeInTheDocument();
   });
 
   test('ChatGPTから取得ボタン押下でMAIN遷移dispatchを呼ぶ', async () => {

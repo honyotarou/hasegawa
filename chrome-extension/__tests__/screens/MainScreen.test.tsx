@@ -26,7 +26,7 @@ function baseProps(overrides: any = {}) {
 }
 
 describe('MainScreen', () => {
-  test('全員入力済みなら送信ボタンが有効', () => {
+  test('全員入力済みなら送信可能の監査表示と送信ボタンが有効', () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
@@ -36,7 +36,10 @@ describe('MainScreen', () => {
 
     // Then
     expect(screen.getByRole('button', { name: /全件送信/ })).toBeEnabled();
-    expect(screen.getByText('未解決リスクを0件にしてから送信してください。')).toBeInTheDocument();
+    expect(screen.getByText('抽出結果を確認し、未解決を解消してから送信してください。')).toBeInTheDocument();
+    expect(screen.getByText('記録対象')).toBeInTheDocument();
+    expect(screen.getByText('送信判定')).toBeInTheDocument();
+    expect(screen.getByText('送信可能')).toBeInTheDocument();
   });
 
   test('診断名未入力がある場合は送信ボタンが無効', () => {
@@ -56,6 +59,7 @@ describe('MainScreen', () => {
     expect(screen.getByRole('button', { name: /全件送信/ })).toBeDisabled();
     expect(screen.getByText(/未解決リスク: 1件/)).toBeInTheDocument();
     expect(screen.getByText(/診断名未入力: 1件/)).toBeInTheDocument();
+    expect(screen.getByText('送信保留')).toBeInTheDocument();
   });
 
   test('gasUrlDev が空なら mode toggle を表示しない', () => {
