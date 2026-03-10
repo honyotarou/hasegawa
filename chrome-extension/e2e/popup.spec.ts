@@ -146,6 +146,48 @@ test('main -> confirm -> done happy path', async ({ page }) => {
   await expect(page.getByText('1件を送信しました')).toBeVisible();
 });
 
+test('patient removal requires confirmation and updates patient count', async ({ page }) => {
+  // Given
+  await mountChromeMock(
+    page,
+    {
+      gasUrlProd: 'https://script.google.com/macros/s/xxx/exec',
+      gasUrlDev: '',
+      doctorId: '12345',
+      diagnosisMaster: ['腰痛', '肩痛'],
+    },
+    { apiSecret: 'secret-value' },
+    {
+      success: true,
+      patients: [
+        { age: 70, gender: '男性' },
+        { age: 62, gender: '女性' },
+      ],
+    },
+  );
+
+  // When
+  await page.goto('/popup.html');
+  await page.getByRole('button', { name: 'ChatGPTから取得' }).click();
+  await expect(page.getByRole('button', { name: /全件送信（2件）/ })).toBeVisible();
+
+  // When
+  page.once('dialog', (dialog) => dialog.dismiss());
+  await page.getByRole('button', { name: 'remove-1' }).click();
+
+  // Then
+  await expect(page.getByRole('button', { name: /全件送信（2件）/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'remove-1' })).toBeVisible();
+
+  // When
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'remove-1' }).click();
+
+  // Then
+  await expect(page.getByRole('button', { name: /全件送信（1件）/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'remove-1' })).toHaveCount(0);
+});
+
 test('restored session without API_SECRET reaches confirm but blocks final submit', async ({ page }) => {
   // Given
   await mountChromeMock(

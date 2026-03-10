@@ -263,11 +263,12 @@ describe('MainScreen', () => {
     expect(call[0]).toEqual({ type: 'UPDATE_PATIENT', index: 0, patch: { age: 55 } });
   });
 
-  test('削除ボタン押下でREMOVE_PATIENTをdispatchする', async () => {
+  test('削除確認でOKしたときだけREMOVE_PATIENTをdispatchする', async () => {
     // Given
     const MainScreen = (moduleMain as any).MainScreen;
     expect(MainScreen).toBeTypeOf('function');
     const dispatch = vi.fn();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     // When
     render(
@@ -289,7 +290,41 @@ describe('MainScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'remove-1' }));
 
     // Then
+    expect(confirmSpy).toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PATIENT', index: 1 });
+    confirmSpy.mockRestore();
+  });
+
+  test('削除確認でキャンセルしたときはREMOVE_PATIENTをdispatchしない', async () => {
+    // Given
+    const MainScreen = (moduleMain as any).MainScreen;
+    expect(MainScreen).toBeTypeOf('function');
+    const dispatch = vi.fn();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    // When
+    render(
+      React.createElement(
+        MainScreen,
+        baseProps({
+          dispatch,
+          state: {
+            patients: [
+              { age: 50, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+              { age: 32, gender: '女性', diagnoses: ['肩痛'], rehab: false, remarks: '' },
+            ],
+            mode: 'prod',
+            selectedDate: '2026-02-28',
+          },
+        }),
+      ),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'remove-1' }));
+
+    // Then
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalledWith({ type: 'REMOVE_PATIENT', index: 1 });
+    confirmSpy.mockRestore();
   });
 
   test('タブ取得処理で例外時はSUBMIT_ERRORをdispatchする', async () => {
