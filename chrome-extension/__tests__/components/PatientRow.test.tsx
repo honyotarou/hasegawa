@@ -50,4 +50,28 @@ describe('PatientRow', () => {
     expect(screen.getByText('年齢エラー')).toBeInTheDocument();
     expect(screen.getByTestId('patient-row-0').getAttribute('data-pending')).toBe('true');
   });
+
+  test('削除ボタン押下で対象indexの削除を通知する', async () => {
+    // Given
+    const onPatch = vi.fn();
+    const onRemove = vi.fn();
+    render(
+      <PatientRow
+        {...({
+          index: 1,
+          patient: { age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+          top5: ['腰痛'],
+          rest: [],
+          onPatch,
+          onRemove,
+        } as any)}
+      />,
+    );
+
+    // When
+    await userEvent.click(screen.getByRole('button', { name: 'remove-1' }));
+
+    // Then
+    expect(onRemove).toHaveBeenCalledWith(1);
+  });
 });

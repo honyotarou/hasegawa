@@ -189,4 +189,63 @@ describe('useAppState', () => {
     });
     errorSpy.mockRestore();
   });
+
+  test('患者削除で対象indexだけ一覧から外れる', () => {
+    // Given
+    const hook = (appStateModule as any).useAppState;
+    expect(hook).toBeTypeOf('function');
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.storage.session.remove = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => hook());
+    act(() => {
+      result.current.dispatch({
+        type: 'SET_PATIENTS',
+        batchId: 'b1',
+        patients: [
+          { age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' },
+          { age: 65, gender: '女性', diagnoses: ['膝痛'], rehab: false, remarks: '' },
+        ],
+      });
+    });
+
+    // When
+    act(() => {
+      result.current.dispatch({ type: 'REMOVE_PATIENT', index: 0 });
+    });
+
+    // Then
+    expect(result.current.state.patients).toEqual([
+      { age: 65, gender: '女性', diagnoses: ['膝痛'], rehab: false, remarks: '' },
+    ]);
+  });
+
+  test('最後の1件を削除したら送信不可になる', () => {
+    // Given
+    const hook = (appStateModule as any).useAppState;
+    expect(hook).toBeTypeOf('function');
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.session.get = vi.fn().mockResolvedValue({});
+    chromeAny.storage.session.set = vi.fn().mockResolvedValue(undefined);
+    chromeAny.storage.session.remove = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => hook());
+    act(() => {
+      result.current.dispatch({
+        type: 'SET_PATIENTS',
+        batchId: 'b1',
+        patients: [{ age: 40, gender: '男性', diagnoses: ['腰痛'], rehab: true, remarks: '' }],
+      });
+    });
+
+    // When
+    act(() => {
+      result.current.dispatch({ type: 'REMOVE_PATIENT', index: 0 });
+    });
+
+    // Then
+    expect(result.current.state.patients).toEqual([]);
+    expect(result.current.pendingCount).toBe(0);
+    expect(result.current.canSubmit).toBe(false);
+  });
 });
