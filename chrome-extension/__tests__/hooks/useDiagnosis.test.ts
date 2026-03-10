@@ -43,6 +43,28 @@ describe('useDiagnosis', () => {
     });
   });
 
+  test('incrementCountsで左右付き診断名は基本病名へ正規化して保存する', async () => {
+    // Given
+    const chromeAny = (globalThis as any).chrome;
+    chromeAny.storage.local.get = vi.fn().mockResolvedValue({ diagnosisCount: { 腰痛: 1 } });
+    chromeAny.storage.local.set = vi.fn().mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useDiagnosis(['腰痛', '肩痛']));
+    await waitFor(() => {
+      expect(result.current.counts.腰痛).toBe(1);
+    });
+
+    // When
+    await act(async () => {
+      await result.current.incrementCounts(['腰痛（右）', '腰痛（左）']);
+    });
+
+    // Then
+    expect(chromeAny.storage.local.set).toHaveBeenCalledWith({
+      diagnosisCount: { 腰痛: 3 },
+    });
+  });
+
   test('diagnosisCountの読み込み失敗時はエラーをログ出力する', async () => {
     // Given
     const chromeAny = (globalThis as any).chrome;

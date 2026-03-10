@@ -1,6 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DiagnosisCount } from '../../types';
 
+function normalizeDiagnosisCountKey(name: string): string {
+  return name.trim().replace(/（(?:右|左)）$/, '').trim();
+}
+
+function normalizeDiagnosisCounts(source: DiagnosisCount): DiagnosisCount {
+  const next: DiagnosisCount = {};
+  for (const [name, count] of Object.entries(source || {})) {
+    const key = normalizeDiagnosisCountKey(name);
+    if (!key) continue;
+    next[key] = (next[key] || 0) + count;
+  }
+  return next;
+}
+
 export function useDiagnosis(diagnosisMaster: string[]) {
   const [counts, setCounts] = useState<DiagnosisCount>({});
   const countsRef = useRef<DiagnosisCount>({});
@@ -9,7 +23,7 @@ export function useDiagnosis(diagnosisMaster: string[]) {
     chrome.storage.local
       .get('diagnosisCount')
       .then((res: any) => {
-        const loaded = res.diagnosisCount || {};
+        const loaded = normalizeDiagnosisCounts(res.diagnosisCount || {});
         countsRef.current = loaded;
         setCounts(loaded);
       })
@@ -32,7 +46,7 @@ export function useDiagnosis(diagnosisMaster: string[]) {
   const incrementCounts = useCallback(async (diagNames: string[]) => {
     const next = { ...countsRef.current };
     for (const name of diagNames) {
-      const key = name.trim();
+      const key = normalizeDiagnosisCountKey(name);
       if (!key) continue;
       next[key] = (next[key] || 0) + 1;
     }

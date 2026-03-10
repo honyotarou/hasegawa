@@ -21,7 +21,7 @@ describe('PatientRow', () => {
     await userEvent.clear(screen.getByLabelText('age-0'));
     await userEvent.type(screen.getByLabelText('age-0'), '40');
     await userEvent.selectOptions(screen.getByLabelText('gender-0'), '女性');
-    await userEvent.click(screen.getByLabelText('diag-trigger'));
+    await userEvent.click(screen.getByLabelText('diag-input-0'));
     await userEvent.click(screen.getByRole('button', { name: /★\s*腰痛/ }));
     await userEvent.click(screen.getByRole('button', { name: 'あり' }));
 

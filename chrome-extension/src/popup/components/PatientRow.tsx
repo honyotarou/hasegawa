@@ -61,6 +61,8 @@ function PatientRowInner({ index, patient, top5, rest, onPatch, onRemove }: Pati
         value={patient.diagnoses[0] || ''}
         top5={top5}
         rest={rest}
+        inputLabel={`diag-input-${index}`}
+        sideLabel={`diag-side-${index}`}
         onChange={(value) => {
           const diagnoses = [...patient.diagnoses];
           diagnoses[0] = value;
