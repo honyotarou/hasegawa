@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { extractPatientsFromDOM } from '../../content/extractPatients';
 import type { AppState, Patient } from '../../types';
 import styles from '../app.module.css';
@@ -41,9 +41,23 @@ function removePatient(dispatch: React.Dispatch<any>, index: number): void {
   dispatch({ type: 'REMOVE_PATIENT', index });
 }
 
+function restorePatient(dispatch: React.Dispatch<any>, index: number, patient: Patient): void {
+  dispatch({ type: 'INSERT_PATIENT', index, patient });
+}
+
 function confirmPatientRemoval(index: number): boolean {
   return window.confirm(`患者${index + 1}を一覧から削除します。よろしいですか？`);
 }
+
+function formatPatientNo(index: number): string {
+  return String(index + 1).padStart(2, '0');
+}
+
+type UndoToast = {
+  index: number;
+  patient: Patient;
+  message: string;
+};
 
 const RESTRICTED_TAB_ERROR =
   'このページでは取得できません。ChatGPTの会話ページかJSON表示ページを開いてください。';
@@ -79,6 +93,31 @@ export function MainScreen({
   const patientCount = state.patients.length;
   const rowKeyMapRef = useRef<WeakMap<Patient, string>>(new WeakMap());
   const rowKeySeqRef = useRef(0);
+  const undoTimerRef = useRef<number | null>(null);
+  const [undoToast, setUndoToast] = useState<UndoToast | null>(null);
+
+  useEffect(() => {
+    if (!undoToast) {
+      if (undoTimerRef.current !== null) {
+        window.clearTimeout(undoTimerRef.current);
+        undoTimerRef.current = null;
+      }
+      return;
+    }
+
+    undoTimerRef.current = window.setTimeout(() => {
+      setUndoToast(null);
+      undoTimerRef.current = null;
+    }, 5000);
+
+    return () => {
+      if (undoTimerRef.current !== null) {
+        window.clearTimeout(undoTimerRef.current);
+        undoTimerRef.current = null;
+      }
+    };
+  }, [undoToast]);
+
   const handlePatientPatch = useCallback((index: number, patch: Partial<Patient>) => {
     patchPatient(dispatch, index, patch);
   }, [dispatch]);
@@ -86,8 +125,25 @@ export function MainScreen({
     if (!confirmPatientRemoval(index)) {
       return;
     }
+    const patient = state.patients[index];
+    if (!patient) {
+      return;
+    }
     removePatient(dispatch, index);
-  }, [dispatch]);
+    setUndoToast({
+      index,
+      patient,
+      message: `患者${formatPatientNo(index)}を削除しました`,
+    });
+  }, [dispatch, state.patients]);
+
+  const handleUndoRemove = useCallback(() => {
+    if (!undoToast) {
+      return;
+    }
+    restorePatient(dispatch, undoToast.index, undoToast.patient);
+    setUndoToast(null);
+  }, [dispatch, undoToast]);
 
   const getRowKey = useCallback((patient: Patient, index: number) => {
     const current = rowKeyMapRef.current.get(patient);
@@ -102,6 +158,7 @@ export function MainScreen({
 
   const handleFetch = useCallback(async () => {
     try {
+      setUndoToast(null);
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) {
         dispatch({ type: 'SUBMIT_ERROR', error: 'アクティブなタブが見つかりません' });
@@ -269,6 +326,19 @@ export function MainScreen({
           送信前に「未解決リスク」「日付」「診断名」を最終確認してください。
         </p>
 
+        {undoToast ? (
+          <div className={styles['status-toast']} role="status" aria-live="polite">
+            <span>{undoToast.message}</span>
+            <button
+              type="button"
+              aria-label="undo-remove"
+              className={styles['status-toast-action']}
+              onClick={handleUndoRemove}
+            >
+              元に戻す
+            </button>
+          </div>
+        ) : null}
         {state.submitError ? <div className={styles['status-error']}>{state.submitError}</div> : null}
       </div>
     </section>

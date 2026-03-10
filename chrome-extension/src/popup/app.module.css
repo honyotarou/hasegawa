@@ -640,6 +640,32 @@ body::after {
   font-size: 13px;
 }
 
+.status-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #d8c690;
+  border-radius: 10px;
+  background: #fff6cf;
+  color: #725315;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.status-toast-action {
+  flex: 0 0 auto;
+  border: 1px solid #d7b96e;
+  border-radius: 999px;
+  background: #fffdfa;
+  color: #7a5a18;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .confirm-summary {
   border-top: 1px solid var(--border);
   margin-top: 8px;

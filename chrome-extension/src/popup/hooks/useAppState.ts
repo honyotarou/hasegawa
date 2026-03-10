@@ -13,6 +13,7 @@ type Action =
   | { type: 'SET_PATIENTS'; patients: Patient[]; batchId: string }
   | { type: 'UPDATE_PATIENT'; index: number; patch: Partial<Patient> }
   | { type: 'REMOVE_PATIENT'; index: number }
+  | { type: 'INSERT_PATIENT'; index: number; patient: Patient }
   | { type: 'SET_MODE'; mode: Mode }
   | { type: 'SET_DATE'; date: string }
   | { type: 'SUBMIT_START' }
@@ -64,6 +65,13 @@ function reducer(state: AppState, action: Action): AppState {
         return state;
       }
       const patients = state.patients.filter((_, idx) => idx !== action.index);
+      return { ...state, patients };
+    }
+
+    case 'INSERT_PATIENT': {
+      const index = Math.min(Math.max(action.index, 0), state.patients.length);
+      const patients = [...state.patients];
+      patients.splice(index, 0, action.patient);
       return { ...state, patients };
     }
 
