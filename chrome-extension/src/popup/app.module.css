@@ -37,7 +37,7 @@ body {
   width: 480px;
   min-height: 600px;
   overflow: hidden;
-  background: linear-gradient(180deg, #8a7536 0 152px, #f3efdf 152px 100%);
+  background: linear-gradient(180deg, #8a7536 0 238px, #f3efdf 238px 100%);
   color: var(--text-primary);
 }
 
@@ -45,12 +45,14 @@ body::before {
   content: '';
   position: absolute;
   inset: 0 0 auto;
-  height: 152px;
+  height: 238px;
   background:
-    radial-gradient(circle at 12% 38%, rgba(255, 247, 186, 0.72) 0 34px, rgba(235, 203, 84, 0.62) 35px 50px, transparent 51px),
-    radial-gradient(circle at 30% 26%, rgba(255, 252, 213, 0.78) 0 42px, rgba(237, 207, 92, 0.54) 43px 58px, transparent 59px),
-    radial-gradient(circle at 52% 42%, rgba(255, 246, 171, 0.66) 0 30px, rgba(229, 192, 75, 0.48) 31px 44px, transparent 45px),
-    linear-gradient(132deg, rgba(97, 78, 32, 0.42), rgba(168, 140, 57, 0.18));
+    radial-gradient(circle at 12% 38%, rgba(255, 247, 186, 0.78) 0 36px, rgba(235, 203, 84, 0.68) 37px 52px, transparent 53px),
+    radial-gradient(circle at 28% 28%, rgba(255, 252, 213, 0.8) 0 44px, rgba(237, 207, 92, 0.62) 45px 60px, transparent 61px),
+    radial-gradient(circle at 45% 40%, rgba(255, 246, 171, 0.76) 0 32px, rgba(229, 192, 75, 0.58) 33px 46px, transparent 47px),
+    radial-gradient(circle at 64% 26%, rgba(255, 252, 210, 0.78) 0 46px, rgba(233, 198, 84, 0.6) 47px 62px, transparent 63px),
+    radial-gradient(circle at 82% 40%, rgba(255, 246, 171, 0.74) 0 35px, rgba(228, 191, 70, 0.56) 36px 50px, transparent 51px),
+    linear-gradient(132deg, rgba(97, 78, 32, 0.48), rgba(168, 140, 57, 0.22));
   opacity: 0.96;
   pointer-events: none;
 }
@@ -58,14 +60,14 @@ body::before {
 body::after {
   content: '';
   position: absolute;
-  right: 28px;
-  top: 232px;
-  width: 152px;
-  height: 88px;
+  right: 36px;
+  top: 306px;
+  width: 168px;
+  height: 98px;
   border-radius: 52% 50% 48% 50% / 61% 60% 44% 45%;
   background: radial-gradient(circle at 32% 36%, #fffbd6 0 16%, #f4e26f 58%, #e2c03c 100%);
   box-shadow: 0 16px 28px rgba(92, 71, 30, 0.22);
-  opacity: 0.58;
+  opacity: 0.72;
   pointer-events: none;
   transform: rotate(-8deg);
 }
@@ -81,25 +83,46 @@ body::after {
 
 .header {
   position: relative;
-  min-height: 136px;
+  min-height: 218px;
   background:
     linear-gradient(180deg, rgba(68, 53, 20, 0.2), rgba(68, 53, 20, 0.2)),
     linear-gradient(135deg, #6f5a2a, #8b7435 72%, #9f8740 100%);
   color: #fff;
-  padding: 14px 16px 18px;
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(255, 243, 181, 0.48);
   overflow: hidden;
 }
 
 .header::before {
-  content: none;
+  content: 'LEMON\A CLINIC NOTE';
+  position: absolute;
+  left: 86px;
+  top: 68px;
+  white-space: pre;
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 42px;
+  line-height: 0.92;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 12px 24px rgba(78, 59, 21, 0.34);
+  pointer-events: none;
 }
 
 .header::after {
-  content: none;
+  content: 'daily archive';
+  position: absolute;
+  left: 92px;
+  top: 162px;
+  font-family: 'Zen Old Mincho', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: rgba(255, 246, 195, 0.88);
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
 .header-left {
@@ -107,7 +130,7 @@ body::after {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .header-copy {
@@ -117,26 +140,25 @@ body::after {
 }
 
 .header-kicker {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 247, 204, 0.74);
+  display: none;
 }
 
 .header-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(201, 163, 74, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: 0 0 0 5px rgba(244, 223, 82, 0.2);
 }
 
 .header-title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.96);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 212, 0.94);
 }
 
 .header-right {
@@ -175,14 +197,14 @@ body::after {
 }
 
 .screen > .content {
-  margin-top: -18px;
-  padding: 18px 16px 16px;
+  margin-top: -26px;
+  padding: 22px 16px 14px;
   background: linear-gradient(180deg, rgba(247, 243, 225, 0.98), #f3efdf 42%, #f1ecda 100%);
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
   box-shadow: 0 -10px 32px rgba(109, 87, 39, 0.16);
   position: relative;
-  gap: 14px;
+  gap: 12px;
 }
 
 .screen > .content > * {
